@@ -4,21 +4,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Definir BASE_PATH para el admin (solo si no existe)
-if (!defined('ADMIN_BASE_PATH')) {
-    define('ADMIN_BASE_PATH', '/papelink5k/view/admin/');
-}
-
-// Verificar que sea un empleado logueado
-$empleadoLogueado = $_SESSION['empleado_id'] ?? null;
-$nombreEmpleado = $_SESSION['nombre_empleado'] ?? null;
-$rolEmpleado = $_SESSION['rol_empleado'] ?? null;
-
-// Si no está logueado, redirigir al login del admin
-if (!$empleadoLogueado) {
-    header('Location: ' . ADMIN_BASE_PATH . 'login.php');
+// Verificar que sea admin
+if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
+    header('Location: login.php');
     exit;
 }
+
+// Variables del empleado
+$nombreEmpleado = $_SESSION['nombre_usuario'] ?? 'Administrador';
+$rolEmpleado = $_SESSION['rol_usuario'] ?? 'Empleado';
 
 // Obtener la página actual
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
@@ -28,7 +22,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papelink Admin - <?php echo htmlspecialchars(ucfirst($paginaActual)); ?></title>
+    <title><?php echo $titulo ?? 'Panel Admin'; ?> - Papelink</title>
     
     <style>
         * {
@@ -38,9 +32,9 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f5f7fa;
-            color: #2c3e50;
+            color: #333;
             display: flex;
             min-height: 100vh;
         }
@@ -49,9 +43,9 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            SIDEBAR
            ============================================ */
         
-        .admin-sidebar {
+        .sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            background: linear-gradient(180deg, #2C3E50 0%, #34495e 100%);
             color: white;
             position: fixed;
             height: 100vh;
@@ -62,58 +56,21 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         .sidebar-header {
             padding: 25px 20px;
-            background-color: rgba(0,0,0,0.2);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            background: #FF6347;
+            text-align: center;
+            border-bottom: 3px solid #e5533d;
         }
         
-        .sidebar-logo {
+        .sidebar-header h2 {
             font-size: 24px;
             font-weight: bold;
-            color: #FF6347;
-            text-decoration: none;
-            display: block;
-            text-align: center;
-            padding: 10px;
-            background-color: white;
-            border-radius: 8px;
-            transition: transform 0.3s;
-        }
-        
-        .sidebar-logo:hover {
-            transform: scale(1.05);
-        }
-        
-        .sidebar-user {
-            padding: 20px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .user-avatar {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #FF6347, #ff8c7a);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0 auto 10px;
-            color: white;
-        }
-        
-        .user-name {
-            font-weight: 600;
-            margin-bottom: 5px;
-            font-size: 16px;
-        }
-        
-        .user-role {
-            font-size: 12px;
-            color: #bdc3c7;
-            text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        
+        .sidebar-header p {
+            font-size: 12px;
+            margin-top: 5px;
+            opacity: 0.9;
         }
         
         .sidebar-menu {
@@ -128,137 +85,158 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             padding: 10px 20px;
             font-size: 11px;
             text-transform: uppercase;
-            color: #95a5a6;
             letter-spacing: 1px;
+            color: #95a5a6;
             font-weight: 600;
         }
         
         .menu-item {
             display: flex;
             align-items: center;
-            padding: 12px 20px;
-            color: #ecf0f1;
+            padding: 14px 20px;
+            color: white;
             text-decoration: none;
             transition: all 0.3s;
-            border-left: 3px solid transparent;
+            border-left: 4px solid transparent;
         }
         
         .menu-item:hover {
-            background-color: rgba(255,255,255,0.1);
+            background: rgba(255, 255, 255, 0.1);
             border-left-color: #FF6347;
             padding-left: 25px;
         }
         
         .menu-item.active {
-            background-color: rgba(255,99,71,0.2);
+            background: rgba(255, 99, 71, 0.2);
             border-left-color: #FF6347;
-            color: white;
+            font-weight: 600;
         }
         
-        .menu-item-icon {
-            font-size: 18px;
+        .menu-item i {
             margin-right: 12px;
+            font-size: 18px;
             width: 20px;
             text-align: center;
         }
         
-        .menu-item-text {
+        .sidebar-footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: #FF6347;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .user-details {
             flex: 1;
+        }
+        
+        .user-details strong {
+            display: block;
             font-size: 14px;
         }
         
-        .menu-logout {
-            border-top: 1px solid rgba(255,255,255,0.1);
-            margin-top: 20px;
-            padding-top: 20px;
+        .user-details small {
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        
+        .btn-logout {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #e74c3c;
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .btn-logout:hover {
+            background: #c0392b;
         }
         
         /* ============================================
            MAIN CONTENT
            ============================================ */
         
-        .admin-main {
-            margin-left: 260px;
+        .main-content {
             flex: 1;
+            margin-left: 260px;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
         
-        .admin-header {
-            background-color: white;
+        /* Top Bar */
+        .top-bar {
+            background: white;
             padding: 20px 30px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
             display: flex;
             justify-content: space-between;
             align-items: center;
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 999;
         }
         
-        .page-title {
+        .top-bar h1 {
+            color: #2C3E50;
             font-size: 24px;
-            color: #2c3e50;
-            font-weight: 600;
         }
         
-        .header-actions {
+        .top-bar-actions {
             display: flex;
             gap: 15px;
             align-items: center;
         }
         
-        .btn-header {
-            padding: 8px 16px;
-            background-color: #ecf0f1;
-            color: #2c3e50;
+        .btn-cliente {
+            background: #3498db;
+            color: white;
+            padding: 10px 20px;
             border-radius: 6px;
             text-decoration: none;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: background 0.3s;
         }
         
-        .btn-header:hover {
-            background-color: #bdc3c7;
+        .btn-cliente:hover {
+            background: #2980b9;
         }
         
-        .btn-primary {
-            background-color: #FF6347;
-            color: white;
-        }
-        
-        .btn-primary:hover {
-            background-color: #e5533d;
-        }
-        
-        .admin-content {
-            padding: 30px;
+        /* Contenedor Principal */
+        .contenedor-principal {
             flex: 1;
-        }
-        
-        /* ============================================
-           BREADCRUMBS
-           ============================================ */
-        
-        .breadcrumbs {
-            background-color: white;
-            padding: 15px 30px;
-            border-bottom: 1px solid #ecf0f1;
-            font-size: 14px;
-            color: #7f8c8d;
-        }
-        
-        .breadcrumbs a {
-            color: #FF6347;
-            text-decoration: none;
-        }
-        
-        .breadcrumbs a:hover {
-            text-decoration: underline;
+            padding: 30px;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
         }
         
         /* ============================================
@@ -266,159 +244,169 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            ============================================ */
         
         @media (max-width: 768px) {
-            .admin-sidebar {
-                transform: translateX(-260px);
+            .sidebar {
+                transform: translateX(-100%);
                 transition: transform 0.3s;
             }
             
-            .admin-sidebar.active {
+            .sidebar.active {
                 transform: translateX(0);
             }
             
-            .admin-main {
+            .main-content {
                 margin-left: 0;
             }
             
-            .mobile-menu-toggle {
-                display: block;
-                position: fixed;
-                top: 20px;
-                left: 20px;
-                z-index: 1001;
-                background-color: #2c3e50;
-                color: white;
-                border: none;
-                padding: 10px;
-                border-radius: 6px;
-                cursor: pointer;
+            .contenedor-principal {
+                padding: 15px;
             }
         }
         
-        .mobile-menu-toggle {
-            display: none;
+        /* ============================================
+           UTILIDADES
+           ============================================ */
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .badge-pendiente {
+            background: #FFC107;
+            color: #000;
+        }
+        
+        .badge-proceso {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .badge-completado {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .badge-cancelado {
+            background: #F44336;
+            color: white;
+        }
+        
+        .btn-ver {
+            background: #2C3E50;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.3s;
+            display: inline-block;
+        }
+        
+        .btn-ver:hover {
+            background: #1a252f;
         }
     </style>
 </head>
 <body>
-    <!-- SIDEBAR -->
-    <aside class="admin-sidebar" id="adminSidebar">
-        <!-- Logo -->
+    <!-- Sidebar -->
+    <aside class="sidebar">
         <div class="sidebar-header">
-            <a href="<?php echo ADMIN_BASE_PATH; ?>dashboard.php" class="sidebar-logo">
-                PAPELINK
-            </a>
+            <h2>PAPELINK</h2>
+            <p>Panel Administrativo</p>
         </div>
         
-        <!-- Info del Usuario -->
-        <div class="sidebar-user">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($nombreEmpleado ?? 'A', 0, 1)); ?>
-            </div>
-            <div class="user-name"><?php echo htmlspecialchars($nombreEmpleado ?? 'Empleado'); ?></div>
-            <div class="user-role"><?php echo htmlspecialchars($rolEmpleado ?? 'Staff'); ?></div>
-        </div>
-        
-        <!-- Menú -->
         <nav class="sidebar-menu">
             <!-- Sección Principal -->
             <div class="menu-section">
                 <div class="menu-section-title">Principal</div>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>dashboard.php" 
-                   class="menu-item <?php echo $paginaActual == 'dashboard' ? 'active' : ''; ?>">
-                    <span class="menu-item-icon"></span>
-                    <span class="menu-item-text">Dashboard</span>
-                </a>
-            </div>
-            
-            <!-- Sección Gestión -->
-            <div class="menu-section">
-                <div class="menu-section-title">Gestión</div>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>productos.php" 
-                   class="menu-item <?php echo $paginaActual == 'productos' ? 'active' : ''; ?>">
-                    <span class="menu-item-icon">📦</span>
-                    <span class="menu-item-text">Productos</span>
-                </a>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>categorias.php" 
-                   class="menu-item <?php echo $paginaActual == 'categorias' ? 'active' : ''; ?>">
-                    <span class="menu-item-text">Categorías</span>
-                </a>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>marcas.php" 
-                   class="menu-item <?php echo $paginaActual == 'marcas' ? 'active' : ''; ?>">
-                    <span class="menu-item-text">Marcas</span>
+                <a href="dashboard.php" class="menu-item <?php echo $paginaActual == 'dashboard' ? 'active' : ''; ?>">
+                    <i></i> Dashboard
                 </a>
             </div>
             
             <!-- Sección Ventas -->
             <div class="menu-section">
                 <div class="menu-section-title">Ventas</div>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>pedidos.php" 
-                   class="menu-item <?php echo $paginaActual == 'pedidos' ? 'active' : ''; ?>">
-                    <span class="menu-item-text">Pedidos</span>
+                <a href="pedidos.php" class="menu-item <?php echo $paginaActual == 'pedidos' ? 'active' : ''; ?>">
+                    <i></i> Pedidos
                 </a>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>clientes.php" 
-                   class="menu-item <?php echo $paginaActual == 'clientes' ? 'active' : ''; ?>">
-                    <span class="menu-item-text">Clientes</span>
+                <a href="envios.php" class="menu-item <?php echo $paginaActual == 'envios' ? 'active' : ''; ?>">
+                    <i></i> Envíos
+                </a>
+                <a href="devoluciones.php" class="menu-item <?php echo $paginaActual == 'devoluciones' ? 'active' : ''; ?>">
+                    <i></i> Devoluciones
                 </a>
             </div>
             
-            <!-- Sección Sistema -->
+            <!-- Sección Inventario -->
             <div class="menu-section">
-                <div class="menu-section-title">Sistema</div>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>usuarios.php" 
-                   class="menu-item <?php echo $paginaActual == 'usuarios' ? 'active' : ''; ?>">
-                    <span class="menu-item-text">Usuarios</span>
+                <div class="menu-section-title">Inventario</div>
+                <a href="productos.php" class="menu-item <?php echo $paginaActual == 'productos' ? 'active' : ''; ?>">
+                    <i></i> Productos
                 </a>
-                <a href="<?php echo ADMIN_BASE_PATH; ?>reportes.php" 
-                   class="menu-item <?php echo $paginaActual == 'reportes' ? 'active' : ''; ?>">
-                    <span class="menu-item-text">Reportes</span>
+                <a href="inventario.php" class="menu-item <?php echo $paginaActual == 'inventario' ? 'active' : ''; ?>">
+                    <i></i> Inventario
+                </a>
+                <a href="categorias.php" class="menu-item <?php echo $paginaActual == 'categorias' ? 'active' : ''; ?>">
+                    <i></i> Categorías
+                </a>
+                <a href="marcas.php" class="menu-item <?php echo $paginaActual == 'marcas' ? 'active' : ''; ?>">
+                    <i></i> Marcas
                 </a>
             </div>
             
-            <!-- Logout -->
-            <div class="menu-logout">
-                <a href="../../controllers/AuthController.php?action=logout_admin" class="menu-item">
-                    <span class="menu-item-text">Cerrar Sesión</span>
+            <!-- Sección Clientes -->
+            <div class="menu-section">
+                <div class="menu-section-title">Clientes</div>
+                <a href="clientes.php" class="menu-item <?php echo $paginaActual == 'clientes' ? 'active' : ''; ?>">
+                    <i></i> Clientes
+                </a>
+            </div>
+            
+            <!-- Sección Proveedores -->
+            <div class="menu-section">
+                <div class="menu-section-title">Compras</div>
+                <a href="proveedores.php" class="menu-item <?php echo $paginaActual == 'proveedores' ? 'active' : ''; ?>">
+                    <i></i> Proveedores
+                </a>
+            </div>
+            
+            <!-- Sección Reportes -->
+            <div class="menu-section">
+                <div class="menu-section-title">Reportes</div>
+                <a href="reportes.php" class="menu-item <?php echo $paginaActual == 'reportes' ? 'active' : ''; ?>">
+                    <i></i> Reportes
                 </a>
             </div>
         </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <?php echo strtoupper(substr($nombreEmpleado, 0, 1)); ?>
+                </div>
+                <div class="user-details">
+                    <strong><?php echo htmlspecialchars($nombreEmpleado); ?></strong>
+                    <small><?php echo htmlspecialchars($rolEmpleado); ?></small>
+                </div>
+            </div>
+            <a href="../../controllers/AuthController.php?action=logout" class="btn-logout">
+                Cerrar Sesión
+            </a>
+        </div>
     </aside>
     
-    <!-- MAIN CONTENT -->
-    <main class="admin-main">
-        <!-- Header superior -->
-        <header class="admin-header">
-            <h1 class="page-title">
-                <?php 
-                $titulos = [
-                    'dashboard' => 'Dashboard Principal',
-                    'productos' => ' Gestión de Productos',
-                    'categorias' => ' Gestión de Categorías',
-                    'marcas' => ' Gestión de Marcas',
-                    'pedidos' => ' Gestión de Pedidos',
-                    'clientes' => ' Gestión de Clientes',
-                    'usuarios' => ' Gestión de Usuarios',
-                    'reportes' => ' Reportes y Estadísticas'
-                ];
-                echo $titulos[$paginaActual] ?? ucfirst($paginaActual);
-                ?>
-            </h1>
-            
-            <div class="header-actions">
-                <a href="../cliente/index.php" class="btn-header" target="_blank">
-                     Ver Tienda
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <h1><?php echo $titulo ?? 'Panel Administrativo'; ?></h1>
+            <div class="top-bar-actions">
+                <a href="../cliente/index.php" class="btn-cliente" target="_blank">
+                    Ver Tienda
                 </a>
-                <span class="btn-header">
-                    <?php echo date('d/m/Y'); ?>
-                </span>
             </div>
-        </header>
-        
-        <!-- Breadcrumbs -->
-        <div class="breadcrumbs">
-            <a href="<?php echo ADMIN_BASE_PATH; ?>dashboard.php">Inicio</a>
-            <span> / </span>
-            <span><?php echo ucfirst($paginaActual); ?></span>
         </div>
-        
-        <!-- Contenido de la página -->
-        <div class="admin-content">
