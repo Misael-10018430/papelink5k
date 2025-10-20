@@ -4,8 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Definir la ruta base
-define('BASE_PATH', '/papelink5k/view/cliente/');
+if (!defined('BASE_PATH')) {
+    define('BASE_PATH', '/papelink5k/view/cliente/');
+}
 // Variables del cliente
 $clienteLogueado = $_SESSION['cliente_id'] ?? null;
 $nombreCliente = $_SESSION['nombre_cliente'] ?? null;
