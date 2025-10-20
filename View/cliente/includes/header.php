@@ -338,7 +338,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         <!-- Iconos de usuario y carrito -->
         <div class="header-icons">
-            <a href="<?php echo $clienteLogueado ? 'mi_cuenta.php' : 'login.php'; ?>" class="user-icon">👤</a>
+            <a href="<?php echo $clienteLogueado ? 'mis_pedidos.php' : 'login.php'; ?>" class="user-icon">👤</a>
             <a href="carrito.php" class="cart-icon">
                 🛒 <span class="cart-count" id="carritoBadge" style="display: none;">0</span>
             </a>
