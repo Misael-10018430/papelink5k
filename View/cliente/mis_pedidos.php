@@ -292,7 +292,7 @@ include_once __DIR__ . '/includes/header.php';
 
 <!-- Título de la sección -->
 <div class="titulo-seccion">
-    <h1>📋 Mis Pedidos</h1>
+    <h1>Mis Pedidos</h1>
     <p>Historial completo de todos tus pedidos realizados en Papelink</p>
 </div>
 
@@ -404,7 +404,7 @@ include_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="pedido-acciones">
-                        <a href="pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
+                        <a href="pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
                             Ver Detalle
                         </a>
                         
