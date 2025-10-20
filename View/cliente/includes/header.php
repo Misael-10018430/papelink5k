@@ -4,6 +4,9 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
+// Definir la ruta base
+define('BASE_PATH', '/papelink5k/view/cliente/');
+
 // Variables del cliente
 $clienteLogueado = $_SESSION['cliente_id'] ?? null;
 $nombreCliente = $_SESSION['nombre_cliente'] ?? null;
@@ -16,7 +19,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Papelink - <?php echo ucfirst($paginaActual); ?></title>
+    <title>Papelink - <?php echo htmlspecialchars(ucfirst($paginaActual)); ?></title>
     
     <style>
         * {
@@ -27,7 +30,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background-color: #1a1a1a;
+            background-color: #f5f5f5;
             color: #333;
         }
         
@@ -37,7 +40,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         .main-header {
             background-color: #2C3E50;
-            padding:20px 30px;
+            padding: 20px 30px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -66,10 +69,10 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .menu-toggle span {
             width: 28px;
             height: 3px;
-            background-color: white;  /* Blanco para que se vea */
+            background-color: white;
             border-radius: 2px;
             transition: all 0.3s;
-            display: block;  /* IMPORTANTE */
+            display: block;
         }
         
         /* Logo */
@@ -199,18 +202,18 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .side-menu {
             position: fixed;
             top: 0;
-            left: -320px;  /* OCULTO por defecto */
+            left: -320px;
             width: 300px;
             height: 100vh;
             background-color: #ffffff;
             transition: left 0.3s ease;
-            z-index: 2000;  /* Por encima del header */
+            z-index: 2000;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
             overflow-y: auto;
         }
         
         .side-menu.active {
-            left: 0;  /* Visible cuando está activo */
+            left: 0;
         }
         
         .menu-header {
@@ -242,7 +245,6 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             transform: rotate(90deg);
         }
         
-        /* Lista del menú */
         .side-menu ul {
             list-style: none;
             padding: 0;
@@ -273,7 +275,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            ============================================ */
         
         .menu-overlay {
-            display: none;  /* OCULTO por defecto */
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
@@ -316,30 +318,26 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 <body>
     <!-- HEADER -->
     <header class="main-header">
-        <!-- Menú hamburguesa -->
         <div class="menu-toggle" id="menuToggle">
             <span></span>
             <span></span>
             <span></span>
         </div>
         
-        <!-- Logo -->
         <div class="logo">
-            <a href="index.php">PAPELINK</a>
+            <a href="<?php echo BASE_PATH; ?>index.php">PAPELINK</a>
         </div>
         
-        <!-- Barra de búsqueda -->
         <div class="search-bar">
-            <form method="GET" action="productos.php" style="display: flex; gap: 10px; width: 100%;">
-                <input type="text" name="busqueda" placeholder="Buscar productos..." value="<?php echo $_GET['busqueda'] ?? ''; ?>">
+            <form method="GET" action="<?php echo BASE_PATH; ?>productos.php" style="display: flex; gap: 10px; width: 100%;">
+                <input type="text" name="busqueda" placeholder="Buscar productos..." value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>">
                 <button type="submit">Buscar</button>
             </form>
         </div>
         
-        <!-- Iconos de usuario y carrito -->
         <div class="header-icons">
-            <a href="<?php echo $clienteLogueado ? 'mis_pedidos.php' : 'login.php'; ?>" class="user-icon">👤</a>
-            <a href="carrito.php" class="cart-icon">
+            <a href="<?php echo $clienteLogueado ? BASE_PATH . 'mi_cuenta.php' : BASE_PATH . 'login.php'; ?>" class="user-icon">👤</a>
+            <a href="<?php echo BASE_PATH; ?>carrito.php" class="cart-icon">
                 🛒 <span class="cart-count" id="carritoBadge" style="display: none;">0</span>
             </a>
         </div>
@@ -348,42 +346,82 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
     <!-- NAVEGACIÓN SECUNDARIA -->
     <nav class="nav-secundaria">
         <div class="nav-secundaria-container">
-            <a href="index.php" class="<?php echo $paginaActual == 'index' ? 'activo' : ''; ?>">
+            <a href="<?php echo BASE_PATH; ?>index.php" class="<?php echo $paginaActual == 'index' ? 'activo' : ''; ?>">
                 🏠 Inicio
             </a>
-            <a href="productos.php" class="<?php echo $paginaActual == 'productos' ? 'activo' : ''; ?>">
+            <a href="<?php echo BASE_PATH; ?>productos.php" class="<?php echo $paginaActual == 'productos' ? 'activo' : ''; ?>">
                 📦 Todos los productos
             </a>
-            <a href="categorias.php?ver=categorias">
+            <a href="<?php echo BASE_PATH; ?>categorias.php">
                 📁 Categorías
             </a>
-            <a href="marcas.php?ver=marcas">
+            <a href="<?php echo BASE_PATH; ?>marcas.php">
                 🏷️ Marcas
             </a>
         </div>
     </nav>
-    <!-- MENÚ LATERAL (FUERA DEL FLUJO) -->
+    
+    <!-- MENÚ LATERAL -->
+    <div class="menu-overlay" id="menuOverlay"></div>
     <nav class="side-menu" id="sideMenu">
         <div class="menu-header">
             <h3>MENÚ</h3>
             <span class="close-menu" id="closeMenu">✕</span>
         </div>
         <ul>
-            <li><a href="index.php">Inicio</a></li>
-            <li><a href="productos.php">Productos</a></li>
-            <li><a href="categorias.php?ver=categorias">Categorías</a></li>
-            <li><a href="marcas.php?ver=marcas">Marcas</a></li>
-            <li><a href="carrito.php">Mi Carrito</a></li>
+            <li><a href="<?php echo BASE_PATH; ?>index.php">Inicio</a></li>
+            <li><a href="<?php echo BASE_PATH; ?>productos.php">Productos</a></li>
+            <li><a href="<?php echo BASE_PATH; ?>categorias.php">Categorías</a></li>
+            <li><a href="<?php echo BASE_PATH; ?>marcas.php">Marcas</a></li>
+            <li><a href="<?php echo BASE_PATH; ?>carrito.php">Mi Carrito</a></li>
             <?php if ($clienteLogueado): ?>
-                <li><a href="mis_pedidos.php">Mis Pedidos</a></li>
-                <li><a href="mi_cuenta.php">Mi Cuenta</a></li>
-                <li><a href="#" onclick="confirmarCerrarSesion(); return false;">Cerrar Sesión</a></li>
+                <li><a href="<?php echo BASE_PATH; ?>mis_pedidos.php">Mis Pedidos</a></li>
+                <li><a href="<?php echo BASE_PATH; ?>mi_cuenta.php">Mi Cuenta</a></li>
+                <li><a href="../../controllers/AuthController.php?action=logout">Cerrar Sesión</a></li>
             <?php else: ?>
-                <li><a href="login.php">Iniciar Sesión</a></li>
+                <li><a href="<?php echo BASE_PATH; ?>login.php">Iniciar Sesión</a></li>
             <?php endif; ?>
-            <li><a href="contacto.php">Contacto</a></li>
         </ul>
     </nav>
     
-    <!-- SCRIPT DEL MENÚ -->
-    <script src="../../assets/js/menu.js"></script>
+    <script>
+        // Menú lateral
+        const menuToggle = document.getElementById('menuToggle');
+        const sideMenu = document.getElementById('sideMenu');
+        const closeMenu = document.getElementById('closeMenu');
+        const menuOverlay = document.getElementById('menuOverlay');
+
+        menuToggle.addEventListener('click', () => {
+            sideMenu.classList.add('active');
+            menuOverlay.classList.add('active');
+        });
+
+        closeMenu.addEventListener('click', () => {
+            sideMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+        });
+
+        menuOverlay.addEventListener('click', () => {
+            sideMenu.classList.remove('active');
+            menuOverlay.classList.remove('active');
+        });
+
+        // Actualizar contador del carrito
+        <?php if ($clienteLogueado): ?>
+        function actualizarContadorCarrito() {
+            fetch('../../controllers/CarritoController.php?action=contar')
+                .then(response => response.json())
+                .then(data => {
+                    const badge = document.getElementById('carritoBadge');
+                    if (badge && data.cantidad > 0) {
+                        badge.textContent = data.cantidad;
+                        badge.style.display = 'block';
+                    }
+                })
+                .catch(error => console.log('Error:', error));
+        }
+        actualizarContadorCarrito();
+        <?php endif; ?>
+    </script>
+</body>
+</html>
