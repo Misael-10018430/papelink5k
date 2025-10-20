@@ -404,7 +404,7 @@ include_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="pedido-acciones">
-                        <a href="pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
+                        <a href="Pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
                             Ver Detalle
                         </a>
                         
