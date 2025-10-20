@@ -10,60 +10,16 @@ class Usuario {
     }
     
     /**
-     * Login de empleado (Admin)
+     * Login de empleado (Admin) - SIN HASH
      */
     public function loginEmpleado($email, $password) {
-    try {
-        if (!$this->conn) {
-            return ['error' => 'No hay conexión a la base de datos'];
-        }
-        
-        $passwordHash = hash('sha256', $password);
-        
-        // Intentar con sintaxis diferente
-        $sql = "EXEC sp_LoginEmpleado '" . $email . "', '" . $passwordHash . "'";
-        $stmt = $this->conn->prepare($sql);
-        
-        if (!$stmt->execute()) {
-            return ['error' => 'Credenciales inválidas o cuenta inactiva'];
-        }
-        
-        $empleado = $stmt->fetch(PDO::FETCH_ASSOC);
-        
-        if ($empleado) {
-            return [
-                'success' => true,
-                'usuario' => [
-                    'id' => $empleado['IdEmpleado'],
-                    'nombre' => $empleado['NombreCompleto'],
-                    'email' => $empleado['Email'],
-                    'usuario' => $empleado['Usuario'],
-                    'rol' => $empleado['Roles'] ?? 'Empleado',
-                    'nivel_acceso' => 1,
-                    'tipo' => 'empleado'
-                ]
-            ];
-        } else {
-            return ['error' => 'Credenciales incorrectas'];
-        }
-        
-    } catch (PDOException $e) {
-        return ['error' => 'Error: ' . $e->getMessage()];
-    }
-}
-    
-    /**
-     * Login de cliente
-     */
-    public function loginCliente($email, $password) {
         try {
             if (!$this->conn) {
                 return ['error' => 'No hay conexión a la base de datos'];
             }
             
-            $passwordHash = hash('sha256', $password);
-            
-            $sql = "EXEC sp_LoginCliente @Email = ?, @ContraseñaHash = ?";
+            // ⬅️ YA NO SE USA HASH
+            $sql = "EXEC sp_LoginEmpleado @Email = ?, @Contraseña = ?";
             $stmt = $this->conn->prepare($sql);
             
             if (!$stmt) {
@@ -71,7 +27,55 @@ class Usuario {
             }
             
             $stmt->bindParam(1, $email, PDO::PARAM_STR);
-            $stmt->bindParam(2, $passwordHash, PDO::PARAM_STR);
+            $stmt->bindParam(2, $password, PDO::PARAM_STR);  // ⬅️ Directo sin hash
+            
+            if (!$stmt->execute()) {
+                return ['error' => 'Credenciales inválidas o cuenta inactiva'];
+            }
+            
+            $empleado = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($empleado) {
+                return [
+                    'success' => true,
+                    'usuario' => [
+                        'id' => $empleado['IdEmpleado'],
+                        'nombre' => $empleado['NombreCompleto'],
+                        'email' => $empleado['Email'],
+                        'usuario' => $empleado['Usuario'],
+                        'rol' => $empleado['Roles'] ?? 'Empleado',
+                        'nivel_acceso' => 1,
+                        'tipo' => 'empleado'
+                    ]
+                ];
+            } else {
+                return ['error' => 'Credenciales incorrectas'];
+            }
+            
+        } catch (PDOException $e) {
+            return ['error' => 'Error: ' . $e->getMessage()];
+        }
+    }
+    
+    /**
+     * Login de cliente - SIN HASH
+     */
+    public function loginCliente($email, $password) {
+        try {
+            if (!$this->conn) {
+                return ['error' => 'No hay conexión a la base de datos'];
+            }
+            
+            // ⬅️ YA NO SE USA HASH
+            $sql = "EXEC sp_LoginCliente @Email = ?, @Contraseña = ?";
+            $stmt = $this->conn->prepare($sql);
+            
+            if (!$stmt) {
+                return ['error' => 'Error al preparar la consulta'];
+            }
+            
+            $stmt->bindParam(1, $email, PDO::PARAM_STR);
+            $stmt->bindParam(2, $password, PDO::PARAM_STR);  // ⬅️ Directo sin hash
             
             if (!$stmt->execute()) {
                 return ['error' => 'Email o contraseña incorrectos'];
@@ -104,7 +108,7 @@ class Usuario {
     }
     
     /**
-     * Registrar nuevo cliente
+     * Registrar nuevo cliente - SIN HASH
      */
     public function registrarCliente($datos) {
         try {
@@ -112,8 +116,7 @@ class Usuario {
                 return ['error' => 'No hay conexión a la base de datos'];
             }
             
-            $passwordHash = hash('sha256', $datos['password']);
-            
+            // ⬅️ YA NO SE USA HASH
             $sql = "EXEC sp_RegistrarCliente 
                     @NombreCliente = ?,
                     @Email = ?,
@@ -137,7 +140,7 @@ class Usuario {
             $stmt->bindParam(2, $datos['email'], PDO::PARAM_STR);
             $stmt->bindParam(3, $datos['telefono'], PDO::PARAM_STR);
             $stmt->bindParam(4, $direccion, PDO::PARAM_STR);
-            $stmt->bindParam(5, $passwordHash, PDO::PARAM_STR);
+            $stmt->bindParam(5, $datos['password'], PDO::PARAM_STR);  // ⬅️ Directo sin hash
             $stmt->bindParam(6, $idTipoCliente, PDO::PARAM_INT);
             $stmt->bindParam(7, $canalCliente, PDO::PARAM_STR);
             
