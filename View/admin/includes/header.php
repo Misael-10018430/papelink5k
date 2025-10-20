@@ -12,6 +12,7 @@ if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado')
 
 // Variables del empleado
 $nombreEmpleado = $_SESSION['nombre_usuario'] ?? 'Administrador';
+$emailEmpleado = $_SESSION['email_usuario'] ?? '';
 $rolEmpleado = $_SESSION['rol_usuario'] ?? 'Empleado';
 
 // Obtener la página actual
@@ -45,8 +46,8 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            SIDEBAR
            ============================================ */
         .sidebar {
-            width: 260px;
-            background-color: #2C3E50;
+            width: 220px;
+            background-color: #34495e;
             color: white;
             position: fixed;
             height: 100vh;
@@ -56,67 +57,67 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         .logo-admin {
             background-color: #FF6347;
-            padding: 20px;
+            padding: 25px 20px;
             text-align: center;
-            border-bottom: 3px solid #e5533d;
         }
         
         .logo-admin h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
             letter-spacing: 2px;
             font-weight: bold;
+            color: white;
         }
         
         .logo-admin p {
-            margin: 5px 0 0 0;
-            font-size: 12px;
-            opacity: 0.9;
+            margin: 8px 0 0 0;
+            font-size: 11px;
+            color: rgba(255,255,255,0.9);
+            font-weight: normal;
         }
         
         /* Menú */
         .menu-admin {
-            padding: 20px 0;
+            padding: 25px 0;
         }
         
         .menu-admin a {
             display: block;
-            padding: 14px 20px;
+            padding: 14px 25px;
             color: white;
             text-decoration: none;
             transition: all 0.3s;
-            border-left: 4px solid transparent;
-            font-size: 15px;
+            border-left: 3px solid transparent;
+            font-size: 14px;
         }
         
         .menu-admin a:hover {
             background-color: rgba(255, 255, 255, 0.1);
             border-left-color: #FF6347;
-            padding-left: 25px;
         }
         
         .menu-admin a.activo {
-            background-color: rgba(255, 99, 71, 0.2);
+            background-color: rgba(255, 99, 71, 0.15);
             border-left-color: #FF6347;
             font-weight: bold;
         }
         
         .menu-seccion {
-            margin: 25px 0;
+            margin: 30px 0 15px 0;
         }
         
         .menu-seccion h3 {
-            padding: 10px 20px;
-            font-size: 11px;
+            padding: 8px 25px;
+            font-size: 10px;
             text-transform: uppercase;
             color: #95a5a6;
-            margin: 0 0 10px 0;
+            margin: 0;
             letter-spacing: 1px;
             font-weight: 600;
         }
         
-        /* Usuario */
-        .user-admin {
+        /* Usuario en Sidebar */
+        .user-admin-sidebar {
             position: absolute;
             bottom: 0;
             width: 100%;
@@ -125,41 +126,17 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             border-top: 1px solid rgba(255,255,255,0.1);
         }
         
-        .avatar-admin {
-            width: 45px;
-            height: 45px;
-            background-color: #FF6347;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-            margin-right: 12px;
-            vertical-align: middle;
-        }
-        
-        .user-admin strong {
-            font-size: 14px;
-        }
-        
-        .user-admin small {
-            font-size: 12px;
-            opacity: 0.8;
-        }
-        
         .btn-cerrar-sesion {
             display: block;
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             background-color: #e74c3c;
             color: white;
             text-align: center;
             text-decoration: none;
-            border-radius: 6px;
-            margin-top: 15px;
+            border-radius: 4px;
             font-size: 13px;
-            font-weight: bold;
+            font-weight: 600;
             transition: background 0.3s;
         }
         
@@ -171,22 +148,51 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            CONTENIDO PRINCIPAL
            ============================================ */
         .contenido-admin {
-            margin-left: 260px;
-            padding: 30px;
+            margin-left: 220px;
             flex: 1;
             min-height: 100vh;
-            width: calc(100% - 260px);
+            width: calc(100% - 220px);
+        }
+        
+        /* Header Superior con datos del usuario */
+        .top-bar {
+            background-color: white;
+            padding: 15px 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .user-info-top {
+            text-align: right;
+        }
+        
+        .user-info-top strong {
+            display: block;
+            color: #2C3E50;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+        
+        .user-info-top span {
+            display: block;
+            color: #7f8c8d;
+            font-size: 12px;
+        }
+        
+        .contenedor-principal {
+            padding: 0 30px 30px 30px;
+            max-width: 1400px;
+            margin: 0 auto;
         }
         
         .titulo-pagina {
             color: #2C3E50;
             margin-bottom: 25px;
-            font-size: 28px;
-        }
-        
-        .contenedor-principal {
-            max-width: 1400px;
-            margin: 0 auto;
+            font-size: 26px;
+            font-weight: normal;
         }
         
         /* ============================================
@@ -195,19 +201,21 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .mensaje-exito {
             background-color: #d4edda;
             color: #155724;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: 4px;
             margin-bottom: 20px;
-            border-left: 4px solid #28a745;
+            border-left: 3px solid #28a745;
+            font-size: 14px;
         }
         
         .mensaje-error {
             background-color: #f8d7da;
             color: #721c24;
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 14px 18px;
+            border-radius: 4px;
             margin-bottom: 20px;
-            border-left: 4px solid #dc3545;
+            border-left: 3px solid #dc3545;
+            font-size: 14px;
         }
         
         /* ============================================
@@ -216,21 +224,24 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .tarjeta {
             background-color: white;
             padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
         }
         
         .tarjeta h2 {
             color: #2C3E50;
             margin-bottom: 20px;
-            font-size: 22px;
+            font-size: 20px;
+            font-weight: 600;
         }
         
         .tarjeta h3 {
             color: #2C3E50;
             margin-bottom: 15px;
-            font-size: 18px;
+            font-size: 16px;
+            font-weight: 600;
         }
         
         .grid {
@@ -254,26 +265,27 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            FORMULARIOS
            ============================================ */
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 8px;
-            color: #333;
+            margin-bottom: 7px;
+            color: #2C3E50;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .form-group input,
         .form-group select,
         .form-group textarea {
             width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
             font-size: 14px;
             font-family: Arial, Helvetica, sans-serif;
+            transition: border-color 0.3s;
         }
         
         .form-group input:focus,
@@ -291,7 +303,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .form-group small {
             display: block;
             margin-top: 5px;
-            color: #666;
+            color: #7f8c8d;
             font-size: 12px;
         }
         
@@ -300,11 +312,11 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            ============================================ */
         .btn {
             display: inline-block;
-            padding: 12px 24px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 4px;
             text-decoration: none;
-            font-weight: bold;
-            font-size: 14px;
+            font-weight: 600;
+            font-size: 13px;
             cursor: pointer;
             transition: all 0.3s;
             border: none;
@@ -323,7 +335,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .btn-blanco {
             background-color: white;
             color: #333;
-            border: 2px solid #ddd;
+            border: 1px solid #ddd;
         }
         
         .btn-blanco:hover {
@@ -364,22 +376,23 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .tabla {
             width: 100%;
             background-color: white;
-            border-radius: 10px;
+            border-radius: 6px;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             border-collapse: collapse;
+            border: 1px solid #e0e0e0;
         }
         
         .tabla thead {
-            background-color: #2C3E50;
+            background-color: #34495e;
             color: white;
         }
         
         .tabla th {
-            padding: 15px;
+            padding: 14px;
             text-align: left;
             font-weight: 600;
-            font-size: 14px;
+            font-size: 13px;
         }
         
         .tabla tbody tr {
@@ -392,8 +405,8 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         }
         
         .tabla td {
-            padding: 15px;
-            font-size: 14px;
+            padding: 14px;
+            font-size: 13px;
         }
         
         /* ============================================
@@ -401,31 +414,35 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
            ============================================ */
         .badge {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 5px 12px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 600;
             text-transform: uppercase;
         }
         
         .badge-verde {
             background-color: #d4edda;
             color: #155724;
+            border: 1px solid #c3e6cb;
         }
         
         .badge-rojo {
             background-color: #f8d7da;
             color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .badge-amarillo {
             background-color: #fff3cd;
             color: #856404;
+            border: 1px solid #ffeaa7;
         }
         
         .badge-azul {
             background-color: #d1ecf1;
             color: #0c5460;
+            border: 1px solid #bee5eb;
         }
         
         /* ============================================
@@ -434,9 +451,10 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .filtros {
             background-color: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 6px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
         }
         
         /* ============================================
@@ -449,36 +467,41 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         }
         
         /* ============================================
-           MÉTRICAS
+           MÉTRICAS - DISEÑO SIMPLE CON BORDE NARANJA
            ============================================ */
         .tarjeta-metrica {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background-color: white;
+            border: 2px solid #FF6347;
+            color: #2C3E50;
             padding: 25px;
-            border-radius: 10px;
+            border-radius: 6px;
             text-align: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
         }
         
         .tarjeta-metrica h3 {
             font-size: 32px;
-            margin-bottom: 10px;
-            color: white;
+            margin-bottom: 8px;
+            color: #FF6347;
+            font-weight: bold;
         }
         
         .tarjeta-metrica p {
-            font-size: 14px;
-            opacity: 0.9;
+            font-size: 13px;
+            color: #7f8c8d;
+            margin: 0;
+            font-weight: normal;
         }
         
         /* ============================================
            ALERTAS
            ============================================ */
         .alerta {
-            padding: 15px;
-            border-radius: 8px;
+            padding: 14px;
+            border-radius: 4px;
             margin-bottom: 15px;
-            border-left: 4px solid;
+            border-left: 3px solid;
+            font-size: 13px;
         }
         
         .alerta-verde {
@@ -520,8 +543,15 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             
             .contenido-admin {
                 margin-left: 0;
-                padding: 15px;
                 width: 100%;
+            }
+            
+            .contenedor-principal {
+                padding: 0 15px 15px 15px;
+            }
+            
+            .top-bar {
+                padding: 12px 15px;
             }
             
             .grid-2,
@@ -551,62 +581,65 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         <nav class="menu-admin">
             <a href="dashboard.php" class="<?php echo $paginaActual == 'dashboard' ? 'activo' : ''; ?>">
-                📊 Dashboard
+                Dashboard
             </a>
             
             <div class="menu-seccion">
                 <h3>Ventas</h3>
                 <a href="pedidos.php" class="<?php echo $paginaActual == 'pedidos' || $paginaActual == 'pedido_detalle' ? 'activo' : ''; ?>">
-                    📋 Pedidos
+                    Pedidos
                 </a>
                 <a href="envios.php" class="<?php echo $paginaActual == 'envios' || $paginaActual == 'envio_detalle' ? 'activo' : ''; ?>">
-                    🚚 Envíos
+                    Envíos
                 </a>
                 <a href="devoluciones.php" class="<?php echo $paginaActual == 'devoluciones' || $paginaActual == 'devolucion_detalle' ? 'activo' : ''; ?>">
-                    🔄 Devoluciones
+                    Devoluciones
                 </a>
             </div>
             
             <div class="menu-seccion">
                 <h3>Inventario</h3>
                 <a href="productos.php" class="<?php echo $paginaActual == 'productos' ? 'activo' : ''; ?>">
-                    📦 Productos
+                    Productos
                 </a>
                 <a href="inventario.php" class="<?php echo $paginaActual == 'inventario' ? 'activo' : ''; ?>">
-                    📊 Inventario
+                    Inventario
                 </a>
                 <a href="categorias.php" class="<?php echo $paginaActual == 'categorias' ? 'activo' : ''; ?>">
-                    📁 Categorías
+                    Categorías
                 </a>
                 <a href="marcas.php" class="<?php echo $paginaActual == 'marcas' ? 'activo' : ''; ?>">
-                    🏷️ Marcas
+                    Marcas
                 </a>
             </div>
             
             <div class="menu-seccion">
                 <h3>Gestión</h3>
                 <a href="clientes.php" class="<?php echo $paginaActual == 'clientes' ? 'activo' : ''; ?>">
-                    👥 Clientes
+                    Clientes
                 </a>
                 <a href="proveedores.php" class="<?php echo $paginaActual == 'proveedores' ? 'activo' : ''; ?>">
-                    🏢 Proveedores
+                    Proveedores
                 </a>
             </div>
         </nav>
         
-        <div class="user-admin">
-            <div class="avatar-admin">
-                <?php echo strtoupper(substr($nombreEmpleado, 0, 1)); ?>
-            </div>
-            <div style="display: inline-block; vertical-align: middle;">
-                <strong><?php echo htmlspecialchars($nombreEmpleado); ?></strong><br>
-                <small><?php echo htmlspecialchars($rolEmpleado); ?></small>
-            </div>
+        <div class="user-admin-sidebar">
             <a href="../../controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
-                🚪 Cerrar Sesión
+                Cerrar Sesión
             </a>
         </div>
     </aside>
     
     <!-- CONTENIDO PRINCIPAL -->
     <main class="contenido-admin">
+        <!-- Top Bar con Información del Usuario -->
+        <div class="top-bar">
+            <div></div>
+            <div class="user-info-top">
+                <strong><?php echo htmlspecialchars($nombreEmpleado); ?></strong>
+                <span><?php echo htmlspecialchars($emailEmpleado); ?> | <?php echo htmlspecialchars($rolEmpleado); ?></span>
+            </div>
+        </div>
+        
+        <div class="contenedor-principal">
