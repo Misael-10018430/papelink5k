@@ -218,7 +218,7 @@ include __DIR__ . '/includes/header.php';
 
             <!-- Timeline del Envío -->
             <div class="card" style="margin-top: 25px;">
-                <h2>🕐 Historial de Estados</h2>
+                <h2>Historial de Estados</h2>
                 <div class="timeline">
                     <div class="timeline-item completado">
                         <strong>Pedido Creado</strong><br>
@@ -248,7 +248,7 @@ include __DIR__ . '/includes/header.php';
         <div>
             <!-- Estado Actual -->
             <div class="card">
-                <h2>📊 Estado Actual</h2>
+                <h2>Estado Actual</h2>
                 <div style="text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px;">
                     <?php
                     $badgeClass = '';

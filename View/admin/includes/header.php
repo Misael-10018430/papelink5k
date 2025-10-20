@@ -25,6 +25,9 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
     <title><?php echo $titulo ?? 'Panel Admin'; ?> - Papelink</title>
     
     <style>
+        /* ============================================
+           RESET Y BASE
+           ============================================ */
         * {
             margin: 0;
             padding: 0;
@@ -32,9 +35,8 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         }
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f7fa;
-            color: #333;
+            font-family: Arial, Helvetica, sans-serif;
+            background-color: #f5f5f5;
             display: flex;
             min-height: 100vh;
         }
@@ -42,206 +44,469 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         /* ============================================
            SIDEBAR
            ============================================ */
-        
         .sidebar {
             width: 260px;
-            background: linear-gradient(180deg, #2C3E50 0%, #34495e 100%);
+            background-color: #2C3E50;
             color: white;
             position: fixed;
             height: 100vh;
             overflow-y: auto;
-            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             z-index: 1000;
         }
         
-        .sidebar-header {
-            padding: 25px 20px;
-            background: #FF6347;
+        .logo-admin {
+            background-color: #FF6347;
+            padding: 20px;
             text-align: center;
             border-bottom: 3px solid #e5533d;
         }
         
-        .sidebar-header h2 {
+        .logo-admin h1 {
+            margin: 0;
             font-size: 24px;
+            letter-spacing: 2px;
             font-weight: bold;
-            letter-spacing: 1px;
         }
         
-        .sidebar-header p {
+        .logo-admin p {
+            margin: 5px 0 0 0;
             font-size: 12px;
-            margin-top: 5px;
             opacity: 0.9;
         }
         
-        .sidebar-menu {
+        /* Menú */
+        .menu-admin {
             padding: 20px 0;
         }
         
-        .menu-section {
-            margin-bottom: 30px;
-        }
-        
-        .menu-section-title {
-            padding: 10px 20px;
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #95a5a6;
-            font-weight: 600;
-        }
-        
-        .menu-item {
-            display: flex;
-            align-items: center;
+        .menu-admin a {
+            display: block;
             padding: 14px 20px;
             color: white;
             text-decoration: none;
             transition: all 0.3s;
             border-left: 4px solid transparent;
+            font-size: 15px;
         }
         
-        .menu-item:hover {
-            background: rgba(255, 255, 255, 0.1);
+        .menu-admin a:hover {
+            background-color: rgba(255, 255, 255, 0.1);
             border-left-color: #FF6347;
             padding-left: 25px;
         }
         
-        .menu-item.active {
-            background: rgba(255, 99, 71, 0.2);
+        .menu-admin a.activo {
+            background-color: rgba(255, 99, 71, 0.2);
             border-left-color: #FF6347;
+            font-weight: bold;
+        }
+        
+        .menu-seccion {
+            margin: 25px 0;
+        }
+        
+        .menu-seccion h3 {
+            padding: 10px 20px;
+            font-size: 11px;
+            text-transform: uppercase;
+            color: #95a5a6;
+            margin: 0 0 10px 0;
+            letter-spacing: 1px;
             font-weight: 600;
         }
         
-        .menu-item i {
-            margin-right: 12px;
-            font-size: 18px;
-            width: 20px;
-            text-align: center;
-        }
-        
-        .sidebar-footer {
+        /* Usuario */
+        .user-admin {
             position: absolute;
             bottom: 0;
             width: 100%;
             padding: 20px;
-            background: rgba(0,0,0,0.2);
+            background-color: rgba(0,0,0,0.2);
             border-top: 1px solid rgba(255,255,255,0.1);
         }
         
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-        
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            background: #FF6347;
+        .avatar-admin {
+            width: 45px;
+            height: 45px;
+            background-color: #FF6347;
             border-radius: 50%;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 18px;
+            margin-right: 12px;
+            vertical-align: middle;
         }
         
-        .user-details {
-            flex: 1;
-        }
-        
-        .user-details strong {
-            display: block;
+        .user-admin strong {
             font-size: 14px;
         }
         
-        .user-details small {
-            font-size: 11px;
+        .user-admin small {
+            font-size: 12px;
             opacity: 0.8;
         }
         
-        .btn-logout {
+        .btn-cerrar-sesion {
             display: block;
             width: 100%;
-            padding: 10px;
-            background: #e74c3c;
+            padding: 12px;
+            background-color: #e74c3c;
             color: white;
             text-align: center;
-            border-radius: 6px;
             text-decoration: none;
+            border-radius: 6px;
+            margin-top: 15px;
             font-size: 13px;
-            font-weight: 600;
+            font-weight: bold;
             transition: background 0.3s;
         }
         
-        .btn-logout:hover {
-            background: #c0392b;
+        .btn-cerrar-sesion:hover {
+            background-color: #c0392b;
         }
         
         /* ============================================
-           MAIN CONTENT
+           CONTENIDO PRINCIPAL
            ============================================ */
-        
-        .main-content {
-            flex: 1;
+        .contenido-admin {
             margin-left: 260px;
+            padding: 30px;
+            flex: 1;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
+            width: calc(100% - 260px);
         }
         
-        /* Top Bar */
-        .top-bar {
-            background: white;
-            padding: 20px 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 999;
-        }
-        
-        .top-bar h1 {
+        .titulo-pagina {
             color: #2C3E50;
-            font-size: 24px;
+            margin-bottom: 25px;
+            font-size: 28px;
         }
         
-        .top-bar-actions {
-            display: flex;
-            gap: 15px;
-            align-items: center;
+        .contenedor-principal {
+            max-width: 1400px;
+            margin: 0 auto;
         }
         
-        .btn-cliente {
-            background: #3498db;
-            color: white;
-            padding: 10px 20px;
+        /* ============================================
+           MENSAJES
+           ============================================ */
+        .mensaje-exito {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #28a745;
+        }
+        
+        .mensaje-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #dc3545;
+        }
+        
+        /* ============================================
+           TARJETAS Y GRID
+           ============================================ */
+        .tarjeta {
+            background-color: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .tarjeta h2 {
+            color: #2C3E50;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        
+        .tarjeta h3 {
+            color: #2C3E50;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .grid {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .grid-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .grid-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        
+        .grid-4 {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        
+        /* ============================================
+           FORMULARIOS
+           ============================================ */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #FF6347;
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-group small {
+            display: block;
+            margin-top: 5px;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        /* ============================================
+           BOTONES
+           ============================================ */
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
             border-radius: 6px;
             text-decoration: none;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background 0.3s;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-align: center;
         }
         
-        .btn-cliente:hover {
-            background: #2980b9;
+        .btn-naranja {
+            background-color: #FF6347;
+            color: white;
         }
         
-        /* Contenedor Principal */
-        .contenedor-principal {
-            flex: 1;
-            padding: 30px;
-            max-width: 1600px;
-            margin: 0 auto;
+        .btn-naranja:hover {
+            background-color: #e5533d;
+        }
+        
+        .btn-blanco {
+            background-color: white;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .btn-blanco:hover {
+            background-color: #f8f9fa;
+            border-color: #bbb;
+        }
+        
+        .btn-verde {
+            background-color: #27ae60;
+            color: white;
+        }
+        
+        .btn-verde:hover {
+            background-color: #229954;
+        }
+        
+        .btn-rojo {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-rojo:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn-azul {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-azul:hover {
+            background-color: #2980b9;
+        }
+        
+        /* ============================================
+           TABLAS
+           ============================================ */
+        .tabla {
             width: 100%;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-collapse: collapse;
+        }
+        
+        .tabla thead {
+            background-color: #2C3E50;
+            color: white;
+        }
+        
+        .tabla th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .tabla tbody tr {
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+        
+        .tabla tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .tabla td {
+            padding: 15px;
+            font-size: 14px;
+        }
+        
+        /* ============================================
+           BADGES
+           ============================================ */
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .badge-verde {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .badge-rojo {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .badge-amarillo {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .badge-azul {
+            background-color: #d1ecf1;
+            color: #0c5460;
+        }
+        
+        /* ============================================
+           FILTROS
+           ============================================ */
+        .filtros {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* ============================================
+           ACCIONES
+           ============================================ */
+        .acciones {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        /* ============================================
+           MÉTRICAS
+           ============================================ */
+        .tarjeta-metrica {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .tarjeta-metrica h3 {
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: white;
+        }
+        
+        .tarjeta-metrica p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* ============================================
+           ALERTAS
+           ============================================ */
+        .alerta {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid;
+        }
+        
+        .alerta-verde {
+            background-color: #d4edda;
+            color: #155724;
+            border-left-color: #28a745;
+        }
+        
+        .alerta-amarilla {
+            background-color: #fff3cd;
+            color: #856404;
+            border-left-color: #ffc107;
+        }
+        
+        .alerta-roja {
+            background-color: #f8d7da;
+            color: #721c24;
+            border-left-color: #dc3545;
         }
         
         /* ============================================
            RESPONSIVE
            ============================================ */
+        @media (max-width: 1024px) {
+            .grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
         
         @media (max-width: 768px) {
             .sidebar {
@@ -253,160 +518,95 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
                 transform: translateX(0);
             }
             
-            .main-content {
+            .contenido-admin {
                 margin-left: 0;
+                padding: 15px;
+                width: 100%;
             }
             
-            .contenedor-principal {
-                padding: 15px;
+            .grid-2,
+            .grid-3,
+            .grid-4 {
+                grid-template-columns: 1fr;
             }
-        }
-        
-        /* ============================================
-           UTILIDADES
-           ============================================ */
-        
-        .badge {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        
-        .badge-pendiente {
-            background: #FFC107;
-            color: #000;
-        }
-        
-        .badge-proceso {
-            background: #2196F3;
-            color: white;
-        }
-        
-        .badge-completado {
-            background: #4CAF50;
-            color: white;
-        }
-        
-        .badge-cancelado {
-            background: #F44336;
-            color: white;
-        }
-        
-        .btn-ver {
-            background: #2C3E50;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            font-size: 13px;
-            transition: background 0.3s;
-            display: inline-block;
-        }
-        
-        .btn-ver:hover {
-            background: #1a252f;
+            
+            .tabla {
+                font-size: 12px;
+            }
+            
+            .tabla th,
+            .tabla td {
+                padding: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
+    <!-- SIDEBAR -->
     <aside class="sidebar">
-        <div class="sidebar-header">
-            <h2>PAPELINK</h2>
+        <div class="logo-admin">
+            <h1>PAPELINK</h1>
             <p>Panel Administrativo</p>
         </div>
         
-        <nav class="sidebar-menu">
-            <!-- Sección Principal -->
-            <div class="menu-section">
-                <div class="menu-section-title">Principal</div>
-                <a href="dashboard.php" class="menu-item <?php echo $paginaActual == 'dashboard' ? 'active' : ''; ?>">
-                    <i></i> Dashboard
+        <nav class="menu-admin">
+            <a href="dashboard.php" class="<?php echo $paginaActual == 'dashboard' ? 'activo' : ''; ?>">
+                📊 Dashboard
+            </a>
+            
+            <div class="menu-seccion">
+                <h3>Ventas</h3>
+                <a href="pedidos.php" class="<?php echo $paginaActual == 'pedidos' || $paginaActual == 'pedido_detalle' ? 'activo' : ''; ?>">
+                    📋 Pedidos
+                </a>
+                <a href="envios.php" class="<?php echo $paginaActual == 'envios' || $paginaActual == 'envio_detalle' ? 'activo' : ''; ?>">
+                    🚚 Envíos
+                </a>
+                <a href="devoluciones.php" class="<?php echo $paginaActual == 'devoluciones' || $paginaActual == 'devolucion_detalle' ? 'activo' : ''; ?>">
+                    🔄 Devoluciones
                 </a>
             </div>
             
-            <!-- Sección Ventas -->
-            <div class="menu-section">
-                <div class="menu-section-title">Ventas</div>
-                <a href="pedidos.php" class="menu-item <?php echo $paginaActual == 'pedidos' ? 'active' : ''; ?>">
-                    <i></i> Pedidos
+            <div class="menu-seccion">
+                <h3>Inventario</h3>
+                <a href="productos.php" class="<?php echo $paginaActual == 'productos' ? 'activo' : ''; ?>">
+                    📦 Productos
                 </a>
-                <a href="envios.php" class="menu-item <?php echo $paginaActual == 'envios' ? 'active' : ''; ?>">
-                    <i></i> Envíos
+                <a href="inventario.php" class="<?php echo $paginaActual == 'inventario' ? 'activo' : ''; ?>">
+                    📊 Inventario
                 </a>
-                <a href="devoluciones.php" class="menu-item <?php echo $paginaActual == 'devoluciones' ? 'active' : ''; ?>">
-                    <i></i> Devoluciones
+                <a href="categorias.php" class="<?php echo $paginaActual == 'categorias' ? 'activo' : ''; ?>">
+                    📁 Categorías
                 </a>
-            </div>
-            
-            <!-- Sección Inventario -->
-            <div class="menu-section">
-                <div class="menu-section-title">Inventario</div>
-                <a href="productos.php" class="menu-item <?php echo $paginaActual == 'productos' ? 'active' : ''; ?>">
-                    <i></i> Productos
-                </a>
-                <a href="inventario.php" class="menu-item <?php echo $paginaActual == 'inventario' ? 'active' : ''; ?>">
-                    <i></i> Inventario
-                </a>
-                <a href="categorias.php" class="menu-item <?php echo $paginaActual == 'categorias' ? 'active' : ''; ?>">
-                    <i></i> Categorías
-                </a>
-                <a href="marcas.php" class="menu-item <?php echo $paginaActual == 'marcas' ? 'active' : ''; ?>">
-                    <i></i> Marcas
+                <a href="marcas.php" class="<?php echo $paginaActual == 'marcas' ? 'activo' : ''; ?>">
+                    🏷️ Marcas
                 </a>
             </div>
             
-            <!-- Sección Clientes -->
-            <div class="menu-section">
-                <div class="menu-section-title">Clientes</div>
-                <a href="clientes.php" class="menu-item <?php echo $paginaActual == 'clientes' ? 'active' : ''; ?>">
-                    <i></i> Clientes
+            <div class="menu-seccion">
+                <h3>Gestión</h3>
+                <a href="clientes.php" class="<?php echo $paginaActual == 'clientes' ? 'activo' : ''; ?>">
+                    👥 Clientes
                 </a>
-            </div>
-            
-            <!-- Sección Proveedores -->
-            <div class="menu-section">
-                <div class="menu-section-title">Compras</div>
-                <a href="proveedores.php" class="menu-item <?php echo $paginaActual == 'proveedores' ? 'active' : ''; ?>">
-                    <i></i> Proveedores
-                </a>
-            </div>
-            
-            <!-- Sección Reportes -->
-            <div class="menu-section">
-                <div class="menu-section-title">Reportes</div>
-                <a href="reportes.php" class="menu-item <?php echo $paginaActual == 'reportes' ? 'active' : ''; ?>">
-                    <i></i> Reportes
+                <a href="proveedores.php" class="<?php echo $paginaActual == 'proveedores' ? 'activo' : ''; ?>">
+                    🏢 Proveedores
                 </a>
             </div>
         </nav>
         
-        <div class="sidebar-footer">
-            <div class="user-info">
-                <div class="user-avatar">
-                    <?php echo strtoupper(substr($nombreEmpleado, 0, 1)); ?>
-                </div>
-                <div class="user-details">
-                    <strong><?php echo htmlspecialchars($nombreEmpleado); ?></strong>
-                    <small><?php echo htmlspecialchars($rolEmpleado); ?></small>
-                </div>
+        <div class="user-admin">
+            <div class="avatar-admin">
+                <?php echo strtoupper(substr($nombreEmpleado, 0, 1)); ?>
             </div>
-            <a href="../../controllers/AuthController.php?action=logout" class="btn-logout">
-                Cerrar Sesión
+            <div style="display: inline-block; vertical-align: middle;">
+                <strong><?php echo htmlspecialchars($nombreEmpleado); ?></strong><br>
+                <small><?php echo htmlspecialchars($rolEmpleado); ?></small>
+            </div>
+            <a href="../../controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
+                🚪 Cerrar Sesión
             </a>
         </div>
     </aside>
     
-    <!-- Main Content -->
-    <div class="main-content">
-        <div class="top-bar">
-            <h1><?php echo $titulo ?? 'Panel Administrativo'; ?></h1>
-            <div class="top-bar-actions">
-                <a href="../cliente/index.php" class="btn-cliente" target="_blank">
-                    Ver Tienda
-                </a>
-            </div>
-        </div>
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="contenido-admin">

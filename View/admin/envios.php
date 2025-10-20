@@ -213,7 +213,6 @@ include __DIR__ . '/includes/header.php';
     <!-- Tabla de Envíos -->
     <?php if (empty($envios)): ?>
         <div class="sin-envios">
-            <div class="sin-envios-icono">📦</div>
             <h2>No hay envíos pendientes</h2>
             <p>Todos los envíos han sido completados o no hay pedidos con envío</p>
         </div>
