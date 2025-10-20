@@ -22,12 +22,12 @@ include 'includes/header.php';
 <h1 class="titulo-pagina">Dashboard Principal</h1>
 
 <!-- DATOS DEL USUARIO LOGUEADO -->
-<!--<div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+<div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
     <p><strong>Bienvenido:</strong> <?php echo htmlspecialchars($_SESSION['nombre_usuario']); ?></p>
     <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['email_usuario']); ?></p>
     <p><strong>Rol:</strong> <?php echo htmlspecialchars($_SESSION['rol_usuario']); ?></p>
 </div>
--->
+
 
 <!-- MÉTRICAS EN TIEMPO REAL -->
 <section>
