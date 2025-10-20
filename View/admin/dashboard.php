@@ -22,11 +22,12 @@ include 'includes/header.php';
 <h1 class="titulo-pagina">Dashboard Principal</h1>
 
 <!-- DATOS DEL USUARIO LOGUEADO -->
-<div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+<!--<div style="background-color: #f0f0f0; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
     <p><strong>Bienvenido:</strong> <?php echo htmlspecialchars($_SESSION['nombre_usuario']); ?></p>
     <p><strong>Email:</strong> <?php echo htmlspecialchars($_SESSION['email_usuario']); ?></p>
     <p><strong>Rol:</strong> <?php echo htmlspecialchars($_SESSION['rol_usuario']); ?></p>
 </div>
+-->
 
 <!-- MÉTRICAS EN TIEMPO REAL -->
 <section>
@@ -45,7 +46,7 @@ include 'includes/header.php';
         
         <div class="tarjeta-metrica">
             <h3>$<?php echo number_format($ingresosHoy, 2); ?></h3>
-            <p>ngresos Hoy</p>
+            <p>ingresos Hoy</p>
         </div>
         
         <div class="tarjeta-metrica">
@@ -58,7 +59,7 @@ include 'includes/header.php';
 <div class="grid grid-2" style="margin-top: 30px;">
     <!-- ALERTAS DE STOCK BAJO -->
     <section>
-        <h2 style="color: #FF6347; margin-bottom: 15px;">⚠️ Alertas de Stock Bajo</h2>
+        <h2 style="color: #FF6347; margin-bottom: 15px;">Alertas de Stock Bajo</h2>
         
         <?php if (empty($productosStockBajo)): ?>
             <div class="alerta alerta-verde">
@@ -78,6 +79,27 @@ include 'includes/header.php';
         <?php endif; ?>
     </section>
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <!-- PEDIDOS PENDIENTES (simulado) -->
     <section>
         <h2 style="color: #FF6347; margin-bottom: 15px;">Pedidos Pendientes por Procesar</h2>
@@ -93,25 +115,25 @@ include 'includes/header.php';
             </thead>
             <tbody>
                 <tr>
-                    <td>#PL-2024-001</td>
-                    <td>Juan Pérez</td>
-                    <td>$84.00</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <td>
                         <a href="#" class="btn btn-verde"> Procesar</a>
             </td>
                 </tr>
                 <tr>
-                    <td>#PL-2024-003</td>
-                    <td>María López</td>
-                    <td>$156.50</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <td>
                         <a href="#" class="btn btn-verde">Procesar</a>
                     </td>
                 </tr>
                 <tr>
-                    <td>#PL-2024-005</td>
-                    <td>Carlos Ruiz</td>
-                    <td>$98.75</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
                     <td>
                         <a href="#" class="btn btn-verde">Procesar</a>
                     </td>
@@ -120,6 +142,21 @@ include 'includes/header.php';
         </table>
     </section>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!-- ACCESOS DIRECTOS -->
 <section style="margin-top: 30px;">

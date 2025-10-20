@@ -366,9 +366,9 @@ include 'includes/header.php';
             <!-- BOTONES -->
             <div style="margin-top: 20px; display: flex; gap: 10px;">
                 <button type="submit" class="btn btn-naranja">
-                    <?php echo $accionForm === 'nuevo' ? '➕ Crear Producto' : '✏️ Actualizar Producto'; ?>
+                    <?php echo $accionForm === 'nuevo' ? ' Crear Producto' : ' Actualizar Producto'; ?>
                 </button>
-                <a href="productos.php" class="btn btn-blanco">❌ Cancelar</a>
+                <a href="productos.php" class="btn btn-blanco">Cancelar</a>
             </div>
         </form>
     </div>

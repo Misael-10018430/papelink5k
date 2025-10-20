@@ -96,7 +96,7 @@ include 'includes/header.php';
         display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #FF6347 0%, #ff8566 100%);
+        background: linear-gradient(135deg, #f0f0f0ff 0%, #f0f0f0ff 100%);
         border-radius: 10px;
         margin-bottom: 20px;
         font-size: 48px;
@@ -261,7 +261,7 @@ include 'includes/header.php';
 </style>
 
 <div class="marcas-container">
-    <h1 class="titulo-principal">🏷️ Explora Nuestras Marcas</h1>
+    <h1 class="titulo-principal">Explora Nuestras Marcas</h1>
     
     <?php if (!$marcaSeleccionada): ?>
         <!-- VISTA DE GRID DE MARCAS -->

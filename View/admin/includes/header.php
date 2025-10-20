@@ -439,7 +439,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 <body>
     <!-- HEADER SUPERIOR NARANJA -->
     <div class="header-top">
-        🏠 DASHBOARD PRINCIPAL (/admin/<?php echo $paginaActual; ?>)
+        DASHBOARD PRINCIPAL (/admin/<?php echo $paginaActual; ?>)
     </div>
     
     <!-- NAVEGACIÓN SUPERIOR -->
@@ -450,22 +450,13 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         
         <div class="nav-items">
             <a href="dashboard.php">
-                📊 Dashboard
-            </a>
-            <a href="productos.php">
-                📦 Productos
+                Dashboard
             </a>
             <a href="#">
-                📋 Pedidos
-            </a>
-            <a href="#">
-                📈 Reportes
-            </a>
-            <a href="#">
-                ⚙️ Configuración
+                Configuración
             </a>
             <a href="../../index.php">
-                🚪 Salir
+                Salir
             </a>
         </div>
         
@@ -482,7 +473,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             <h3>☰ Navegación</h3>
             
             <a href="dashboard.php" class="<?php echo $paginaActual == 'dashboard' ? 'activo' : ''; ?>">
-                📊 Dashboard
+                Dashboard
             </a>
             
             <h3>☰ Catálogo</h3>
@@ -500,7 +491,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             
             <h3>☰ Inventario</h3>
             <a href="inventario.php" class="<?php echo $paginaActual == 'inventario' ? 'activo' : ''; ?>">
-                📦 Inventario
+                    • Inventario
             </a>
             
             <h3>☰ Pedidos & Ventas</h3>
@@ -517,16 +508,16 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             </div>
             
             <h3>☰ Clientes</h3>
-            <a href="#">👥 Clientes</a>
+            <a href="#">• Clientes</a>
             
             <h3>☰ Empleados</h3>
-            <a href="#">👤 Empleados</a>
+            <a href="#">• Empleados</a>
             
             <h3>☰ Reportes</h3>
-            <a href="#">📊 Reportes</a>
+            <a href="#">• Reportes</a>
             
             <h3>☰ Sistema</h3>
-            <a href="#">⚙️ Configuración</a>
+            <a href="#">• Configuración</a>
         </aside>
         
         <!-- CONTENIDO PRINCIPAL -->

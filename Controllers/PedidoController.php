@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../models/Pedido.php';
+require_once __DIR__ . '/../models/Pedidos.php';
 
 class PedidoController {
     private $pedidoModel;

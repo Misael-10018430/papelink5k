@@ -272,7 +272,7 @@ include 'includes/header.php';
         <!-- VISTA DE TODAS LAS CATEGORÍAS -->
         
         <h1 class="titulo-principal">
-            🏷️ Explora Nuestras Categorías
+            Explora Nuestras Categorías
         </h1>
         
         <?php if (empty($categorias)): ?>

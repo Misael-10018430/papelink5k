@@ -30,7 +30,7 @@ $idProductoAjustar = $_GET['id'] ?? null;
 include 'includes/header.php';
 ?>
 
-<h1 class="titulo-pagina">📦 Gestión de Inventario</h1>
+<h1 class="titulo-pagina">Gestión de Inventario</h1>
 
 <!-- MENSAJES -->
 <?php if (isset($_SESSION['exito'])): ?>
