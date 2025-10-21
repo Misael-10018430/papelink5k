@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../models/carrito.php';
+require_once __DIR__ . '/../models/Carrito.php';
+
+
 
 class CarritoController {
     private $carritoModel;
@@ -56,8 +58,10 @@ class CarritoController {
     /**
      * Ver carrito
      */
-    public function ver() {
-        $idCliente = $this->verificarCliente();
+    /*public function ver($idCliente = null) {
+        if ($idCliente === null) {
+            $idCliente = $this->verificarCliente();
+        }
         
         $items = $this->carritoModel->obtenerPorCliente($idCliente);
         $totales = $this->carritoModel->obtenerTotales($idCliente);
@@ -66,7 +70,7 @@ class CarritoController {
             'items' => $items,
             'totales' => $totales
         ];
-    }
+    }*/
     
     /**
      * Actualizar cantidad
@@ -140,14 +144,14 @@ class CarritoController {
     /**
      * Contar items (para header)
      */
-    public function contarItems($idCliente) {
+    /*public function contarItems($idCliente) {
         return $this->carritoModel->contarItems($idCliente);
-    }
+    }*/
     
     /**
      * Contar productos en el carrito (para AJAX)
      */
-    public function contar() {
+    /*public function contar() {
         // No verificar cliente aquí porque esta función debe poder ejecutarse sin redirección
         if (!isset($_SESSION['cliente_id'])) {
             header('Content-Type: application/json');
@@ -166,7 +170,7 @@ class CarritoController {
             echo json_encode(['cantidad' => 0, 'success' => false, 'error' => $e->getMessage()]);
         }
         exit;
-    }
+    }*/
 }
 
 // =====================================================
@@ -193,17 +197,13 @@ if (isset($_GET['action'])) {
             $controller->vaciar();
             break;
         
-        case 'contar':
+        /*case 'contar':
             $controller->contar();
             break;
-        
+        */
         default:
             header("Location: ../../view/cliente/carrito.php");
             break;
     }
 } 
-else {
-    // Si no hay acción, mostrar el carrito
-    header("Location: ../../view/cliente/carrito.php");
-}
 ?>

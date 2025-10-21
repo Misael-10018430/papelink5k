@@ -12,7 +12,7 @@ if (!defined('ROOT_PATH')) {
 }
 
 if (!defined('BASE_URL')) {
-    define('BASE_URL', 'http://localhost/Papelink5k/');
+    define('BASE_URL', 'http://localhost/papelink5k/');
 }
 
 // =====================================================

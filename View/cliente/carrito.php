@@ -9,20 +9,19 @@ if (!isset($_SESSION['cliente_id'])) {
     exit;
 }
 
-$carritoController = new CarritoController();
+// Obtener carrito directamente desde el modelo
+require_once __DIR__ . '/../../models/Carrito.php';
+$carritoModel = new Carrito();
 
-// Obtener carrito completo (items y totales)
-$carritoData = $carritoController->ver();
-
-// Extraer items y totales del array retornado
-$itemsCarrito = $carritoData['items'];
-$totales = $carritoData['totales'];
+$itemsCarrito = $carritoModel->obtenerPorCliente($_SESSION['cliente_id']);
+$totales = $carritoModel->obtenerTotales($_SESSION['cliente_id']);
 
 $titulo = "Mi Carrito - Papelink";
-
-
 include __DIR__ . '/includes/header.php';
 ?>
+
+
+
 <div class="carrito-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs">
@@ -52,7 +51,6 @@ include __DIR__ . '/includes/header.php';
     <?php if (empty($itemsCarrito)): ?>
         <!-- Carrito vacío -->
         <div class="carrito-vacio">
-            <div class="icono-carrito-vacio"></div>
             <h2>Tu carrito está vacío</h2>
             <p>¡Agrega productos para comenzar tu compra!</p>
             <a href="productos.php" class="btn btn-primary">Ver Productos</a>

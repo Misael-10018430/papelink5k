@@ -487,7 +487,7 @@ include 'includes/header.php';
                             </button>
                         <?php else: ?>
                             <button class="btn-agregar btn-agotado" 
-                                    onclick="alert('⚠️ Producto de ejemplo. Agrega productos reales desde el panel de administración.')">
+                                    onclick="alert('Producto de ejemplo. Agrega productos reales desde el panel de administración.')">
                                 🛒 Agregar al carrito
                             </button>
                         <?php endif; ?>

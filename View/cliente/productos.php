@@ -218,7 +218,7 @@ include 'includes/header.php';
 
 <!-- TÍTULO -->
 <h1 style="color: white; margin: 30px auto; max-width: 1400px; padding: 0 20px; font-size: 32px;">
-    📦 <?php echo $tituloFiltro; ?>
+    <?php echo $tituloFiltro; ?>
 </h1>
 
 <!-- CONTENEDOR CON FILTROS -->

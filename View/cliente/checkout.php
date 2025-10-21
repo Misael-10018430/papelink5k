@@ -9,10 +9,12 @@ if (!isset($_SESSION['cliente_id'])) {
     exit;
 }
 
-$carritoController = new CarritoController();
-$carritoData = $carritoController->ver();
-$itemsCarrito = $carritoData['items'];
-$totales = $carritoData['totales'];
+// Obtener carrito directamente desde el modelo
+require_once __DIR__ . '/../../models/Carrito.php';
+$carritoModel = new Carrito();
+
+$itemsCarrito = $carritoModel->obtenerPorCliente($_SESSION['cliente_id']);
+$totales = $carritoModel->obtenerTotales($_SESSION['cliente_id']);
 
 // Si el carrito está vacío, redirigir
 if (empty($itemsCarrito)) {
@@ -27,6 +29,7 @@ unset($_SESSION['datos_form']);
 
 $titulo = "Checkout - Papelink";
 include __DIR__ . '/includes/header.php';
+
 ?>
 
 <div class="checkout-container">
@@ -82,7 +85,7 @@ include __DIR__ . '/includes/header.php';
             <form action="../../controllers/PedidoController.php?action=crear" method="POST" id="formCheckout">
                 <!-- Sección 1: Información de Envío -->
                 <div class="seccion-form">
-                    <h2>📦 Información de Envío</h2>
+                    <h2>Información de Envío</h2>
                     
                     <!-- Tipo de envío -->
                     <div class="form-group">
@@ -227,7 +230,7 @@ include __DIR__ . '/includes/header.php';
                     <h3>Productos (<?php echo count($itemsCarrito); ?>)</h3>
                     <?php foreach ($itemsCarrito as $item): ?>
                         <div class="producto-resumen-item">
-                            <img src="<?php echo !empty($item['ImagenProducto']) ? htmlspecialchars($item['ImagenProducto']) : 'https://via.placeholder.com/50x50?text=Producto'; ?>" 
+                            <img src="<?php echo !empty($item['ImagenProducto']) ? '../../assets/img/productos/' . htmlspecialchars($item['ImagenProducto']) : 'https://via.placeholder.com/50x50?text=Producto'; ?>"
                                  alt="<?php echo htmlspecialchars($item['NombreProducto']); ?>">
                             <div class="producto-info-resumen">
                                 <p class="nombre"><?php echo htmlspecialchars($item['NombreProducto']); ?></p>
