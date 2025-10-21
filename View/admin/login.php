@@ -164,9 +164,10 @@ session_start();
             </button>
         </form>
         
-        <div class="volver">
+      <!--  <div class="volver">
             <a href="View/cliente/index.php">← Volver al inicio</a>
         </div>
+      -->
         
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #999; font-size: 14px;">
             <strong>Credenciales de prueba:</strong><br>
