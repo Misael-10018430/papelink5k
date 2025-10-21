@@ -19,6 +19,8 @@ $itemsCarrito = $carritoData['items'];
 $totales = $carritoData['totales'];
 
 $titulo = "Mi Carrito - Papelink";
+
+
 include __DIR__ . '/includes/header.php';
 ?>
 <div class="carrito-container">
@@ -50,7 +52,7 @@ include __DIR__ . '/includes/header.php';
     <?php if (empty($itemsCarrito)): ?>
         <!-- Carrito vacío -->
         <div class="carrito-vacio">
-            <div class="icono-carrito-vacio">🛒</div>
+            <div class="icono-carrito-vacio"></div>
             <h2>Tu carrito está vacío</h2>
             <p>¡Agrega productos para comenzar tu compra!</p>
             <a href="productos.php" class="btn btn-primary">Ver Productos</a>
@@ -90,7 +92,7 @@ include __DIR__ . '/includes/header.php';
                                             <h3><?php echo htmlspecialchars($item['NombreProducto']); ?></h3>
                                             <p class="codigo-producto">Código: <?php echo htmlspecialchars($item['CodigoProducto']); ?></p>
                                             <?php if ($item['CantidadDisponible'] < $item['Cantidad']): ?>
-                                                <span class="badge badge-warning">⚠️ Stock limitado: <?php echo $item['CantidadDisponible']; ?> disponibles</span>
+                                                <span class="badge badge-warning">Stock limitado: <?php echo $item['CantidadDisponible']; ?> disponibles</span>
                                             <?php endif; ?>
                                         </div>
                                     </td>
@@ -172,7 +174,7 @@ include __DIR__ . '/includes/header.php';
                     </a>
 
                     <div class="metodos-pago">
-                        <p>💳 Aceptamos:</p>
+                        <p>Aceptamos:</p>
                         <div class="iconos-pago">
                             <span>VISA</span>
                             <span>Mastercard</span>

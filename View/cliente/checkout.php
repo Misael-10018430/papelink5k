@@ -191,7 +191,7 @@ include __DIR__ . '/includes/header.php';
                     </div>
 
                     <div class="nota-pago">
-                        ℹ️<strong>Nota:</strong> Por el momento solo aceptamos pago en efectivo al momento de la entrega.
+                        <strong>Nota:</strong> Por el momento solo aceptamos pago en efectivo al momento de la entrega.
                     </div>
                 </div>
 

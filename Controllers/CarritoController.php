@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../models/Carrito.php';
+require_once __DIR__ . '/../models/carrito.php';
 
 class CarritoController {
     private $carritoModel;

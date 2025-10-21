@@ -170,7 +170,7 @@ include __DIR__ . '/includes/header.php';
         <div>
             <!-- Información del Cliente -->
             <div class="detalle-card">
-                <h2>👤 Información del Cliente</h2>
+                <h2>Información del Cliente</h2>
                 <div class="info-grid">
                     <div class="info-item">
                         <label>Nombre:</label>
@@ -193,7 +193,7 @@ include __DIR__ . '/includes/header.php';
 
             <!-- Productos del Pedido -->
             <div class="detalle-card" style="margin-top: 25px;">
-                <h2>📦 Productos del Pedido</h2>
+                <h2>Productos del Pedido</h2>
                 <table class="tabla-productos">
                     <thead>
                         <tr>
@@ -242,7 +242,7 @@ include __DIR__ . '/includes/header.php';
         <div>
             <!-- Estado del Pedido -->
             <div class="detalle-card">
-                <h2>📊 Gestionar Estado</h2>
+                <h2>Gestionar Estado</h2>
                 <form method="POST" action="../../controllers/PedidoController.php?action=cambiar_estado" class="form-estado">
                     <input type="hidden" name="id_pedido" value="<?php echo $detalle['IdPedido']; ?>">
                     
@@ -281,7 +281,7 @@ include __DIR__ . '/includes/header.php';
 
             <!-- Información Adicional -->
             <div class="detalle-card" style="margin-top: 25px;">
-                <h2>ℹ️ Información Adicional</h2>
+                <h2>Información Adicional</h2>
                 <div class="info-item" style="margin-bottom: 15px;">
                     <label>Método de Pago:</label>
                     <span><?php echo htmlspecialchars($detalle['MetodoPago']); ?></span>
