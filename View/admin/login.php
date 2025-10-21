@@ -165,7 +165,7 @@ session_start();
         </form>
         
         <div class="volver">
-            <a href="Location: ../view/cliente/index.php">← Volver al inicio</a>
+            <a href="../cliente/index.php">← Volver al dashboard Cliente</a>
         </div>
         
         <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd; text-align: center; color: #999; font-size: 14px;">
