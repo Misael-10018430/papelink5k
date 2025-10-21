@@ -530,10 +530,10 @@ include 'includes/header.php';
             <div class="info-adicional">
                 <h4>📦 Información de Envío</h4>
                 <ul>
-                    <li>🚚 Envío a domicilio: $50.00 (3-5 días hábiles)</li>
-                    <li>🏪 Recoger en sucursal: GRATIS (24 horas)</li>
-                    <li>💰 Pago contra entrega disponible</li>
-                    <li>↩️ Devoluciones dentro de 30 días</li>
+                    <li>Envío a domicilio: $50.00 (3-5 días hábiles)</li>
+                    <li>Recoger en sucursal: GRATIS (24 horas)</li>
+                    <li>Pago contra entrega disponible</li>
+                    <li>↩Devoluciones dentro de 30 días</li>
                 </ul>
             </div>
         </div>
@@ -542,13 +542,13 @@ include 'includes/header.php';
     <div class="tabs-container">
         <div class="tabs-nav">
             <button class="tab-button active" onclick="cambiarTab(event, 'descripcion')">
-                📝 Descripción
+                Descripción
             </button>
             <button class="tab-button" onclick="cambiarTab(event, 'especificaciones')">
-                📋 Especificaciones
+                Especificaciones
             </button>
             <button class="tab-button" onclick="cambiarTab(event, 'envio')">
-                🚚 Envío y Devoluciones
+                Envío y Devoluciones
             </button>
         </div>
 

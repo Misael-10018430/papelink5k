@@ -84,7 +84,7 @@ include __DIR__ . '/includes/header.php';
 
         <!-- Productos del pedido -->
         <div class="seccion-confirmacion">
-            <h2>📦 Productos Ordenados</h2>
+            <h2>Productos Ordenados</h2>
             <div class="tabla-productos">
                 <table>
                     <thead>
@@ -137,7 +137,7 @@ include __DIR__ . '/includes/header.php';
 
         <!-- Información de envío -->
         <div class="seccion-confirmacion">
-            <h2>🚚 Información de Envío</h2>
+            <h2>Información de Envío</h2>
             <div class="info-envio-detalle">
                 <div class="envio-item">
                     <strong>Estado:</strong>

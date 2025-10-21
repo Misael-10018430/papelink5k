@@ -341,12 +341,12 @@ include 'includes/header.php';
             <p class="precio">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></p>
             
             <?php if ($producto['Disponible']): ?>
-                <p class="disponibilidad">✅ Disponible</p>
+                <p class="disponibilidad">Disponible</p>
                 <button class="btn btn-naranja" style="width: 100%; margin-top: auto;">
                     🛒 Agregar al carrito
                 </button>
             <?php else: ?>
-                <p style="color: #e74c3c; margin-bottom: 10px;">❌ Agotado</p>
+                <p style="color: #e74c3c; margin-bottom: 10px;">Agotado</p>
                 <button class="btn btn-blanco" style="width: 100%; margin-top: auto;" disabled>
                     No disponible
                 </button>

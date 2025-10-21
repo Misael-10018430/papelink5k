@@ -62,19 +62,19 @@ try {
 
             <nav class="menu-cuenta">
                 <a href="#inicio" class="menu-item active" onclick="mostrarSeccion('inicio')">
-                    <span class="icono">🏠</span> Inicio
+                    <span class="icono"></span> Inicio
                 </a>
                 <a href="#pedidos" class="menu-item" onclick="mostrarSeccion('pedidos')">
-                    <span class="icono">📦</span> Mis Pedidos
+                    <span class="icono"></span> Mis Pedidos
                 </a>
                 <a href="#datos" class="menu-item" onclick="mostrarSeccion('datos')">
-                    <span class="icono">👤</span> Mis Datos
+                    <span class="icono"></span> Mis Datos
                 </a>
                 <a href="#direcciones" class="menu-item" onclick="mostrarSeccion('direcciones')">
-                    <span class="icono">📍</span> Direcciones
+                    <span class="icono"></span> Direcciones
                 </a>
                 <a href="../../controllers/AuthController.php?action=logout" class="menu-item logout">
-                    <span class="icono">🚪</span> Cerrar Sesión
+                    <span class="icono"></span> Cerrar Sesión
                 </a>
             </nav>
         </aside>
@@ -87,7 +87,7 @@ try {
                 
                 <div class="resumen-cuenta">
                     <div class="resumen-card">
-                        <div class="resumen-icono">📦</div>
+                        <div class="resumen-icono"></div>
                         <div class="resumen-info">
                             <h3>Mis Pedidos</h3>
                             <p>Ver historial completo</p>
@@ -96,7 +96,7 @@ try {
                     </div>
 
                     <div class="resumen-card">
-                        <div class="resumen-icono">👤</div>
+                        <div class="resumen-icono"></div>
                         <div class="resumen-info">
                             <h3>Información Personal</h3>
                             <p>Actualizar datos</p>
@@ -105,7 +105,7 @@ try {
                     </div>
 
                     <div class="resumen-card">
-                        <div class="resumen-icono">📍</div>
+                        <div class="resumen-icono"></div>
                         <div class="resumen-info">
                             <h3>Direcciones</h3>
                             <p>Gestionar direcciones</p>
@@ -117,16 +117,16 @@ try {
                 <div class="accesos-rapidos">
                     <h2>Accesos Rápidos</h2>
                     <div class="botones-rapidos">
-                        <a href="productos.php" class="btn-rapido">🛍️ Ver Productos</a>
-                        <a href="carrito.php" class="btn-rapido">🛒 Mi Carrito</a>
-                        <a href="mis_pedidos.php" class="btn-rapido">📋 Mis Pedidos</a>
+                        <a href="productos.php" class="btn-rapido">Ver Productos</a>
+                        <a href="carrito.php" class="btn-rapido">Mi Carrito</a>
+                        <a href="mis_pedidos.php" class="btn-rapido">Mis Pedidos</a>
                     </div>
                 </div>
             </section>
 
             <!-- SECCIÓN: Mis Pedidos -->
             <section id="seccion-pedidos" class="seccion-cuenta">
-                <h1>📦 Mis Pedidos</h1>
+                <h1>Mis Pedidos</h1>
                 <p>Ver el historial completo de pedidos</p>
                 <br>
                 <a href="mis_pedidos.php" class="btn btn-primary">Ver Todos los Pedidos →</a>
@@ -134,7 +134,7 @@ try {
 
             <!-- SECCIÓN: Mis Datos -->
             <section id="seccion-datos" class="seccion-cuenta">
-                <h1>👤 Información Personal</h1>
+                <h1>Información Personal</h1>
                 
                 <form method="POST" action="../../controllers/ClienteController.php?action=actualizar_datos" class="form-datos">
                     <div class="form-grid">
@@ -159,12 +159,12 @@ try {
                         </div>
                     </div>
 
-                    <button type="submit" class="btn btn-primary">💾 Guardar Cambios</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </form>
 
                 <hr style="margin: 40px 0;">
 
-                <h2>🔒 Cambiar Contraseña</h2>
+                <h2>Cambiar Contraseña</h2>
                 <form method="POST" action="../../controllers/ClienteController.php?action=cambiar_contrasena" class="form-password">
                     <div class="form-group">
                         <label>Contraseña Actual:</label>
@@ -181,7 +181,7 @@ try {
                         <input type="password" name="password_confirmar" required>
                     </div>
 
-                    <button type="submit" class="btn btn-secondary">🔑 Cambiar Contraseña</button>
+                    <button type="submit" class="btn btn-secondary">Cambiar Contraseña</button>
                 </form>
             </section>
 

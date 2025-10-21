@@ -16,7 +16,7 @@ session_start();
         
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(135deg, #2C3E50 0%, #1a1a1a 100%);
+            background: linear-gradient(135deg, #020202ff 0%, #1a1a1a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
