@@ -622,6 +622,12 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
                     Proveedores
                 </a>
             </div>
+            <div class="menu-seccion">
+                <h3>Configuraciones</h3>
+                <a href="empleados.php" class="<?php echo $paginaActual == 'clientes' ? 'activo' : ''; ?>">
+                    Empleados
+                </a>
+            </div>
         </nav>
         
         <div class="user-admin-sidebar">
