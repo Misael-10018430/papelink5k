@@ -1,122 +1,205 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
+/**
+ * Controlador de Devoluciones (Cliente)
+ * Maneja todas las acciones de devoluciones del cliente
+ */
+
 require_once __DIR__ . '/../models/Devolucion.php';
 
 class DevolucionController {
     private $devolucionModel;
-    
+
     public function __construct() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Verificar que el cliente esté autenticado
+        if (!isset($_SESSION['cliente_id'])) {
+            header('Location: ../../view/cliente/login.php');
+            exit();
+        }
+        
         $this->devolucionModel = new Devolucion();
     }
-    
+
     /**
-     * Verificar que sea admin
+     * Listar devoluciones del cliente (AJAX)
      */
-    private function verificarAdmin() {
-        if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
-            $_SESSION['error'] = 'Acceso denegado';
-            header('Location: ../admin/login.php');
-            exit;
-        }
-    }
-    
-    /**
-     * Listar devoluciones
-     */
-    public function listar() {
-        $this->verificarAdmin();
+    public function listarDevoluciones() {
+        header('Content-Type: application/json');
+
+        $idCliente = $_SESSION['cliente_id'];
+        $devoluciones = $this->devolucionModel->obtenerDevolucionesCliente($idCliente);
         
-        $estado = $_GET['estado'] ?? null;
-        $fechaInicio = $_GET['fecha_inicio'] ?? null;
-        $fechaFin = $_GET['fecha_fin'] ?? null;
-        $pagina = $_GET['pagina'] ?? 1;
-        
-        return $this->devolucionModel->obtenerTodas($estado, $fechaInicio, $fechaFin, $pagina);
-    }
-    
-    /**
-     * Ver detalle
-     */
-    public function verDetalle() {
-        $this->verificarAdmin();
-        
-        if (!isset($_GET['id'])) {
-            $_SESSION['error'] = 'ID no especificado';
-            header('Location: devoluciones.php');
-            exit;
-        }
-        
-        $idDevolucion = (int)$_GET['id'];
-        return $this->devolucionModel->obtenerDetalle($idDevolucion);
-    }
-    
-    /**
-     * Cambiar estado
-     */
-    public function cambiarEstado() {
-        $this->verificarAdmin();
-        
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: devoluciones.php');
-            exit;
-        }
-        
-        $idDevolucion = (int)$_POST['id_devolucion'];
-        $nuevoEstado = $_POST['estado'];
-        
-        $resultado = $this->devolucionModel->cambiarEstado($idDevolucion, $nuevoEstado);
-        
-        if (isset($resultado['success'])) {
-            $_SESSION['exito'] = 'Estado actualizado: ' . $nuevoEstado;
-        } else {
-            $_SESSION['error'] = $resultado['error'];
-        }
-        
-        header('Location: devolucion_detalle.php?id=' . $idDevolucion);
+        echo json_encode([
+            'success' => true,
+            'devoluciones' => $devoluciones
+        ]);
         exit;
     }
-    
+
     /**
-     * Reintegrar productos
+     * Obtener detalle de devolución (AJAX)
      */
-    public function reintegrar() {
-        $this->verificarAdmin();
-        
+    public function obtenerDetalle() {
+        header('Content-Type: application/json');
+
         if (!isset($_GET['id'])) {
-            $_SESSION['error'] = 'ID no especificado';
-            header('Location: devoluciones.php');
+            echo json_encode(['success' => false, 'mensaje' => 'ID de devolución no proporcionado']);
             exit;
         }
-        
+
         $idDevolucion = (int)$_GET['id'];
-        $resultado = $this->devolucionModel->reintegrarProductos($idDevolucion);
+        $idCliente = $_SESSION['cliente_id'];
         
-        if (isset($resultado['success'])) {
-            $_SESSION['exito'] = 'Productos reintegrados al inventario';
+        $detalle = $this->devolucionModel->obtenerDetalleDevolucion($idDevolucion, $idCliente);
+        
+        if ($detalle['informacion']) {
+            echo json_encode([
+                'success' => true,
+                'detalle' => $detalle
+            ]);
         } else {
-            $_SESSION['error'] = $resultado['error'];
+            echo json_encode([
+                'success' => false,
+                'mensaje' => 'Devolución no encontrada o no autorizada'
+            ]);
         }
+        exit;
+    }
+
+    /**
+     * Obtener pedidos devolvibles (AJAX)
+     */
+    public function obtenerPedidosDevolvibles() {
+        header('Content-Type: application/json');
+
+        $idCliente = $_SESSION['cliente_id'];
+        $pedidos = $this->devolucionModel->obtenerPedidosDevolvibles($idCliente);
         
-        header('Location: devolucion_detalle.php?id=' . $idDevolucion);
+        echo json_encode([
+            'success' => true,
+            'pedidos' => $pedidos
+        ]);
+        exit;
+    }
+
+    /**
+     * Obtener detalle de pedido para devolución (AJAX)
+     */
+    public function obtenerDetallePedido() {
+        header('Content-Type: application/json');
+
+        if (!isset($_GET['id'])) {
+            echo json_encode(['success' => false, 'mensaje' => 'ID de pedido no proporcionado']);
+            exit;
+        }
+
+        $idPedido = (int)$_GET['id'];
+        $idCliente = $_SESSION['cliente_id'];
+        
+        $detalle = $this->devolucionModel->obtenerDetallePedido($idPedido, $idCliente);
+        
+        if ($detalle['informacion']) {
+            echo json_encode([
+                'success' => true,
+                'detalle' => $detalle
+            ]);
+        } else {
+            echo json_encode([
+                'success' => false,
+                'mensaje' => 'Pedido no encontrado o no autorizado'
+            ]);
+        }
+        exit;
+    }
+
+    /**
+     * Solicitar nueva devolución (AJAX)
+     */
+    public function solicitarDevolucion() {
+        header('Content-Type: application/json');
+
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
+            exit;
+        }
+
+        $idPedido = isset($_POST['id_pedido']) ? (int)$_POST['id_pedido'] : 0;
+        $motivo = $_POST['motivo'] ?? '';
+        $productosJSON = $_POST['productos'] ?? '';
+
+        // Validaciones
+        if ($idPedido <= 0) {
+            echo json_encode(['success' => false, 'mensaje' => 'Pedido no válido']);
+            exit;
+        }
+
+        if (empty($motivo)) {
+            echo json_encode(['success' => false, 'mensaje' => 'El motivo es obligatorio']);
+            exit;
+        }
+
+        if (empty($productosJSON)) {
+            echo json_encode(['success' => false, 'mensaje' => 'Debe seleccionar al menos un producto']);
+            exit;
+        }
+
+        // Validar que el JSON sea válido
+        $productos = json_decode($productosJSON, true);
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            echo json_encode(['success' => false, 'mensaje' => 'Formato de productos inválido']);
+            exit;
+        }
+
+        if (empty($productos)) {
+            echo json_encode(['success' => false, 'mensaje' => 'Debe seleccionar al menos un producto']);
+            exit;
+        }
+
+        $idCliente = $_SESSION['cliente_id'];
+        
+        // Solicitar devolución
+        $resultado = $this->devolucionModel->solicitarDevolucion(
+            $idPedido, 
+            $idCliente, 
+            $motivo, 
+            $productosJSON
+        );
+        
+        echo json_encode($resultado);
+        exit;
+    }
+
+    /**
+     * Obtener días permitidos para devolución (AJAX)
+     */
+    public function obtenerDiasDevolucion() {
+        header('Content-Type: application/json');
+
+        $dias = $this->devolucionModel->obtenerDiasDevolucion();
+        
+        echo json_encode([
+            'success' => true,
+            'dias' => $dias
+        ]);
         exit;
     }
 }
 
-// Manejo de acciones
-if (basename($_SERVER['PHP_SELF']) === 'DevolucionController.php') {
+// ========================================
+// MANEJO DE ACCIONES DIRECTAS (AJAX)
+// ========================================
+if (isset($_GET['action']) && basename($_SERVER['PHP_SELF']) === 'DevolucionController.php') {
     $controller = new DevolucionController();
-    $action = $_GET['action'] ?? '';
+    $action = $_GET['action'];
     
-    switch ($action) {
-        case 'cambiar_estado':
-            $controller->cambiarEstado();
-            break;
-        case 'reintegrar':
-            $controller->reintegrar();
-            break;
-        default:
-            header('Location: ../view/admin/devoluciones.php');
-            exit;
+    if (method_exists($controller, $action)) {
+        $controller->$action();
+    } else {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'mensaje' => 'Acción no encontrada']);
+        exit;
     }
 }
-?>

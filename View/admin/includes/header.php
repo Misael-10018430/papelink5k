@@ -1,34 +1,26 @@
 <?php
-// Iniciar sesión si no está iniciada
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Verificar que sea admin
-if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
+// Verificar que el usuario esté autenticado
+if (!isset($_SESSION['usuario_id'])) {
     header('Location: login.php');
-    exit;
+    exit();
 }
 
-// Variables del empleado
-$nombreEmpleado = $_SESSION['nombre_usuario'] ?? 'Administrador';
-$emailEmpleado = $_SESSION['email_usuario'] ?? '';
-$rolEmpleado = $_SESSION['rol_usuario'] ?? 'Empleado';
-
-// Obtener la página actual
+// Obtener nombre del archivo actual para marcar el menú activo
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo $titulo ?? 'Panel Admin'; ?> - Papelink</title>
-    
+    <title><?php echo $titulo ?? 'Papelink - Panel Administrativo'; ?></title>
     <style>
-        /* ============================================
-           RESET Y BASE
-           ============================================ */
+
         * {
             margin: 0;
             padding: 0;
@@ -41,10 +33,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             display: flex;
             min-height: 100vh;
         }
-        
-        /* ============================================
-           SIDEBAR
-           ============================================ */
+
         .sidebar {
             width: 220px;
             background-color: #34495e;
@@ -76,7 +65,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             font-weight: normal;
         }
         
-        /* Menú */
+
         .menu-admin {
             padding: 25px 0;
         }
@@ -115,38 +104,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             letter-spacing: 1px;
             font-weight: 600;
         }
-        
-        /* Usuario en Sidebar */
-        .user-admin-sidebar {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            padding: 20px;
-            background-color: rgba(0,0,0,0.2);
-            border-top: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .btn-cerrar-sesion {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background-color: #e74c3c;
-            color: white;
-            text-align: center;
-            text-decoration: none;
-            border-radius: 4px;
-            font-size: 13px;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-        
-        .btn-cerrar-sesion:hover {
-            background-color: #c0392b;
-        }
-        
-        /* ============================================
-           CONTENIDO PRINCIPAL
-           ============================================ */
+
         .contenido-admin {
             margin-left: 220px;
             flex: 1;
@@ -160,8 +118,9 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             padding: 15px 30px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.08);
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
+            gap: 20px;
             margin-bottom: 30px;
         }
         
@@ -182,6 +141,24 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             font-size: 12px;
         }
         
+        .btn-cerrar-sesion-top {
+            padding: 8px 18px;
+            background-color: #e74c3c;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .btn-cerrar-sesion-top:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(231, 76, 60, 0.3);
+        }
+        
         .contenedor-principal {
             padding: 0 30px 30px 30px;
             max-width: 1400px;
@@ -195,9 +172,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             font-weight: normal;
         }
         
-        /* ============================================
-           MENSAJES
-           ============================================ */
+
         .mensaje-exito {
             background-color: #d4edda;
             color: #155724;
@@ -218,9 +193,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             font-size: 14px;
         }
         
-        /* ============================================
-           TARJETAS Y GRID
-           ============================================ */
+
         .tarjeta {
             background-color: white;
             padding: 25px;
@@ -260,10 +233,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         .grid-4 {
             grid-template-columns: repeat(4, 1fr);
         }
-        
-        /* ============================================
-           FORMULARIOS
-           ============================================ */
+
         .form-group {
             margin-bottom: 18px;
         }
@@ -307,9 +277,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             font-size: 12px;
         }
         
-        /* ============================================
-           BOTONES
-           ============================================ */
+
         .btn {
             display: inline-block;
             padding: 10px 20px;
@@ -370,9 +338,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             background-color: #2980b9;
         }
         
-        /* ============================================
-           TABLAS
-           ============================================ */
+
         .tabla {
             width: 100%;
             background-color: white;
@@ -409,9 +375,6 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             font-size: 13px;
         }
         
-        /* ============================================
-           BADGES
-           ============================================ */
         .badge {
             display: inline-block;
             padding: 5px 12px;
@@ -444,10 +407,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
-        
-        /* ============================================
-           FILTROS
-           ============================================ */
+
         .filtros {
             background-color: white;
             padding: 20px;
@@ -456,19 +416,13 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
             border: 1px solid #e0e0e0;
         }
-        
-        /* ============================================
-           ACCIONES
-           ============================================ */
+
         .acciones {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
         }
-        
-        /* ============================================
-           MÉTRICAS - DISEÑO SIMPLE CON BORDE NARANJA
-           ============================================ */
+
         .tarjeta-metrica {
             background-color: white;
             border: 2px solid #FF6347;
@@ -492,10 +446,6 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             margin: 0;
             font-weight: normal;
         }
-        
-        /* ============================================
-           ALERTAS
-           ============================================ */
         .alerta {
             padding: 14px;
             border-radius: 4px;
@@ -521,10 +471,6 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             color: #721c24;
             border-left-color: #dc3545;
         }
-        
-        /* ============================================
-           RESPONSIVE
-           ============================================ */
         @media (max-width: 1024px) {
             .grid-4 {
                 grid-template-columns: repeat(2, 1fr);
@@ -552,6 +498,12 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             
             .top-bar {
                 padding: 12px 15px;
+                justify-content: center;
+            }
+            
+            .user-info-top strong,
+            .user-info-top span {
+                display: none;
             }
             
             .grid-2,
@@ -573,79 +525,88 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 </head>
 <body>
     <!-- SIDEBAR -->
-    <aside class="sidebar">
+    <div class="sidebar">
         <div class="logo-admin">
             <h1>PAPELINK</h1>
             <p>Panel Administrativo</p>
         </div>
         
-        <nav class="menu-admin">
+        <div class="menu-admin">
+            <!-- Dashboard -->
             <a href="dashboard.php" class="<?php echo $paginaActual == 'dashboard' ? 'activo' : ''; ?>">
                 Dashboard
             </a>
             
+            <!-- VENTAS -->
             <div class="menu-seccion">
-                <h3>Ventas</h3>
-                <a href="pedidos.php" class="<?php echo $paginaActual == 'pedidos' || $paginaActual == 'pedido_detalle' ? 'activo' : ''; ?>">
-                    Pedidos
-                </a>
-                <a href="envios.php" class="<?php echo $paginaActual == 'envios' || $paginaActual == 'envio_detalle' ? 'activo' : ''; ?>">
-                    Envíos
-                </a>
-                <a href="devoluciones.php" class="<?php echo $paginaActual == 'devoluciones' || $paginaActual == 'devolucion_detalle' ? 'activo' : ''; ?>">
-                    Devoluciones
-                </a>
+                <h3>VENTAS</h3>
             </div>
+            <a href="pedidos.php" class="<?php echo $paginaActual == 'pedidos' ? 'activo' : ''; ?>">
+                Pedidos
+            </a>
+            <a href="envios.php" class="<?php echo $paginaActual == 'envios' ? 'activo' : ''; ?>">
+                Envíos
+            </a>
+            <a href="devoluciones.php" class="<?php echo $paginaActual == 'devoluciones' ? 'activo' : ''; ?>">
+                Devoluciones
+            </a>
             
+            <!-- INVENTARIO -->
             <div class="menu-seccion">
-                <h3>Inventario</h3>
-                <a href="productos.php" class="<?php echo $paginaActual == 'productos' ? 'activo' : ''; ?>">
-                    Productos
-                </a>
-                <a href="inventario.php" class="<?php echo $paginaActual == 'inventario' ? 'activo' : ''; ?>">
-                    Inventario
-                </a>
-                <a href="categorias.php" class="<?php echo $paginaActual == 'categorias' ? 'activo' : ''; ?>">
-                    Categorías
-                </a>
-                <a href="marcas.php" class="<?php echo $paginaActual == 'marcas' ? 'activo' : ''; ?>">
-                    Marcas
-                </a>
+                <h3>INVENTARIO</h3>
             </div>
+            <a href="productos.php" class="<?php echo $paginaActual == 'productos' ? 'activo' : ''; ?>">
+                Productos
+            </a>
+            <a href="inventario.php" class="<?php echo $paginaActual == 'inventario' ? 'activo' : ''; ?>">
+                Inventario
+            </a>
+            <a href="categorias.php" class="<?php echo $paginaActual == 'categorias' ? 'activo' : ''; ?>">
+                Categorías
+            </a>
+            <a href="marcas.php" class="<?php echo $paginaActual == 'marcas' ? 'activo' : ''; ?>">
+                Marcas
+            </a>
             
+            <!-- GESTIÓN -->
             <div class="menu-seccion">
-                <h3>Gestión</h3>
-                <a href="clientes.php" class="<?php echo $paginaActual == 'clientes' ? 'activo' : ''; ?>">
-                    Clientes
-                </a>
-                <a href="proveedores.php" class="<?php echo $paginaActual == 'proveedores' ? 'activo' : ''; ?>">
-                    Proveedores
-                </a>
+                <h3>GESTIÓN</h3>
             </div>
+            <a href="clientes.php" class="<?php echo $paginaActual == 'clientes' ? 'activo' : ''; ?>">
+                Clientes
+            </a>
+            <a href="proveedores.php" class="<?php echo $paginaActual == 'proveedores' ? 'activo' : ''; ?>">
+                Proveedores
+            </a>
+            
+            <!-- ADMINISTRACIÓN -->
             <div class="menu-seccion">
-                <h3>Configuraciones</h3>
-                <a href="empleados.php" class="<?php echo $paginaActual == 'clientes' ? 'activo' : ''; ?>">
-                    Empleados
-                </a>
+                <h3>ADMINISTRACIÓN</h3>
             </div>
-        </nav>
-        
-        <div class="user-admin-sidebar">
-            <a href="../../controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
+            <a href="empleados.php" class="<?php echo $paginaActual == 'empleados' ? 'activo' : ''; ?>">
+                Empleados
+            </a>
+            <a href="configuracion.php" class="<?php echo $paginaActual == 'configuracion' ? 'activo' : ''; ?>">
+                Configuración
+            </a>
+            <a href="reporte.php" class="<?php echo $paginaActual == 'reportes' ? 'activo' : ''; ?>">
+                Reportes
+            </a>
+            </div>
+    </div>
+    
+    <!-- CONTENIDO PRINCIPAL -->
+    <div class="contenido-admin">
+        <!-- TOP BAR -->
+        <div class="top-bar">
+            <div class="user-info-top">
+                <strong><?php echo htmlspecialchars($_SESSION['nombre_completo'] ?? 'Usuario'); ?></strong>
+                <span>Administrador del Sistema</span>
+            </div>
+            <a href="../../controllers/AuthController.php?action=logout" class="btn-cerrar-sesion-top">
                 Cerrar Sesión
             </a>
         </div>
-    </aside>
-    
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="contenido-admin">
-        <!-- Top Bar con Información del Usuario -->
-        <div class="top-bar">
-            <div></div>
-            <div class="user-info-top">
-                <strong><?php echo htmlspecialchars($nombreEmpleado); ?></strong>
-                <span><?php echo htmlspecialchars($emailEmpleado); ?> | <?php echo htmlspecialchars($rolEmpleado); ?></span>
-            </div>
-        </div>
         
+        <!-- CONTENEDOR PRINCIPAL -->
         <div class="contenedor-principal">

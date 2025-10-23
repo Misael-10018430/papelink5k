@@ -374,9 +374,11 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             <li><a href="<?php echo BASE_PATH; ?>categorias.php">Categorías</a></li>
             <li><a href="<?php echo BASE_PATH; ?>marcas.php">Marcas</a></li>
             <li><a href="<?php echo BASE_PATH; ?>carrito.php">Mi Carrito</a></li>
+           
             <?php if ($clienteLogueado): ?>
                 <li><a href="<?php echo BASE_PATH; ?>mis_pedidos.php">Mis Pedidos</a></li>
                 <li><a href="<?php echo BASE_PATH; ?>mi_cuenta.php">Mi Cuenta</a></li>
+                 <li><a href="<?php echo BASE_PATH; ?>devoluciones.php">Mis Devoluciones</a></li>
                 <li><a href="../../controllers/AuthController.php?action=logout">Cerrar Sesión</a></li>
             <?php else: ?>
                 <li><a href="<?php echo BASE_PATH; ?>login.php">Iniciar Sesión</a></li>
