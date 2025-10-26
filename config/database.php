@@ -28,8 +28,8 @@ if (!class_exists('Database')) {
         public function getConnection() {
             $this->conn = null;           
             try {
-                // Conexión con PDO para MySQL (cambio importante desde SQL Server)
-                $dsn = "sqlsrv:host={$this->host};dbname={$this->db_name};charset=utf8mb4";
+                // Conexión con PDO para SQL Server (corregido)
+                $dsn = "sqlsrv:Server={$this->host};Database={$this->db_name}";
                 
                 $this->conn = new PDO(
                     $dsn,
@@ -39,7 +39,7 @@ if (!class_exists('Database')) {
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                         PDO::ATTR_EMULATE_PREPARES => false,
-                        PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"
+                        // Eliminada la opción específica de MySQL
                     ]
                 );
                 
@@ -53,7 +53,7 @@ if (!class_exists('Database')) {
             }            
             return $this->conn;
         }
-        
+                
         /**
          * Cerrar conexión
          */
