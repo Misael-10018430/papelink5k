@@ -1,0 +1,49 @@
+{
+  "version": 2,
+  "functions": {
+    "**/*.php": {
+      "runtime": "vercel-php@0.7.0"
+    }
+  },
+  "routes": [
+    {
+      "src": "/assets/(.*)",
+      "dest": "/assets/$1"
+    },
+    {
+      "src": "/cliente/(.*)",
+      "dest": "/cliente/$1"
+    },
+    {
+      "src": "/admin/(.*)",
+      "dest": "/admin/$1"
+    },
+    {
+      "src": "/controllers/(.*)",
+      "dest": "/controllers/$1"
+    },
+    {
+      "src": "/(.*\\.php)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/",
+      "dest": "/index.php"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.php"
+    }
+  ],
+  "env": {
+    "DB_HOST": "@db_host",
+    "DB_NAME": "@db_name", 
+    "DB_USER": "@db_user",
+    "DB_PASSWORD": "@db_password"
+  },
+  "build": {
+    "env": {
+      "PHP_VERSION": "8.1"
+    }
+  }
+}

@@ -1,4 +1,41 @@
 <?php
+require_once __DIR__ . '/config/config.php';
+$db = new Database();
+$conexionExitosa = $db->testConnection();
+// Si hay problema de conexión, mostrar página de mantenimiento
+if (!$conexionExitosa && getenv('VERCEL_ENV') === 'production') {
+    http_response_code(503);
+    include 'mantenimiento.php';
+      exit();
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
 require_once __DIR__ . '/../../controllers/MarcaController.php';
@@ -864,6 +901,11 @@ document.addEventListener('DOMContentLoaded', function() {
         fila.scrollLeft = 0;
     });
 });
+
+<?php if (!$conexionExitosa && getenv('VERCEL_ENV') !== 'production'): ?>
+console.log('⚠️ Advertencia: Problema de conexión a base de datos, usando datos de ejemplo');
+<?php endif; ?>
 </script>
+
 
 <?php include 'includes/footer.php'; ?>
