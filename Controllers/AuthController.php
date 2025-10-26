@@ -1,14 +1,13 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/Auth.php';
+require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../models/Usuario.php';
-
 class AuthController {
-    private $usuarioModel;
-    
+    private $usuarioModel;    
     public function __construct() {
         $this->usuarioModel = new Usuario();
-    }
-    
+    }   
     /**
      * Login Unificado (detecta automáticamente si es cliente o admin)
      */
@@ -16,20 +15,16 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: ../view/cliente/login.php");
             exit();
-        }
-        
+        }        
         $email = trim($_POST['email']);
-        $password = $_POST['password'];
-        
+        $password = $_POST['password'];        
         if (empty($email) || empty($password)) {
             $_SESSION['error'] = 'Todos los campos son obligatorios';
             header("Location: ../view/cliente/login.php");
             exit();
-        }
-        
+        }       
         // Primero intentar login como CLIENTE
-        $resultadoCliente = $this->usuarioModel->loginCliente($email, $password);
-        
+        $resultadoCliente = $this->usuarioModel->loginCliente($email, $password);        
         if (isset($resultadoCliente['success'])) {
             // ES UN CLIENTE
             $_SESSION['cliente_id'] = $resultadoCliente['usuario']['id'];
@@ -42,75 +37,86 @@ class AuthController {
             
             header("Location: ../view/cliente/index.php");
             exit();
-        }
-        
+        }        
         // Si no es cliente, intentar como EMPLEADO
         $resultadoEmpleado = $this->usuarioModel->loginEmpleado($email, $password);
-        
         if (isset($resultadoEmpleado['success'])) {
             // ES UN EMPLEADO
             $_SESSION['usuario_id'] = $resultadoEmpleado['usuario']['id'];
             $_SESSION['nombre_usuario'] = $resultadoEmpleado['usuario']['nombre'];
             $_SESSION['email_usuario'] = $resultadoEmpleado['usuario']['email'];
-            $_SESSION['rol_usuario'] = $resultadoEmpleado['usuario']['rol'];
-            $_SESSION['nivel_acceso'] = $resultadoEmpleado['usuario']['nivel_acceso'];
             $_SESSION['tipo_usuario'] = 'empleado';
             $_SESSION['logueado'] = true;
+            // CARGAR ROLES
+            $roles = $resultadoEmpleado['usuario']['rol'] ?? '';
+            $_SESSION['roles'] = $roles;
+            $_SESSION['rol_usuario'] = $roles;           
+            // VERIFICAR SI ES ADMINISTRADOR
+            if (stripos($roles, 'Administrador') !== false) {
+                $_SESSION['funcionalidades'] = ['*'];
+                $_SESSION['nivel_acceso'] = 100;
+            } else {
+                $database = new Database();
+                $conn = $database->getConnection();
+                $funcionalidades = Auth::cargarFuncionalidades($resultadoEmpleado['usuario']['id'], $conn);
+                $_SESSION['funcionalidades'] = $funcionalidades;
+                $_SESSION['nivel_acceso'] = 50;
+            }            
             $_SESSION['exito'] = '¡Bienvenido, ' . $resultadoEmpleado['usuario']['nombre'] . '!';
-            
             header("Location: ../view/admin/dashboard.php");
             exit();
-        }
-        
-        // Si no es ni cliente ni empleado
-        $_SESSION['error'] = 'Email o contraseña incorrectos';
-        $_SESSION['email_anterior'] = $email;
-        header("Location: ../view/cliente/login.php");
-        exit();
     }
-    
+    }    
     /**
      * Login Admin (directo)
      */
-    public function loginAdmin() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: ../view/admin/login.php");
-            exit();
-        }
-        
-        // ✅ CORREGIDO: Cambiar de $_POST['Email'] a $_POST['email']
-        $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
-        
-        if (empty($email) || empty($password)) {
-            $_SESSION['error'] = 'Todos los campos son obligatorios';
-            header("Location: ../view/admin/login.php");
-            exit();
-        }
-        
-        $resultado = $this->usuarioModel->loginEmpleado($email, $password);
-        
-        if (isset($resultado['success'])) {
-            // Login exitoso
-            $_SESSION['usuario_id'] = $resultado['usuario']['id'];
-            $_SESSION['nombre_usuario'] = $resultado['usuario']['nombre'];
-            $_SESSION['email_usuario'] = $resultado['usuario']['email'];
-            $_SESSION['rol_usuario'] = $resultado['usuario']['rol'];
-            $_SESSION['nivel_acceso'] = $resultado['usuario']['nivel_acceso'];
-            $_SESSION['tipo_usuario'] = 'empleado';
-            $_SESSION['logueado'] = true;
-            $_SESSION['exito'] = '¡Bienvenido, ' . $resultado['usuario']['nombre'] . '!';
-            
-            header("Location: ../view/admin/dashboard.php");
-            exit();
+   public function loginAdmin() {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header("Location: ../view/admin/login.php");
+        exit();
+    }   
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';    
+    if (empty($email) || empty($password)) {
+        $_SESSION['error'] = 'Todos los campos son obligatorios';
+        header("Location: ../view/admin/login.php");
+        exit();
+    }   
+    $resultado = $this->usuarioModel->loginEmpleado($email, $password);   
+    if (isset($resultado['success'])) {
+        // Login exitoso
+        $_SESSION['usuario_id'] = $resultado['usuario']['id'];
+        $_SESSION['nombre_usuario'] = $resultado['usuario']['nombre'];
+        $_SESSION['email_usuario'] = $resultado['usuario']['email'];
+        $_SESSION['tipo_usuario'] = 'empleado';
+        $_SESSION['logueado'] = true;       
+        //  CARGAR ROLES
+        $roles = $resultado['usuario']['rol'] ?? '';
+        $_SESSION['roles'] = $roles;
+        $_SESSION['rol_usuario'] = $roles; // Compatibilidad       
+        //  VERIFICAR SI ES ADMINISTRADOR
+        if (stripos($roles, 'Administrador') !== false) {
+            // Administrador: acceso a TODO
+            $_SESSION['funcionalidades'] = ['*'];
+            $_SESSION['nivel_acceso'] = 100;
         } else {
-            $_SESSION['error'] = $resultado['error'] ?? 'Error desconocido';
-            $_SESSION['email_anterior'] = $email;
-            header("Location: ../view/admin/login.php");
-            exit();
-        }
+            // Otros roles: cargar funcionalidades específicas
+            $database = new Database();
+            $conn = $database->getConnection();
+            $funcionalidades = Auth::cargarFuncionalidades($resultado['usuario']['id'], $conn);
+            $_SESSION['funcionalidades'] = $funcionalidades;
+            $_SESSION['nivel_acceso'] = 50;
+        }       
+        $_SESSION['exito'] = '¡Bienvenido, ' . $resultado['usuario']['nombre'] . '!';
+        header("Location: ../view/admin/dashboard.php");
+        exit();
+    } else {
+        $_SESSION['error'] = $resultado['error'] ?? 'Error desconocido';
+        $_SESSION['email_anterior'] = $email;
+        header("Location: ../view/admin/login.php");
+        exit();
     }
-    
+}    
     /**
      * Login Cliente (directo)
      */
@@ -118,19 +124,15 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: ../view/cliente/login.php");
             exit();
-        }
-        
+        }       
         $email = trim($_POST['email'] ?? '');
-        $password = $_POST['password'] ?? '';
-        
+        $password = $_POST['password'] ?? '';       
         if (empty($email) || empty($password)) {
             $_SESSION['error'] = 'Todos los campos son obligatorios';
             header("Location: ../view/cliente/login.php");
             exit();
-        }
-        
-        $resultado = $this->usuarioModel->loginCliente($email, $password);
-        
+        }       
+        $resultado = $this->usuarioModel->loginCliente($email, $password);        
         if (isset($resultado['success'])) {
             // Login exitoso
             $_SESSION['cliente_id'] = $resultado['usuario']['id'];
@@ -149,8 +151,7 @@ class AuthController {
             header("Location: ../view/cliente/login.php");
             exit();
         }
-    }
-    
+    }   
     /**
      * Registro Cliente - CON LOGIN AUTOMÁTICO 
      */
@@ -158,54 +159,44 @@ class AuthController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: ../view/cliente/registro.php");
             exit();
-        }
-        
+        }       
         // Validar datos
-        $errores = [];
-        
+        $errores = [];        
         $nombre = trim($_POST['nombre'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $telefono = trim($_POST['telefono'] ?? '');
         $direccion = trim($_POST['direccion'] ?? '');
         $password = $_POST['password'] ?? '';
-        $confirmar_password = $_POST['confirmar_password'] ?? '';
-        
+        $confirmar_password = $_POST['confirmar_password'] ?? '';       
         if (empty($nombre)) {
             $errores[] = 'El nombre es obligatorio';
-        }
-        
+        }       
         if (empty($email)) {
             $errores[] = 'El email es obligatorio';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errores[] = 'El email no es válido';
-        }
-        
+        }        
         if (empty($telefono)) {
             $errores[] = 'El teléfono es obligatorio';
-        }
-        
+        }        
         if (empty($password)) {
             $errores[] = 'La contraseña es obligatoria';
         } elseif (strlen($password) < 6) {
             $errores[] = 'La contraseña debe tener al menos 6 caracteres';
-        }
-        
+        }        
         if ($password !== $confirmar_password) {
             $errores[] = 'Las contraseñas no coinciden';
-        }
-        
+        }        
         // Verificar si email ya existe
         if (empty($errores) && $this->usuarioModel->existeEmail($email, 'cliente')) {
             $errores[] = 'El email ya está registrado';
-        }
-        
+        }       
         if (!empty($errores)) {
             $_SESSION['errores'] = $errores;
             $_SESSION['datos_form'] = $_POST;
             header("Location: ../view/cliente/registro.php");
             exit();
-        }
-        
+        }        
         // Registrar cliente
         $datos = [
             'nombre' => $nombre,
@@ -213,10 +204,8 @@ class AuthController {
             'telefono' => $telefono,
             'direccion' => $direccion,
             'password' => $password
-        ];
-        
-        $resultado = $this->usuarioModel->registrarCliente($datos);
-        
+        ];      
+        $resultado = $this->usuarioModel->registrarCliente($datos);        
         if (isset($resultado['success'])) {
             // REGISTRO EXITOSO - Redirigir al login con mensaje
             $_SESSION['registro_exitoso'] = true;
@@ -230,27 +219,22 @@ class AuthController {
             header("Location: ../view/cliente/registro.php");
         }
         exit();
-    }
-    
+    }    
     /**
      * Logout
      */
     public function logout() {
         $tipoUsuario = $_SESSION['tipo_usuario'] ?? 'cliente';
-        $nombreUsuario = $_SESSION['nombre_cliente'] ?? $_SESSION['nombre_usuario'] ?? 'Usuario';
-        
+        $nombreUsuario = $_SESSION['nombre_cliente'] ?? $_SESSION['nombre_usuario'] ?? 'Usuario';        
         // Guardar mensaje antes de destruir sesión
-        $mensajeLogout = '¡Hasta pronto, ' . $nombreUsuario . '! Sesión cerrada correctamente';
-        
+        $mensajeLogout = '¡Hasta pronto, ' . $nombreUsuario . '! Sesión cerrada correctamente';        
         // Destruir todas las variables de sesión
-        $_SESSION = array();
-        
+        $_SESSION = array();        
         // Destruir la sesión
         if (isset($_COOKIE[session_name()])) {
             setcookie(session_name(), '', time()-42000, '/');
         }
-        session_destroy();
-        
+        session_destroy();        
         // Iniciar nueva sesión limpia para el mensaje
         session_start();
         $_SESSION['exito'] = $mensajeLogout;
@@ -262,8 +246,7 @@ class AuthController {
             header("Location: ../view/cliente/index.php");
         }
         exit();
-    }
-    
+    }    
     /**
      * Verificar si usuario está logueado
      */
@@ -277,8 +260,7 @@ class AuthController {
                 header("Location: ../cliente/login.php");
             }
             exit();
-        }
-        
+        }        
         // Verificar que el tipo de usuario coincida
         if ($tipoRequerido && $_SESSION['tipo_usuario'] !== $tipoRequerido) {
             session_destroy();
@@ -286,8 +268,7 @@ class AuthController {
             header("Location: ../cliente/login.php");
             exit();
         }
-    }
-    
+    }   
     /**
      * Verificar si es admin (para proteger rutas admin)
      */
@@ -296,15 +277,13 @@ class AuthController {
             $_SESSION['error'] = 'Debes iniciar sesión como administrador';
             header("Location: ../admin/login.php");
             exit();
-        }
-        
+        }       
         if ($_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso no autorizado. Solo para empleados';
             header("Location: ../cliente/index.php");
             exit();
         }
-    }
-    
+    }    
     /**
      * Verificar si es cliente (para proteger rutas cliente)
      */
@@ -313,8 +292,7 @@ class AuthController {
             $_SESSION['error'] = 'Debes iniciar sesión para continuar';
             header("Location: ../cliente/login.php");
             exit();
-        }
-        
+        }       
         if ($_SESSION['tipo_usuario'] !== 'cliente') {
             $_SESSION['error'] = 'Acceso restringido para clientes';
             header("Location: ../admin/dashboard.php");
@@ -322,44 +300,36 @@ class AuthController {
         }
     }
 }
-
 // =====================================================
 // ENRUTADOR: Procesar las acciones de autenticación
 // =====================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
     $controller = new AuthController();
-    $accion = $_POST['accion'];
-    
+    $accion = $_POST['accion'];    
     switch ($accion) {
         case 'login_unificado':
             $controller->loginUnificado();
-            break;
-        
+            break;        
         case 'login_admin':
             $controller->loginAdmin();
-            break;
-        
+            break;        
         case 'login_cliente':
             $controller->loginCliente();
-            break;
-        
+            break;        
         case 'registro_cliente':
             $controller->registrarCliente();
-            break;
-        
+            break;        
         default:
             header("Location: ../view/cliente/login.php");
             break;
     }
 } elseif (isset($_GET['action'])) {
     $controller = new AuthController();
-    $action = $_GET['action'];
-    
+    $action = $_GET['action'];   
     switch ($action) {
         case 'logout':
             $controller->logout();
-            break;
-        
+            break;        
         default:
             header("Location: ../view/cliente/login.php");
             break;

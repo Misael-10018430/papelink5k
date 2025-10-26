@@ -463,7 +463,6 @@ include __DIR__ . '/includes/header.php';
 
     <!-- Sin devoluciones -->
     <div id="sin-devoluciones" class="sin-datos" style="display: none;">
-        <div class="sin-datos-icon">📦</div>
         <h3>No tienes devoluciones</h3>
         <p>Cuando solicites una devolución, aparecerá aquí.</p>
     </div>
@@ -988,4 +987,4 @@ function getBadgeClass(estado) {
 }
 </script>
 
-<?php include __DIR__ . '/includes/footer_cliente.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

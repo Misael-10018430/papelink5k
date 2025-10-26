@@ -3,17 +3,13 @@
  * Modelo Configuración
  * Gestión de configuraciones del sistema
  */
-
 require_once __DIR__ . '/../config/Database.php';
-
 class Configuracion {
     private $conn;
-
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-
     /**
      * Obtener todas las configuraciones
      */
@@ -21,21 +17,17 @@ class Configuracion {
         try {
             $sql = "EXEC sp_ObtenerConfiguracion";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute();
-            
+            $stmt->execute();       
             $configuraciones = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 $configuraciones[$row['Clave']] = $row;
             }
-            
             return $configuraciones;
-
         } catch (PDOException $e) {
             error_log("Error en obtenerConfiguraciones: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener una configuración específica
      */
@@ -44,16 +36,13 @@ class Configuracion {
             $sql = "SELECT Valor FROM Configuracion WHERE Clave = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$clave]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             return $resultado ? $resultado['Valor'] : null;
-
         } catch (PDOException $e) {
             error_log("Error en obtenerValor: " . $e->getMessage());
             return null;
         }
     }
-
     /**
      * Actualizar configuración
      */
@@ -62,14 +51,11 @@ class Configuracion {
             $sql = "EXEC sp_ActualizarConfiguracion @Clave = ?, @Valor = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$clave, $valor]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Configuración actualizada correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en actualizar: " . $e->getMessage());
             return [
@@ -78,7 +64,6 @@ class Configuracion {
             ];
         }
     }
-
     /**
      * Actualizar múltiples configuraciones
      */
@@ -86,7 +71,6 @@ class Configuracion {
         try {
             $errores = [];
             $exitosas = 0;
-            
             foreach ($configuraciones as $clave => $valor) {
                 $resultado = $this->actualizar($clave, $valor);
                 if ($resultado['success']) {
@@ -95,7 +79,6 @@ class Configuracion {
                     $errores[] = "Error al actualizar {$clave}";
                 }
             }
-            
             if (empty($errores)) {
                 return [
                     'success' => true,
@@ -107,7 +90,6 @@ class Configuracion {
                     'mensaje' => implode(', ', $errores)
                 ];
             }
-
         } catch (Exception $e) {
             error_log("Error en actualizarMultiple: " . $e->getMessage());
             return [
@@ -116,7 +98,6 @@ class Configuracion {
             ];
         }
     }
-
     /**
      * Obtener estados de pedido
      */
@@ -125,15 +106,12 @@ class Configuracion {
             $sql = "EXEC sp_ObtenerEstadosPedido";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
-            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerEstadosPedido: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener estados de envío
      */
@@ -142,15 +120,12 @@ class Configuracion {
             $sql = "EXEC sp_ObtenerEstadosEnvio";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
-            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerEstadosEnvio: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener funcionalidades de un rol
      */
@@ -158,16 +133,13 @@ class Configuracion {
         try {
             $sql = "EXEC sp_ObtenerFuncionalidadesRol @IdRol = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idRol]);
-            
+            $stmt->execute([$idRol]);   
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerFuncionalidadesRol: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener todos los roles con sus funcionalidades
      */
@@ -178,14 +150,11 @@ class Configuracion {
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
             $roles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
             // Obtener funcionalidades por cada rol
             foreach ($roles as &$rol) {
                 $rol['funcionalidades'] = $this->obtenerFuncionalidadesRol($rol['IdRol']);
-            }
-            
+            }  
             return $roles;
-
         } catch (PDOException $e) {
             error_log("Error en obtenerRolesConFuncionalidades: " . $e->getMessage());
             return [];

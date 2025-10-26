@@ -3,175 +3,282 @@
  * Vista: Reportes del Sistema
  * Generación de reportes de ventas, inventario y finanzas
  */
-
+require_once __DIR__ . '/../../config/Auth.php';
+//VERIFICAR PERMISO PARA REPORTES
+Auth::requiereFuncionalidad('REPORTES_VER');
+ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 require_once __DIR__ . '/../../config/config.php';
-
-$titulo = "Reportes del Sistema - Papelink";
+ $titulo = "Reportes del Sistema - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- ===================================
+     ESTILOS CSS PROFESIONAL INTEGRADOS
+     =================================== -->
 <style>
-    .tabs-reportes {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        overflow: hidden;
-        margin-bottom: 20px;
+    /* ===================================
+       VARIABLES DE COLOR Y ESTILOS GENERALES
+       =================================== */
+    :root {
+        --color-primario: #495057;       /* Gris Oscuro para botones principales */
+        --color-primario-hover: #343a40; /* Gris más oscuro para hover */
+        --color-secundario: #6c757d;     /* Gris medio para texto secundario */
+        --color-exito: #28a745;          /* Verde estándar para éxito */
+        --color-peligro: #dc3545;        /* Rojo estándar para peligro/errores */
+        --color-advertencia: #ffc107;    /* Amarillo estándar para advertencia */
+        --color-info: #17a2b8;           /* Azul estándar para información */
+        --color-texto: #212529;          /* Negro suave para texto principal */
+        --color-texto-claro: #6c757d;    /* Gris para texto secundario */
+        --color-fondo: #f8f9fa;          /* Fondo muy claro */
+        --color-blanco: #ffffff;
+        --color-borde: #dee2e6;          /* Gris claro para bordes */
+        --border-radius: 4px;            /* Bordes más sutiles */
+        --sombra: 0 2px 4px rgba(0,0,0,0.05); /* Sombra muy ligera */
     }
-    
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-fondo);
+        color: var(--color-texto);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ===================================
+       LAYOUT Y CONTENEDOR
+       =================================== */
+    .contenedor-principal {
+        padding: 2rem;
+    }
+
+    /* ===================================
+       TIPOGRAFÍA
+       =================================== */
+    h1.titulo-pagina {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--color-texto);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
+    }
+    .subtitulo-reporte {
+        color: var(--color-texto);
+        font-size: 1.125rem;
+        font-weight: 600;
+        margin-bottom: 1.25rem;
+    }
+
+    /* ===================================
+       COMPONENTES: SISTEMA DE TABS
+       =================================== */
+    .tabs-reportes {
+        background: var(--color-blanco);
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--sombra);
+        margin-bottom: 1.5rem;
+    }
     .tabs-header-reportes {
         display: flex;
-        background-color: #f8f9fa;
-        border-bottom: 2px solid #e0e0e0;
+        background-color: var(--color-fondo);
+        border-bottom: 1px solid var(--color-borde);
         overflow-x: auto;
     }
-    
     .tab-btn-reporte {
         flex: 1;
         min-width: 150px;
-        padding: 15px 20px;
+        padding: 1rem 1.25rem;
         background: none;
         border: none;
-        color: #7f8c8d;
-        font-size: 13px;
+        color: var(--color-texto-claro);
+        font-size: 0.875rem;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s;
         border-bottom: 3px solid transparent;
         white-space: nowrap;
     }
-    
     .tab-btn-reporte:hover {
-        background-color: #f0f0f0;
+        background-color: #e9ecef;
+        color: var(--color-texto);
     }
-    
     .tab-btn-reporte.activo {
-        color: #FF6347;
-        border-bottom-color: #FF6347;
-        background-color: white;
+        color: var(--color-primario);
+        border-bottom-color: var(--color-primario);
+        background-color: var(--color-blanco);
     }
-    
     .tab-content-reporte {
         display: none;
-        padding: 30px;
+        padding: 2rem;
     }
-    
     .tab-content-reporte.activo {
         display: block;
     }
-    
+
+    /* ===================================
+       COMPONENTES: FORMULARIOS Y FILTROS
+       =================================== */
     .filtros-reporte {
-        background: #f8f9fa;
-        padding: 20px;
-        border-radius: 6px;
-        margin-bottom: 25px;
+        background: var(--color-fondo);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
     }
-    
     .filtros-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
+        gap: 1rem;
         align-items: end;
     }
-    
     .campo-filtro label {
         display: block;
-        color: #2C3E50;
-        font-size: 13px;
+        color: var(--color-texto);
+        font-size: 0.8125rem;
         font-weight: 600;
-        margin-bottom: 6px;
+        margin-bottom: 0.5rem;
     }
-    
     .campo-filtro input,
     .campo-filtro select {
         width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 0.75rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
+    .campo-filtro input:focus,
+    .campo-filtro select:focus {
+        outline: none;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
+    }
+
+    /* ===================================
+       COMPONENTES: TARJETAS DE ESTADÍSTICAS
+       =================================== */
     .estadisticas-cards {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 25px;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
     }
-    
     .estadistica-card {
-        background: white;
-        border-left: 4px solid #FF6347;
-        padding: 20px;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        background: var(--color-blanco);
+        border-left: 4px solid var(--color-primario);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        box-shadow: var(--sombra);
     }
-    
     .estadistica-valor {
-        font-size: 28px;
+        font-size: 2rem;
         font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 5px;
+        color: var(--color-texto);
+        margin-bottom: 0.5rem;
     }
-    
     .estadistica-label {
-        font-size: 12px;
-        color: #7f8c8d;
+        font-size: 0.75rem;
+        color: var(--color-texto-claro);
         text-transform: uppercase;
+        font-weight: 500;
     }
-    
+
+    /* ===================================
+       COMPONENTES: TABLAS
+       =================================== */
     .tabla-reporte {
-        background: white;
-        border-radius: 6px;
+        background: var(--color-blanco);
+        border-radius: var(--border-radius);
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        margin-bottom: 20px;
+        box-shadow: var(--sombra);
+        margin-bottom: 1.5rem;
     }
-    
     .tabla-reporte table {
         width: 100%;
         border-collapse: collapse;
     }
-    
     .tabla-reporte thead {
-        background-color: #34495e;
-        color: white;
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
     }
-    
     .tabla-reporte th {
-        padding: 14px;
+        padding: 1rem;
         text-align: left;
         font-weight: 600;
-        font-size: 12px;
+        font-size: 0.75rem;
+        text-transform: uppercase;
     }
-    
     .tabla-reporte td {
-        padding: 12px 14px;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 13px;
+        padding: 0.875rem 1rem;
+        border-bottom: 1px solid var(--color-borde);
+        font-size: 0.875rem;
     }
-    
     .tabla-reporte tbody tr:hover {
-        background-color: #f8f9fa;
+        background-color: rgba(0,0,0,.02);
     }
-    
+    .texto-pequeno { font-size: 0.8rem; color: var(--color-texto-claro); }
+
+    /* ===================================
+       COMPONENTES: ESTADOS ESPECIALES
+       =================================== */
     .sin-datos {
         text-align: center;
-        padding: 40px;
-        color: #7f8c8d;
-        background: #f8f9fa;
-        border-radius: 6px;
+        padding: 2.5rem;
+        color: var(--color-texto-claro);
+        background: var(--color-fondo);
+        border-radius: var(--border-radius);
     }
-    
     .loading {
         text-align: center;
-        padding: 40px;
-        color: #FF6347;
+        padding: 2.5rem;
+        color: var(--color-primario);
+        font-style: italic;
+    }
+    .posicion-destacada {
+        font-size: 1.125rem;
+        color: var(--color-primario);
+    }
+    .fila-stock-critico {
+        background-color: rgba(255, 193, 7, 0.1) !important;
+    }
+    .valor-critico {
+        color: var(--color-peligro);
+        font-weight: 600;
+    }
+    .valor-faltante {
+        color: var(--color-advertencia);
+        font-weight: 600;
+    }
+
+    /* ===================================
+       COMPONENTES: BOTONES
+       =================================== */
+    .btn {
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        font-weight: 500;
+        cursor: pointer;
+        border: 1px solid transparent;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+        text-align: center;
+        line-height: 1.5;
+    }
+    .btn-primario { /* Mapeo de btn-naranja */
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
+    }
+    .btn-primario:hover {
+        background-color: var(--color-primario-hover);
     }
 </style>
 
 <div class="contenedor-principal">
     <h1 class="titulo-pagina">Reportes del Sistema</h1>
-
     <div class="tabs-reportes">
         <!-- Tabs Header -->
         <div class="tabs-header-reportes">
@@ -182,7 +289,6 @@ include __DIR__ . '/includes/header.php';
             <button class="tab-btn-reporte" data-tab="productos">Productos Más Vendidos</button>
             <button class="tab-btn-reporte" data-tab="inventario">Inventario Actual</button>
         </div>
-
         <!-- TAB 1: VENTAS POR PERÍODO -->
         <div id="tab-ventas-periodo" class="tab-content-reporte activo">
             <div class="filtros-reporte">
@@ -197,25 +303,22 @@ include __DIR__ . '/includes/header.php';
                             <input type="date" name="fecha_fin" required>
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-naranja">Generar Reporte</button>
+                            <button type="submit" class="btn btn-primario">Generar Reporte</button>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div id="resultado-ventas-periodo" style="display: none;">
                 <div id="estadisticas-ventas-periodo" class="estadisticas-cards"></div>
-                <h3 style="color: #2C3E50; margin-bottom: 15px;">Ventas por Día</h3>
+                <h3 class="subtitulo-reporte">Ventas por Día</h3>
                 <div id="tabla-ventas-dia" class="tabla-reporte"></div>
-                <h3 style="color: #2C3E50; margin-bottom: 15px; margin-top: 25px;">Ventas por Categoría</h3>
+                <h3 class="subtitulo-reporte">Ventas por Categoría</h3>
                 <div id="tabla-ventas-categoria" class="tabla-reporte"></div>
             </div>
-
             <div id="loading-ventas-periodo" class="loading" style="display: none;">
                 Generando reporte...
             </div>
         </div>
-
         <!-- TAB 2: VENTAS POR MÉTODO DE PAGO -->
         <div id="tab-ventas-metodo" class="tab-content-reporte">
             <div class="filtros-reporte">
@@ -230,22 +333,19 @@ include __DIR__ . '/includes/header.php';
                             <input type="date" name="fecha_fin" required>
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-naranja">Generar Reporte</button>
+                            <button type="submit" class="btn btn-primario">Generar Reporte</button>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div id="resultado-ventas-metodo" style="display: none;">
-                <h3 style="color: #2C3E50; margin-bottom: 15px;">Ventas por Método de Pago</h3>
+                <h3 class="subtitulo-reporte">Ventas por Método de Pago</h3>
                 <div id="tabla-ventas-metodo" class="tabla-reporte"></div>
             </div>
-
             <div id="loading-ventas-metodo" class="loading" style="display: none;">
                 Generando reporte...
             </div>
         </div>
-
         <!-- TAB 3: VENTAS POR CLIENTE -->
         <div id="tab-ventas-cliente" class="tab-content-reporte">
             <div class="filtros-reporte">
@@ -268,22 +368,19 @@ include __DIR__ . '/includes/header.php';
                             </select>
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-naranja">Generar Reporte</button>
+                            <button type="submit" class="btn btn-primario">Generar Reporte</button>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div id="resultado-ventas-cliente" style="display: none;">
-                <h3 style="color: #2C3E50; margin-bottom: 15px;">Mejores Clientes</h3>
+                <h3 class="subtitulo-reporte">Mejores Clientes</h3>
                 <div id="tabla-ventas-cliente" class="tabla-reporte"></div>
             </div>
-
             <div id="loading-ventas-cliente" class="loading" style="display: none;">
                 Generando reporte...
             </div>
         </div>
-
         <!-- TAB 4: REPORTE FINANCIERO -->
         <div id="tab-financiero" class="tab-content-reporte">
             <div class="filtros-reporte">
@@ -298,25 +395,22 @@ include __DIR__ . '/includes/header.php';
                             <input type="date" name="fecha_fin" required>
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-naranja">Generar Reporte</button>
+                            <button type="submit" class="btn btn-primario">Generar Reporte</button>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div id="resultado-financiero" style="display: none;">
                 <div id="estadisticas-financiero" class="estadisticas-cards"></div>
-                <h3 style="color: #2C3E50; margin-bottom: 15px;">Márgenes por Categoría</h3>
+                <h3 class="subtitulo-reporte">Márgenes por Categoría</h3>
                 <div id="tabla-margenes-categoria" class="tabla-reporte"></div>
-                <h3 style="color: #2C3E50; margin-bottom: 15px; margin-top: 25px;">Top 10 Productos Más Rentables</h3>
+                <h3 class="subtitulo-reporte">Top 10 Productos Más Rentables</h3>
                 <div id="tabla-productos-rentables" class="tabla-reporte"></div>
             </div>
-
             <div id="loading-financiero" class="loading" style="display: none;">
                 Generando reporte...
             </div>
         </div>
-
         <!-- TAB 5: PRODUCTOS MÁS VENDIDOS -->
         <div id="tab-productos" class="tab-content-reporte">
             <div class="filtros-reporte">
@@ -339,36 +433,31 @@ include __DIR__ . '/includes/header.php';
                             </select>
                         </div>
                         <div>
-                            <button type="submit" class="btn btn-naranja">Generar Reporte</button>
+                            <button type="submit" class="btn btn-primario">Generar Reporte</button>
                         </div>
                     </div>
                 </form>
             </div>
-
             <div id="resultado-productos" style="display: none;">
-                <h3 style="color: #2C3E50; margin-bottom: 15px;">Productos Más Vendidos</h3>
+                <h3 class="subtitulo-reporte">Productos Más Vendidos</h3>
                 <div id="tabla-productos" class="tabla-reporte"></div>
             </div>
-
             <div id="loading-productos" class="loading" style="display: none;">
                 Generando reporte...
             </div>
         </div>
-
         <!-- TAB 6: INVENTARIO ACTUAL -->
         <div id="tab-inventario" class="tab-content-reporte">
             <div class="filtros-reporte">
-                <button type="button" id="btn-inventario" class="btn btn-naranja">Generar Reporte de Inventario</button>
+                <button type="button" id="btn-inventario" class="btn btn-primario">Generar Reporte de Inventario</button>
             </div>
-
             <div id="resultado-inventario" style="display: none;">
                 <div id="estadisticas-inventario" class="estadisticas-cards"></div>
-                <h3 style="color: #2C3E50; margin-bottom: 15px;">Inventario por Categoría</h3>
+                <h3 class="subtitulo-reporte">Inventario por Categoría</h3>
                 <div id="tabla-inventario-categoria" class="tabla-reporte"></div>
-                <h3 style="color: #2C3E50; margin-bottom: 15px; margin-top: 25px;">Productos con Stock Crítico</h3>
+                <h3 class="subtitulo-reporte">Productos con Stock Crítico</h3>
                 <div id="tabla-stock-critico" class="tabla-reporte"></div>
             </div>
-
             <div id="loading-inventario" class="loading" style="display: none;">
                 Generando reporte...
             </div>
@@ -376,7 +465,6 @@ include __DIR__ . '/includes/header.php';
 
     </div>
 </div>
-
 <script>
 // ============================================
 // SISTEMA DE TABS
@@ -615,7 +703,7 @@ document.getElementById('form-financiero').addEventListener('submit', function(e
             if (productos_rentables.length > 0) {
                 let tablaHTML = '<table><thead><tr><th>Producto</th><th>Unidades</th><th>Ventas</th><th>Costos</th><th>Ganancia Neta</th><th>% Margen</th></tr></thead><tbody>';
                 productos_rentables.forEach((item, index) => {
-                    tablaHTML += `<tr><td><strong>${index + 1}. ${item.NombreProducto}</strong><br><small style="color: #7f8c8d;">${item.CodigoProducto}</small></td><td>${formatearNumero(item.UnidadesVendidas)}</td><td>${formatearMoneda(item.VentasTotales)}</td><td>${formatearMoneda(item.CostosTotales)}</td><td>${formatearMoneda(item.GananciaNeta)}</td><td>${formatearPorcentaje(item.PorcentajeMargen)}</td></tr>`;
+                    tablaHTML += `<tr><td><strong>${index + 1}. ${item.NombreProducto}</strong><br><small class="texto-pequeno">${item.CodigoProducto}</small></td><td>${formatearNumero(item.UnidadesVendidas)}</td><td>${formatearMoneda(item.VentasTotales)}</td><td>${formatearMoneda(item.CostosTotales)}</td><td>${formatearMoneda(item.GananciaNeta)}</td><td>${formatearPorcentaje(item.PorcentajeMargen)}</td></tr>`;
                 });
                 tablaHTML += '</tbody></table>';
                 document.getElementById('tabla-productos-rentables').innerHTML = tablaHTML;
@@ -656,7 +744,7 @@ document.getElementById('form-productos').addEventListener('submit', function(e)
         if (data.success && data.datos.length > 0) {
             let tablaHTML = '<table><thead><tr><th>Posición</th><th>Producto</th><th>Categoría</th><th>Marca</th><th>Unidades Vendidas</th><th>Pedidos</th><th>Ventas Totales</th><th>Precio Promedio</th></tr></thead><tbody>';
             data.datos.forEach((item, index) => {
-                tablaHTML += `<tr><td><strong style="font-size: 18px; color: #FF6347;">#${index + 1}</strong></td><td><strong>${item.NombreProducto}</strong><br><small style="color: #7f8c8d;">${item.CodigoProducto}</small></td><td>${item.NombreCategoria}</td><td>${item.NombreMarca}</td><td>${formatearNumero(item.UnidadesVendidas)}</td><td>${formatearNumero(item.PedidosConProducto)}</td><td>${formatearMoneda(item.VentasTotales)}</td><td>${formatearMoneda(item.PrecioPromedio)}</td></tr>`;
+                tablaHTML += `<tr><td><strong class="posicion-destacada">#${index + 1}</strong></td><td><strong>${item.NombreProducto}</strong><br><small class="texto-pequeno">${item.CodigoProducto}</small></td><td>${item.NombreCategoria}</td><td>${item.NombreMarca}</td><td>${formatearNumero(item.UnidadesVendidas)}</td><td>${formatearNumero(item.PedidosConProducto)}</td><td>${formatearMoneda(item.VentasTotales)}</td><td>${formatearMoneda(item.PrecioPromedio)}</td></tr>`;
             });
             tablaHTML += '</tbody></table>';
             document.getElementById('tabla-productos').innerHTML = tablaHTML;
@@ -724,12 +812,12 @@ document.getElementById('btn-inventario').addEventListener('click', function() {
             if (stock_critico.length > 0) {
                 let tablaHTML = '<table><thead><tr><th>Producto</th><th>Categoría</th><th>Stock Disponible</th><th>Stock Mínimo</th><th>Unidades Faltantes</th></tr></thead><tbody>';
                 stock_critico.forEach(item => {
-                    tablaHTML += `<tr style="background-color: #fff3cd;"><td><strong>${item.NombreProducto}</strong><br><small style="color: #7f8c8d;">${item.CodigoProducto}</small></td><td>${item.NombreCategoria}</td><td><strong style="color: #e74c3c;">${formatearNumero(item.CantidadDisponible)}</strong></td><td>${formatearNumero(item.StockMinimo)}</td><td><strong style="color: #856404;">${formatearNumero(item.UnidadesFaltantes)}</strong></td></tr>`;
+                    tablaHTML += `<tr class="fila-stock-critico"><td><strong>${item.NombreProducto}</strong><br><small class="texto-pequeno">${item.CodigoProducto}</small></td><td>${item.NombreCategoria}</td><td><strong class="valor-critico">${formatearNumero(item.CantidadDisponible)}</strong></td><td>${formatearNumero(item.StockMinimo)}</td><td><strong class="valor-faltante">${formatearNumero(item.UnidadesFaltantes)}</strong></td></tr>`;
                 });
                 tablaHTML += '</tbody></table>';
                 document.getElementById('tabla-stock-critico').innerHTML = tablaHTML;
             } else {
-                document.getElementById('tabla-stock-critico').innerHTML = '<div class="sin-datos">No hay productos con stock crítico 👍</div>';
+                document.getElementById('tabla-stock-critico').innerHTML = '<div class="sin-datos">No hay productos con stock crítico</div>';
             }
             resultado.style.display = 'block';
         } else {
@@ -743,5 +831,4 @@ document.getElementById('btn-inventario').addEventListener('click', function() {
     });
 });
 </script>
-
 <?php include __DIR__ . '/includes/footer.php'; ?>

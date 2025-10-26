@@ -1,959 +1,452 @@
 <?php
-/**
- * Vista: Gestión de Devoluciones (Admin)
- * Panel administrativo para gestionar devoluciones de clientes
- */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../config/Auth.php';
+
+// ✅ VERIFICAR PERMISOS PARA DEVOLUCIONES
+Auth::requiereFuncionalidad('DEVOLUCIONES_VER');
+
+ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
 require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../controllers/DevolucionAdminController.php';
 
-$titulo = "Gestión de Devoluciones - Papelink Admin";
+// ✅ NO CREAR INSTANCIA AQUÍ - Se hará por AJAX
+
+ $titulo = "Gestión de Devoluciones";
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- ===================================
+     ESTILOS CSS PROFESIONAL INTEGRADOS
+     =================================== -->
 <style>
-    /* ============================================
-       ESTADÍSTICAS
-       ============================================ */
-    .estadisticas-devoluciones {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        margin-bottom: 30px;
+    /* ===================================
+       VARIABLES DE COLOR Y ESTILOS GENERALES
+       =================================== */
+    :root {
+        --color-primario: #495057;       /* Gris Oscuro para botones principales */
+        --color-primario-hover: #343a40; /* Gris más oscuro para hover */
+        --color-secundario: #6c757d;     /* Gris medio para botones secundarios */
+        --color-exito: #28a745;          /* Verde estándar para éxito */
+        --color-error: #dc3545;          /* Rojo estándar para error */
+        --color-advertencia: #ffc107;    /* Amarillo estándar para advertencia */
+        --color-info: #17a2b8;           /* Azul estándar para información */
+        --color-texto: #212529;          /* Negro suave para texto */
+        --color-texto-claro: #6c757d;    /* Gris para texto secundario */
+        --color-fondo: #f8f9fa;          /* Fondo muy claro */
+        --color-blanco: #ffffff;
+        --color-borde: #dee2e6;          /* Gris claro para bordes */
+        --border-radius: 4px;            /* Bordes más sutiles */
+        --sombra: 0 2px 4px rgba(0,0,0,0.05); /* Sombra muy ligera */
     }
-    
-    .tarjeta-estadistica {
-        background: white;
-        border-left: 4px solid #FF6347;
-        padding: 20px;
-        border-radius: 6px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-fondo);
+        color: var(--color-texto);
+        line-height: 1.6;
+        margin: 0;
+        padding: 2rem;
     }
-    
-    .estadistica-valor {
-        font-size: 32px;
-        font-weight: 700;
-        color: #2C3E50;
-        margin-bottom: 5px;
-    }
-    
-    .estadistica-label {
-        font-size: 12px;
-        color: #7f8c8d;
-        text-transform: uppercase;
-    }
-    
-    /* ============================================
-       FILTROS Y BÚSQUEDA
-       ============================================ */
-    .panel-filtros {
-        background: white;
-        padding: 20px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    
-    .filtros-row {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 15px;
-        align-items: end;
-    }
-    
-    .campo-filtro label {
-        display: block;
-        margin-bottom: 6px;
-        color: #2C3E50;
-        font-size: 13px;
+
+    /* ===================================
+       TIPOGRAFÍA
+       =================================== */
+    h1.titulo-pagina {
+        font-size: 1.75rem;
         font-weight: 600;
+        color: var(--color-texto);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
     }
-    
-    .campo-filtro input,
-    .campo-filtro select {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+
+    /* ===================================
+       SISTEMA DE GRID
+       =================================== */
+    .grid {
+        display: grid;
+        gap: 1.5rem;
     }
-    
-    .busqueda-rapida {
-        margin-bottom: 15px;
+
+    .grid-4 {
+        grid-template-columns: repeat(4, 1fr);
     }
-    
-    .busqueda-rapida input {
-        width: 100%;
-        padding: 12px 15px;
-        border: 2px solid #e0e0e0;
-        border-radius: 4px;
-        font-size: 14px;
+    .grid-5 {
+        grid-template-columns: repeat(5, 1fr);
     }
-    
-    .busqueda-rapida input:focus {
-        outline: none;
-        border-color: #FF6347;
+
+    @media (max-width: 1200px) {
+        .grid-5 { grid-template-columns: repeat(3, 1fr); }
     }
-    
-    .filtros-estado {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
+    @media (max-width: 1024px) {
+        .grid-4, .grid-5 { grid-template-columns: repeat(2, 1fr); }
     }
-    
-    .btn-filtro-estado {
-        padding: 8px 16px;
-        border: 2px solid #e0e0e0;
-        background: white;
-        color: #7f8c8d;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 13px;
+    @media (max-width: 600px) {
+        .grid-4, .grid-5 { grid-template-columns: 1fr; }
+    }
+
+    /* ===================================
+       COMPONENTES: TARJETAS
+       =================================== */
+    .tarjeta, .tarjeta-metrica {
+        background: var(--color-blanco);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-borde);
+    }
+
+    .tarjeta-metrica {
+        text-align: center;
+    }
+
+    .tarjeta-metrica h3 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--color-primario);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .tarjeta-metrica p {
+        color: var(--color-texto-claro);
+        margin: 0;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* ===================================
+       COMPONENTES: MENSAJES
+       =================================== */
+    .mensaje-exito, .mensaje-error {
+        padding: 1rem 1.25rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
+        border: 1px solid;
         font-weight: 500;
-        transition: all 0.3s;
     }
-    
-    .btn-filtro-estado:hover {
-        border-color: #FF6347;
-        color: #FF6347;
-    }
-    
-    .btn-filtro-estado.activo {
-        background: #FF6347;
-        color: white;
-        border-color: #FF6347;
-    }
-    
-    /* ============================================
-       TABLA DE DEVOLUCIONES
-       ============================================ */
-    .tabla-devoluciones {
-        background: white;
-        border-radius: 6px;
-        overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-        margin-bottom: 20px;
-    }
-    
-    .tabla-devoluciones table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .tabla-devoluciones thead {
-        background-color: #34495e;
-        color: white;
-    }
-    
-    .tabla-devoluciones th {
-        padding: 14px;
-        text-align: left;
-        font-weight: 600;
-        font-size: 13px;
-    }
-    
-    .tabla-devoluciones td {
-        padding: 14px;
-        border-bottom: 1px solid #f0f0f0;
-        font-size: 13px;
-    }
-    
-    .tabla-devoluciones tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .info-cliente {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .nombre-cliente {
-        font-weight: 600;
-        color: #2C3E50;
-        margin-bottom: 3px;
-    }
-    
-    .email-cliente {
-        font-size: 12px;
-        color: #7f8c8d;
-    }
-    
-    /* ============================================
-       BADGES
-       ============================================ */
-    .badge {
-        display: inline-block;
-        padding: 5px 12px;
-        border-radius: 3px;
-        font-size: 11px;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    
-    .badge-amarillo {
-        background-color: #fff3cd;
-        color: #856404;
-        border: 1px solid #ffeaa7;
-    }
-    
-    .badge-azul {
-        background-color: #d1ecf1;
-        color: #0c5460;
-        border: 1px solid #bee5eb;
-    }
-    
-    .badge-verde {
+    .mensaje-exito {
         background-color: #d4edda;
         color: #155724;
-        border: 1px solid #c3e6cb;
+        border-color: #c3e6cb;
     }
-    
-    .badge-rojo {
+    .mensaje-error {
         background-color: #f8d7da;
         color: #721c24;
-        border: 1px solid #f5c6cb;
+        border-color: #f5c6cb;
     }
-    
-    /* ============================================
-       BOTONES DE ACCIÓN
-       ============================================ */
-    .acciones {
-        display: flex;
-        gap: 5px;
+
+    /* ===================================
+       COMPONENTES: FILTROS Y FORMULARIOS
+       =================================== */
+    .filtros {
+        background: var(--color-blanco);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-borde);
+        margin-bottom: 1.5rem;
     }
-    
-    .btn-sm {
-        padding: 6px 12px;
-        font-size: 12px;
-        border-radius: 3px;
-        border: none;
-        cursor: pointer;
-        font-weight: 600;
-        transition: all 0.3s;
-        text-decoration: none;
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--color-texto);
+    }
+    .form-group input[type="text"],
+    .form-group input[type="date"],
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input[type="text"]:focus,
+    .form-group input[type="date"]:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
+    }
+
+    /* ===================================
+       COMPONENTES: BOTONES
+       =================================== */
+    .btn {
         display: inline-block;
+        padding: 0.75rem 1rem;
+        border: 1px solid transparent;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        font-weight: 500;
         text-align: center;
-    }
-    
-    .btn-naranja {
-        background-color: #FF6347;
-        color: white;
-    }
-    
-    .btn-naranja:hover {
-        background-color: #e5533d;
-    }
-    
-    .btn-verde {
-        background-color: #27ae60;
-        color: white;
-    }
-    
-    .btn-verde:hover {
-        background-color: #229954;
-    }
-    
-    .btn-rojo {
-        background-color: #e74c3c;
-        color: white;
-    }
-    
-    .btn-rojo:hover {
-        background-color: #c0392b;
-    }
-    
-    .btn-azul {
-        background-color: #3498db;
-        color: white;
-    }
-    
-    .btn-azul:hover {
-        background-color: #2980b9;
-    }
-    
-    .btn-blanco {
-        background-color: white;
-        color: #333;
-        border: 1px solid #ddd;
-    }
-    
-    .btn-blanco:hover {
-        background-color: #f8f9fa;
-    }
-    
-    /* ============================================
-       MODAL
-       ============================================ */
-    .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 9999;
-        overflow-y: auto;
-    }
-    
-    .modal.activo {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-    }
-    
-    .modal-contenido {
-        background: white;
-        border-radius: 8px;
-        width: 100%;
-        max-width: 900px;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-    }
-    
-    .modal-header {
-        background: #34495e;
-        color: white;
-        padding: 20px 25px;
-        border-radius: 8px 8px 0 0;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .modal-header h2 {
-        margin: 0;
-        font-size: 22px;
-        font-weight: 600;
-    }
-    
-    .btn-cerrar-modal {
-        background: transparent;
-        border: none;
-        color: white;
-        font-size: 28px;
+        text-decoration: none;
         cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s;
+        line-height: 1.5;
+    }
+    .btn-primario { /* Mapeo de btn-naranja */
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
+        border-color: var(--color-primario);
+    }
+    .btn-primario:hover {
+        background-color: var(--color-primario-hover);
+        border-color: var(--color-primario-hover);
+    }
+    .btn-blanco {
+        background-color: var(--color-blanco);
+        color: var(--color-texto);
+        border-color: var(--color-borde);
+    }
+    .btn-blanco:hover {
+        background-color: #e2e6ea;
+        border-color: #dae0e5;
+    }
+
+    /* ===================================
+       COMPONENTES: TABLA
+       =================================== */
+    .tabla {
+        width: 100%;
+        background: var(--color-blanco);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-borde);
+        overflow: hidden;
+        border-collapse: collapse;
+    }
+    .tabla thead { background-color: var(--color-fondo); }
+    .tabla th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--color-texto);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--color-borde);
+    }
+    .tabla td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-top: 1px solid var(--color-borde);
+    }
+    .tabla tbody tr:hover { background-color: rgba(0,0,0,.02); }
+
+    /* ===================================
+       COMPONENTES: BADGES
+       =================================== */
+    .badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        font-weight: 600;
         line-height: 1;
-        padding: 0;
-    }
-    
-    .modal-body {
-        padding: 25px;
-    }
-    
-    .modal-footer {
-        padding: 20px 25px;
-        border-top: 1px solid #e0e0e0;
-        display: flex;
-        justify-content: flex-end;
-        gap: 10px;
-    }
-    
-    /* ============================================
-       LOADING Y SIN DATOS
-       ============================================ */
-    .loading {
         text-align: center;
-        padding: 40px;
-        color: #FF6347;
-        font-size: 16px;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
     }
-    
-    .sin-datos {
-        text-align: center;
-        padding: 60px 20px;
-        color: #7f8c8d;
-        background: #f8f9fa;
-        border-radius: 6px;
-    }
-    
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-    @media (max-width: 768px) {
-        .filtros-row {
-            grid-template-columns: 1fr;
-        }
-        
-        .estadisticas-devoluciones {
-            grid-template-columns: 1fr;
-        }
-        
-        .tabla-devoluciones {
-            overflow-x: auto;
-        }
-        
-        .acciones {
-            flex-direction: column;
-        }
-        
-        .btn-sm {
-            width: 100%;
-        }
-    }
+    .badge-exito { background-color: #d4edda; color: #155724; } /* Mapeo de badge-verde */
+    .badge-peligro { background-color: #f8d7da; color: #721c24; } /* Mapeo de badge-rojo */
+    .badge-info { background-color: #d1ecf1; color: #0c5460; } /* Mapeo de badge-azul */
+    .badge-advertencia { background-color: #fff3cd; color: #856404; } /* Mapeo de badge-amarillo */
 </style>
 
-<div class="contenedor-principal">
-    <h1 class="titulo-pagina">Gestión de Devoluciones</h1>
+<!-- CONTENIDO DE LA PÁGINA -->
+<h1 class="titulo-pagina">Gestión de Devoluciones</h1>
 
-    <!-- Estadísticas -->
-    <div id="estadisticas-devoluciones" class="estadisticas-devoluciones"></div>
+<!-- MENSAJES -->
+<div id="mensaje-container"></div>
 
-    <!-- Panel de Filtros -->
-    <div class="panel-filtros">
-        <!-- Búsqueda Rápida -->
-        <div class="busqueda-rapida">
-            <input 
-                type="text" 
-                id="busqueda-input" 
-                placeholder="🔍 Buscar por cliente, email, pedido o ID de devolución..."
-                onkeyup="buscarDevoluciones(this.value)">
-        </div>
-
-        <!-- Filtros por Estado -->
-        <div class="filtros-estado">
-            <button class="btn-filtro-estado activo" data-estado="TODAS" onclick="cambiarFiltroEstado('TODAS', this)">
-                Todas
-            </button>
-            <button class="btn-filtro-estado" data-estado="SOLICITADA" onclick="cambiarFiltroEstado('SOLICITADA', this)">
-                Solicitadas
-            </button>
-            <button class="btn-filtro-estado" data-estado="APROBADA" onclick="cambiarFiltroEstado('APROBADA', this)">
-                Aprobadas
-            </button>
-            <button class="btn-filtro-estado" data-estado="COMPLETADA" onclick="cambiarFiltroEstado('COMPLETADA', this)">
-                Completadas
-            </button>
-            <button class="btn-filtro-estado" data-estado="RECHAZADA" onclick="cambiarFiltroEstado('RECHAZADA', this)">
-                Rechazadas
-            </button>
-        </div>
-
-        <!-- Filtros Avanzados -->
-        <div class="filtros-row">
-            <div class="campo-filtro">
-                <label>Fecha Inicio</label>
-                <input type="date" id="fecha-inicio">
-            </div>
-            <div class="campo-filtro">
-                <label>Fecha Fin</label>
-                <input type="date" id="fecha-fin">
-            </div>
-            <div>
-                <button class="btn btn-naranja" onclick="aplicarFiltros()">
-                    Aplicar Filtros
-                </button>
-            </div>
-        </div>
+<!-- ESTADÍSTICAS -->
+<div class="grid grid-5" style="margin-bottom: 30px;">
+    <div class="tarjeta-metrica">
+        <h3 id="stat-total">0</h3>
+        <p>TOTAL DEVOLUCIONES</p>
     </div>
-
-    <!-- Loading -->
-    <div id="loading" class="loading" style="display: none;">
-        Cargando devoluciones...
+    <div class="tarjeta-metrica">
+        <h3 id="stat-solicitadas">0</h3>
+        <p>SOLICITADAS</p>
     </div>
-
-    <!-- Tabla de Devoluciones -->
-    <div id="tabla-devoluciones" class="tabla-devoluciones" style="display: none;"></div>
-
-    <!-- Sin Datos -->
-    <div id="sin-datos" class="sin-datos" style="display: none;">
-        <h3>No hay devoluciones</h3>
-        <p>No se encontraron devoluciones con los filtros seleccionados.</p>
+    <div class="tarjeta-metrica">
+        <h3 id="stat-aprobadas">0</h3>
+        <p>APROBADAS</p>
+    </div>
+    <div class="tarjeta-metrica">
+        <h3 id="stat-completadas">0</h3>
+        <p>COMPLETADAS</p>
+    </div>
+    <div class="tarjeta-metrica">
+        <h3 id="stat-rechazadas">0</h3>
+        <p>RECHAZADAS</p>
     </div>
 </div>
 
-<!-- CONTINUARÁ EN PARTE 2 CON MODALES Y JAVASCRIPT -->
-
-<!-- MODAL: DETALLE DE DEVOLUCIÓN -->
-<div id="modal-detalle" class="modal">
-    <div class="modal-contenido">
-        <div class="modal-header">
-            <h2>Detalle de Devolución</h2>
-            <button class="btn-cerrar-modal" onclick="cerrarModalDetalle()">&times;</button>
+<!-- FILTROS -->
+<div class="filtros">
+    <h3 style="margin: 0 0 15px 0; font-size: 1rem;">Filtros de Búsqueda</h3>
+    <form id="form-filtros">
+        <div class="grid grid-4">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Buscar:</label>
+                <input type="text" id="busqueda" name="busqueda" 
+                       placeholder="Cliente, email, pedido o ID...">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Estado:</label>
+                <select id="estado" name="estado">
+                    <option value="TODAS">Todos los estados</option>
+                    <option value="Solicitada">Solicitada</option>
+                    <option value="Aprobada">Aprobada</option>
+                    <option value="Completada">Completada</option>
+                    <option value="Rechazada">Rechazada</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Fecha Inicio:</label>
+                <input type="date" id="fecha_inicio" name="fecha_inicio">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Fecha Fin:</label>
+                <input type="date" id="fecha_fin" name="fecha_fin">
+            </div>
         </div>
-        <div class="modal-body" id="contenido-detalle"></div>
-        <div class="modal-footer" id="acciones-detalle"></div>
-    </div>
+        
+        <div style="margin-top: 15px; display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primario">Aplicar Filtros</button>
+            <button type="button" onclick="limpiarFiltros()" class="btn btn-blanco">Limpiar</button>
+        </div>
+    </form>
 </div>
 
-<!-- MODAL: CONFIRMACIÓN DE ACCIÓN -->
-<div id="modal-confirmacion" class="modal">
-    <div class="modal-contenido" style="max-width: 500px;">
-        <div class="modal-header">
-            <h2 id="titulo-confirmacion">Confirmar Acción</h2>
-            <button class="btn-cerrar-modal" onclick="cerrarModalConfirmacion()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <p id="mensaje-confirmacion" style="font-size: 15px; color: #2C3E50; line-height: 1.6;"></p>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-blanco" onclick="cerrarModalConfirmacion()">Cancelar</button>
-            <button id="btn-confirmar-accion" class="btn btn-naranja">Confirmar</button>
-        </div>
+<!-- TABLA DE DEVOLUCIONES -->
+<div id="tabla-container">
+    <div style="text-align: center; padding: 60px;">
+        <p style="color: var(--color-texto-claro);">Cargando devoluciones...</p>
     </div>
 </div>
 
 <script>
-// ============================================
-// VARIABLES GLOBALES
-// ============================================
-let devolucionesData = [];
-let estadoFiltroActual = 'TODAS';
-let devolucionActual = null;
+// Cargar estadísticas al inicio
+cargarEstadisticas();
+cargarDevoluciones();
 
-// ============================================
-// CARGAR AL INICIO
-// ============================================
-document.addEventListener('DOMContentLoaded', function() {
-    cargarEstadisticas();
+// Enviar formulario de filtros
+document.getElementById('form-filtros').addEventListener('submit', function(e) {
+    e.preventDefault();
     cargarDevoluciones();
-    
-    // Establecer fecha por defecto (último mes)
-    const hoy = new Date();
-    const haceUnMes = new Date();
-    haceUnMes.setMonth(haceUnMes.getMonth() - 1);
-    
-    document.getElementById('fecha-fin').valueAsDate = hoy;
-    document.getElementById('fecha-inicio').valueAsDate = haceUnMes;
 });
 
-// ============================================
-// CARGAR ESTADÍSTICAS
-// ============================================
 function cargarEstadisticas() {
     fetch('../../controllers/DevolucionAdminController.php?action=obtenerEstadisticas')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 const stats = data.estadisticas;
-                document.getElementById('estadisticas-devoluciones').innerHTML = `
-                    <div class="tarjeta-estadistica">
-                        <div class="estadistica-valor">${stats.TotalDevoluciones}</div>
-                        <div class="estadistica-label">Total Devoluciones</div>
-                    </div>
-                    <div class="tarjeta-estadistica">
-                        <div class="estadistica-valor">${stats.Solicitadas}</div>
-                        <div class="estadistica-label">Solicitadas</div>
-                    </div>
-                    <div class="tarjeta-estadistica">
-                        <div class="estadistica-valor">${stats.Aprobadas}</div>
-                        <div class="estadistica-label">Aprobadas</div>
-                    </div>
-                    <div class="tarjeta-estadistica">
-                        <div class="estadistica-valor">${stats.Completadas}</div>
-                        <div class="estadistica-label">Completadas</div>
-                    </div>
-                    <div class="tarjeta-estadistica">
-                        <div class="estadistica-valor">${stats.Rechazadas}</div>
-                        <div class="estadistica-label">Rechazadas</div>
-                    </div>
-                `;
+                document.getElementById('stat-total').textContent = stats.Total || 0;
+                document.getElementById('stat-solicitadas').textContent = stats.Solicitada || 0;
+                document.getElementById('stat-aprobadas').textContent = stats.Aprobada || 0;
+                document.getElementById('stat-completadas').textContent = stats.Completada || 0;
+                document.getElementById('stat-rechazadas').textContent = stats.Rechazada || 0;
             }
         })
         .catch(error => console.error('Error:', error));
 }
 
-// ============================================
-// CARGAR DEVOLUCIONES
-// ============================================
 function cargarDevoluciones() {
-    const loading = document.getElementById('loading');
-    const tabla = document.getElementById('tabla-devoluciones');
-    const sinDatos = document.getElementById('sin-datos');
+    const estado = document.getElementById('estado').value;
+    const fechaInicio = document.getElementById('fecha_inicio').value;
+    const fechaFin = document.getElementById('fecha_fin').value;
     
-    loading.style.display = 'block';
-    tabla.style.display = 'none';
-    sinDatos.style.display = 'none';
-    
-    const fechaInicio = document.getElementById('fecha-inicio').value;
-    const fechaFin = document.getElementById('fecha-fin').value;
-    
-    let url = `../../controllers/DevolucionAdminController.php?action=listarDevoluciones&estado=${estadoFiltroActual}`;
-    if (fechaInicio) url += `&fecha_inicio=${fechaInicio}`;
-    if (fechaFin) url += `&fecha_fin=${fechaFin}`;
+    let url = '../../controllers/DevolucionAdminController.php?action=listarDevoluciones';
+    url += '&estado=' + encodeURIComponent(estado);
+    if (fechaInicio) url += '&fecha_inicio=' + fechaInicio;
+    if (fechaFin) url += '&fecha_fin=' + fechaFin;
     
     fetch(url)
         .then(response => response.json())
         .then(data => {
-            loading.style.display = 'none';
-            
-            if (data.success && data.devoluciones.length > 0) {
-                devolucionesData = data.devoluciones;
-                mostrarDevoluciones(devolucionesData);
-            } else {
-                sinDatos.style.display = 'block';
+            if (data.success) {
+                mostrarDevoluciones(data.devoluciones);
             }
         })
         .catch(error => {
-            loading.style.display = 'none';
             console.error('Error:', error);
-            alert('Error al cargar las devoluciones');
+            document.getElementById('tabla-container').innerHTML = 
+                '<div class="mensaje-error">Error al cargar devoluciones</div>';
         });
 }
 
-// ============================================
-// MOSTRAR DEVOLUCIONES EN TABLA
-// ============================================
 function mostrarDevoluciones(devoluciones) {
-    const tabla = document.getElementById('tabla-devoluciones');
-    
-    let html = `
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Cliente</th>
-                    <th>Pedido</th>
-                    <th>Fecha</th>
-                    <th>Productos</th>
-                    <th>Monto</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    devoluciones.forEach(dev => {
-        html += `
-            <tr>
-                <td><strong>#${dev.IdDevolucion}</strong></td>
-                <td>
-                    <div class="info-cliente">
-                        <span class="nombre-cliente">${dev.NombreCliente}</span>
-                        <span class="email-cliente">${dev.Email}</span>
-                    </div>
-                </td>
-                <td>#${dev.NumeroPedido}</td>
-                <td>${formatearFecha(dev.FechaSolicitud)}</td>
-                <td>${dev.TotalProductos}</td>
-                <td>${formatearMoneda(dev.MontoTotal)}</td>
-                <td><span class="badge ${getBadgeClass(dev.EstadoDevolucion)}">${dev.EstadoDevolucion}</span></td>
-                <td>
-                    <div class="acciones">
-                        <button class="btn-sm btn-naranja" onclick="verDetalle(${dev.IdDevolucion})">Ver</button>
-                        ${getBotonAccion(dev)}
-                    </div>
-                </td>
-            </tr>
+    if (devoluciones.length === 0) {
+        document.getElementById('tabla-container').innerHTML = `
+            <div class="tarjeta" style="text-align: center; padding: 60px;">
+                <h2 style="color: var(--color-texto-claro); font-weight: normal;">No hay devoluciones para mostrar</h2>
+                <p style="color: var(--color-texto-claro); margin-top: 10px;">Las devoluciones aparecerán aquí cuando los clientes las soliciten</p>
+            </div>
         `;
-    });
-    
-    html += '</tbody></table>';
-    tabla.innerHTML = html;
-    tabla.style.display = 'block';
-}
-
-// ============================================
-// OBTENER BOTÓN DE ACCIÓN SEGÚN ESTADO
-// ============================================
-function getBotonAccion(devolucion) {
-    switch(devolucion.EstadoDevolucion) {
-        case 'SOLICITADA':
-            return `
-                <button class="btn-sm btn-verde" onclick="confirmarAccion(${devolucion.IdDevolucion}, 'aprobar')">Aprobar</button>
-                <button class="btn-sm btn-rojo" onclick="confirmarAccion(${devolucion.IdDevolucion}, 'rechazar')">Rechazar</button>
-            `;
-        case 'APROBADA':
-            return `<button class="btn-sm btn-azul" onclick="confirmarAccion(${devolucion.IdDevolucion}, 'completar')">Completar</button>`;
-        case 'COMPLETADA':
-            return `<button class="btn-sm btn-verde" onclick="confirmarAccion(${devolucion.IdDevolucion}, 'reintegrar')">Reintegrar</button>`;
-        default:
-            return '';
-    }
-}
-
-// ============================================
-// CAMBIAR FILTRO DE ESTADO
-// ============================================
-function cambiarFiltroEstado(estado, btn) {
-    document.querySelectorAll('.btn-filtro-estado').forEach(b => b.classList.remove('activo'));
-    btn.classList.add('activo');
-    estadoFiltroActual = estado;
-    cargarDevoluciones();
-}
-
-// ============================================
-// APLICAR FILTROS
-// ============================================
-function aplicarFiltros() {
-    cargarDevoluciones();
-}
-
-// ============================================
-// BUSCAR DEVOLUCIONES
-// ============================================
-let timeoutBusqueda;
-function buscarDevoluciones(termino) {
-    clearTimeout(timeoutBusqueda);
-    
-    if (termino.length < 3) {
-        cargarDevoluciones();
         return;
     }
     
-    timeoutBusqueda = setTimeout(() => {
-        fetch(`../../controllers/DevolucionAdminController.php?action=buscarDevoluciones&termino=${encodeURIComponent(termino)}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.resultados.length > 0) {
-                    devolucionesData = data.resultados;
-                    mostrarDevoluciones(devolucionesData);
-                    document.getElementById('sin-datos').style.display = 'none';
-                    document.getElementById('tabla-devoluciones').style.display = 'block';
-                } else {
-                    document.getElementById('tabla-devoluciones').style.display = 'none';
-                    document.getElementById('sin-datos').style.display = 'block';
-                }
-            })
-            .catch(error => console.error('Error:', error));
-    }, 300);
-}
-
-// ============================================
-// VER DETALLE
-// ============================================
-function verDetalle(idDevolucion) {
-    document.getElementById('modal-detalle').classList.add('activo');
-    document.getElementById('contenido-detalle').innerHTML = '<div class="loading">Cargando...</div>';
+    let html = '<table class="tabla"><thead><tr>';
+    html += '<th>ID</th><th>Fecha</th><th>Cliente</th><th>Pedido</th>';
+    html += '<th>Motivo</th><th>Monto</th><th>Estado</th><th>Acciones</th>';
+    html += '</tr></thead><tbody>';
     
-    fetch(`../../controllers/DevolucionAdminController.php?action=obtenerDetalle&id=${idDevolucion}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                devolucionActual = data.detalle.informacion;
-                mostrarDetalleDevolucion(data.detalle, data.cliente);
-            } else {
-                document.getElementById('contenido-detalle').innerHTML = '<p>Error al cargar el detalle</p>';
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            document.getElementById('contenido-detalle').innerHTML = '<p>Error al cargar el detalle</p>';
-        });
-}
-
-// ============================================
-// MOSTRAR DETALLE COMPLETO
-// ============================================
-function mostrarDetalleDevolucion(detalle, cliente) {
-    const info = detalle.informacion;
-    const productos = detalle.productos;
-    
-    let totalDevolucion = 0;
-    let htmlProductos = '';
-    
-    productos.forEach(producto => {
-        const subtotal = producto.Cantidad * producto.PrecioUnitario;
-        totalDevolucion += subtotal;
+    devoluciones.forEach(dev => {
+        // Mapeo de clases de badges a las nuevas clases profesionales
+        const badgeClass = {
+            'Solicitada': 'badge-advertencia',
+            'Aprobada': 'badge-info',
+            'Completada': 'badge-exito',
+            'Rechazada': 'badge-peligro'
+        }[dev.EstadoDevolucion] || 'badge-secundario';
         
-        htmlProductos += `
-            <tr>
-                <td><strong>${producto.NombreProducto}</strong></td>
-                <td>${producto.Cantidad}</td>
-                <td>${formatearMoneda(producto.PrecioUnitario)}</td>
-                <td>${formatearMoneda(subtotal)}</td>
-            </tr>
-        `;
+        html += `<tr>
+            <td><strong>#${dev.IdDevolucion}</strong></td>
+            <td>${formatearFecha(dev.FechaSolicitud)}</td>
+            <td>${dev.NombreCliente}<br><small style="color:var(--color-texto-claro);">${dev.Email}</small></td>
+            <td><strong>${dev.NumeroPedido}</strong></td>
+            <td><small>${dev.MotivoDevolucion.substring(0, 50)}...</small></td>
+            <td><strong style="color:var(--color-error);">$${formatearPrecio(dev.MontoDevolucion)}</strong></td>
+            <td><span class="badge ${badgeClass}">${dev.EstadoDevolucion}</span></td>
+            <td>
+                <button onclick="verDetalle(${dev.IdDevolucion})" class="btn btn-blanco">
+                    Ver
+                </button>
+            </td>
+        </tr>`;
     });
     
-    const html = `
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <div>
-                <h4 style="color: #2C3E50; margin-bottom: 10px;">Información de la Devolución</h4>
-                <p><strong>ID:</strong> #${info.IdDevolucion}</p>
-                <p><strong>Pedido:</strong> #${info.NumeroPedido}</p>
-                <p><strong>Fecha Solicitud:</strong> ${formatearFecha(info.FechaSolicitud)}</p>
-                <p><strong>Estado:</strong> <span class="badge ${getBadgeClass(info.EstadoDevolucion)}">${info.EstadoDevolucion}</span></p>
-            </div>
-            <div>
-                <h4 style="color: #2C3E50; margin-bottom: 10px;">Información del Cliente</h4>
-                <p><strong>Nombre:</strong> ${cliente.NombreCliente}</p>
-                <p><strong>Email:</strong> ${cliente.Email}</p>
-                <p><strong>Teléfono:</strong> ${cliente.Telefono || 'N/A'}</p>
-            </div>
-        </div>
-        
-        <div style="background: #f8f9fa; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-            <strong style="color: #2C3E50;">Motivo del Cliente:</strong>
-            <p style="margin: 5px 0 0 0; color: #7f8c8d;">${info.Motivo}</p>
-        </div>
-        
-        <h4 style="color: #2C3E50; margin-bottom: 15px;">Productos a Devolver</h4>
-        <table style="width: 100%; border-collapse: collapse;">
-            <thead style="background: #f8f9fa;">
-                <tr>
-                    <th style="padding: 10px; text-align: left;">Producto</th>
-                    <th style="padding: 10px; text-align: left;">Cantidad</th>
-                    <th style="padding: 10px; text-align: left;">Precio Unit.</th>
-                    <th style="padding: 10px; text-align: left;">Subtotal</th>
-                </tr>
-            </thead>
-            <tbody>
-                ${htmlProductos}
-            </tbody>
-            <tfoot style="background: #f8f9fa; font-weight: 600;">
-                <tr>
-                    <td colspan="3" style="padding: 10px; text-align: right;">TOTAL A REEMBOLSAR:</td>
-                    <td style="padding: 10px;">${formatearMoneda(totalDevolucion)}</td>
-                </tr>
-            </tfoot>
-        </table>
-    `;
-    
-    document.getElementById('contenido-detalle').innerHTML = html;
-    
-    // Mostrar botones de acción según el estado
-    mostrarBotonesAccion(info.IdDevolucion, info.EstadoDevolucion);
-}
-
-// ============================================
-// MOSTRAR BOTONES DE ACCIÓN EN MODAL
-// ============================================
-function mostrarBotonesAccion(idDevolucion, estado) {
-    const footer = document.getElementById('acciones-detalle');
-    
-    let botones = '<button class="btn btn-blanco" onclick="cerrarModalDetalle()">Cerrar</button>';
-    
-    switch(estado) {
-        case 'SOLICITADA':
-            botones += `
-                <button class="btn btn-verde" onclick="confirmarAccion(${idDevolucion}, 'aprobar')">Aprobar</button>
-                <button class="btn btn-rojo" onclick="confirmarAccion(${idDevolucion}, 'rechazar')">Rechazar</button>
-            `;
-            break;
-        case 'APROBADA':
-            botones += `<button class="btn btn-azul" onclick="confirmarAccion(${idDevolucion}, 'completar')">Completar</button>`;
-            break;
-        case 'COMPLETADA':
-            botones += `<button class="btn btn-verde" onclick="confirmarAccion(${idDevolucion}, 'reintegrar')">Reintegrar a Disponible</button>`;
-            break;
-    }
-    
-    footer.innerHTML = botones;
-}
-
-// ============================================
-// CONFIRMAR ACCIÓN
-// ============================================
-function confirmarAccion(idDevolucion, accion) {
-    const modal = document.getElementById('modal-confirmacion');
-    const titulo = document.getElementById('titulo-confirmacion');
-    const mensaje = document.getElementById('mensaje-confirmacion');
-    const btnConfirmar = document.getElementById('btn-confirmar-accion');
-    
-    let textoTitulo = '';
-    let textoMensaje = '';
-    let funcionConfirmar = null;
-    
-    switch(accion) {
-        case 'aprobar':
-            textoTitulo = 'Aprobar Devolución';
-            textoMensaje = '¿Estás seguro de aprobar esta devolución? Los productos se marcarán como "En Revisión" cuando se complete.';
-            funcionConfirmar = () => aprobarDevolucion(idDevolucion);
-            break;
-        case 'rechazar':
-            textoTitulo = 'Rechazar Devolución';
-            textoMensaje = '¿Estás seguro de rechazar esta devolución? Esta acción no reintegrará los productos al inventario.';
-            funcionConfirmar = () => rechazarDevolucion(idDevolucion);
-            break;
-        case 'completar':
-            textoTitulo = 'Completar Devolución';
-            textoMensaje = '¿Estás seguro de completar esta devolución? Los productos se moverán automáticamente a "En Revisión".';
-            funcionConfirmar = () => completarDevolucion(idDevolucion);
-            break;
-        case 'reintegrar':
-            textoTitulo = 'Reintegrar Productos';
-            textoMensaje = '¿Estás seguro de reintegrar estos productos? Se moverán de "En Revisión" a "Disponible" para la venta.';
-            funcionConfirmar = () => reintegrarProductos(idDevolucion);
-            break;
-    }
-    
-    titulo.textContent = textoTitulo;
-    mensaje.textContent = textoMensaje;
-    btnConfirmar.onclick = funcionConfirmar;
-    
-    modal.classList.add('activo');
-}
-
-// ============================================
-// ACCIONES: APROBAR, RECHAZAR, COMPLETAR, REINTEGRAR
-// ============================================
-function aprobarDevolucion(idDevolucion) {
-    ejecutarAccion('aprobarDevolucion', idDevolucion, 'Devolución aprobada correctamente');
-}
-
-function rechazarDevolucion(idDevolucion) {
-    ejecutarAccion('rechazarDevolucion', idDevolucion, 'Devolución rechazada correctamente');
-}
-
-function completarDevolucion(idDevolucion) {
-    ejecutarAccion('completarDevolucion', idDevolucion, 'Devolución completada. Productos movidos a "En Revisión"');
-}
-
-function reintegrarProductos(idDevolucion) {
-    ejecutarAccion('reintegrarProductos', idDevolucion, 'Productos reintegrados a inventario disponible');
-}
-
-function ejecutarAccion(accion, idDevolucion, mensajeExito) {
-    const formData = new FormData();
-    formData.append('id_devolucion', idDevolucion);
-    
-    fetch(`../../controllers/DevolucionAdminController.php?action=${accion}`, {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert(mensajeExito);
-            cerrarModalConfirmacion();
-            cerrarModalDetalle();
-            cargarDevoluciones();
-            cargarEstadisticas();
-        } else {
-            alert('Error: ' + data.mensaje);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al procesar la acción');
-    });
-}
-
-// ============================================
-// CERRAR MODALES
-// ============================================
-function cerrarModalDetalle() {
-    document.getElementById('modal-detalle').classList.remove('activo');
-}
-
-function cerrarModalConfirmacion() {
-    document.getElementById('modal-confirmacion').classList.remove('activo');
-}
-
-// ============================================
-// FUNCIONES AUXILIARES
-// ============================================
-function formatearMoneda(valor) {
-    return '$' + parseFloat(valor).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+    html += '</tbody></table>';
+    document.getElementById('tabla-container').innerHTML = html;
 }
 
 function formatearFecha(fecha) {
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-MX', { year: 'numeric', month: '2-digit', day: '2-digit' });
+    const d = new Date(fecha);
+    return d.toLocaleDateString('es-MX') + ' ' + d.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
 }
 
-function getBadgeClass(estado) {
-    const badges = {
-        'SOLICITADA': 'badge-amarillo',
-        'APROBADA': 'badge-azul',
-        'COMPLETADA': 'badge-verde',
-        'RECHAZADA': 'badge-rojo'
-    };
-    return badges[estado] || 'badge-azul';
+function formatearPrecio(precio) {
+    return parseFloat(precio || 0).toFixed(2);
+}
+
+function limpiarFiltros() {
+    document.getElementById('form-filtros').reset();
+    cargarDevoluciones();
+}
+
+function verDetalle(id) {
+    window.location.href = 'devolucion_detalle.php?id=' + id;
 }
 </script>
 

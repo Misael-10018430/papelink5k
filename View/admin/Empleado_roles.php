@@ -3,207 +3,273 @@
  * Vista: Gestión de Roles del Empleado
  * Asignar y remover roles
  */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
+require_once __DIR__ . '/../../config/Auth.php';
+Auth::requiereAdministrador();
+
+ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
-$idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+ $idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-$controller = new EmpleadoController();
-$datos = $controller->gestionarRoles($idEmpleado);
+ $controller = new EmpleadoController();
+ $datos = $controller->gestionarRoles($idEmpleado);
 
-$titulo = "Gestión de Roles - Papelink";
+ $titulo = "Gestión de Roles - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- ===================================
+     ESTILOS CSS PROFESIONAL INTEGRADOS
+     =================================== -->
 <style>
-    body {
-        background-color: #f5f5f5;
-        font-family: Arial, sans-serif;
+    /* ===================================
+       VARIABLES DE COLOR Y ESTILOS GENERALES
+       =================================== */
+    :root {
+        --color-primario: #495057;       /* Gris Oscuro para botones principales */
+        --color-primario-hover: #343a40; /* Gris más oscuro para hover */
+        --color-secundario: #6c757d;     /* Gris medio para texto secundario */
+        --color-exito: #28a745;          /* Verde estándar para éxito */
+        --color-peligro: #dc3545;        /* Rojo estándar para peligro/errores */
+        --color-info: #17a2b8;           /* Azul estándar para información */
+        --color-texto: #212529;          /* Negro suave para texto principal */
+        --color-texto-claro: #6c757d;    /* Gris para texto secundario */
+        --color-fondo: #f8f9fa;          /* Fondo muy claro */
+        --color-blanco: #ffffff;
+        --color-borde: #dee2e6;          /* Gris claro para bordes */
+        --border-radius: 4px;            /* Bordes más sutiles */
+        --sombra: 0 2px 4px rgba(0,0,0,0.05); /* Sombra muy ligera */
     }
-    
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-fondo);
+        color: var(--color-texto);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ===================================
+       LAYOUT Y CONTENEDOR
+       =================================== */
     .contenedor {
-        padding: 25px;
+        padding: 2rem;
         max-width: 1200px;
         margin: 0 auto;
     }
-    
-    .breadcrumb {
-        background: none;
-        padding: 0;
-        margin-bottom: 20px;
-        font-size: 13px;
-    }
-    
-    .breadcrumb a {
-        color: #FF6347;
-        text-decoration: none;
-    }
-    
-    .breadcrumb a:hover {
-        text-decoration: underline;
-    }
-    
-    .breadcrumb-separador {
-        color: #999;
-        margin: 0 8px;
-    }
-    
-    .titulo-principal {
-        color: #2C3E50;
-        font-size: 26px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-    
-    .subtitulo {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-bottom: 25px;
-    }
-    
     .grid-layout {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 20px;
+        gap: 1.5rem;
     }
-    
     @media (max-width: 992px) {
-        .grid-layout {
-            grid-template-columns: 1fr;
-        }
+        .grid-layout { grid-template-columns: 1fr; }
     }
-    
-    .tarjeta {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 25px;
-    }
-    
-    .tarjeta-titulo {
-        color: #2C3E50;
-        font-size: 18px;
+
+    /* ===================================
+       TIPOGRAFÍA
+       =================================== */
+    h1.titulo-principal {
+        font-size: 1.75rem;
         font-weight: 600;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f0f0f0;
+        color: var(--color-texto);
+        margin-bottom: 0.25rem;
     }
-    
+    .subtitulo {
+        color: var(--color-texto-claro);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+    }
+    .tarjeta-titulo {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--color-texto);
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
+    }
+
+    /* ===================================
+       NAVEGACIÓN (BREADCRUMB)
+       =================================== */
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin-bottom: 1.25rem;
+        font-size: 0.8125rem;
+    }
+    .breadcrumb a {
+        color: var(--color-primario);
+        text-decoration: none;
+    }
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    .breadcrumb-separador {
+        color: var(--color-texto-claro);
+        margin: 0 0.5rem;
+    }
+
+    /* ===================================
+       COMPONENTES: TARJETAS
+       =================================== */
+    .tarjeta {
+        background: var(--color-blanco);
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        box-shadow: var(--sombra);
+    }
     .rol-item {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        margin-bottom: 12px;
-        transition: all 0.2s;
+        padding: 1rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        margin-bottom: 0.75rem;
+        transition: background-color 0.2s;
     }
-    
     .rol-item:hover {
-        background-color: #f8f9fa;
+        background-color: var(--color-fondo);
     }
-    
     .rol-info h4 {
-        color: #2C3E50;
-        font-size: 15px;
+        color: var(--color-texto);
+        font-size: 0.9375rem;
         font-weight: 600;
-        margin: 0 0 5px 0;
+        margin: 0 0 0.3125rem 0;
     }
-    
     .rol-info p {
-        color: #7f8c8d;
-        font-size: 13px;
+        color: var(--color-texto-claro);
+        font-size: 0.8125rem;
         margin: 0;
     }
-    
+    .lista-roles-disponibles {
+        border-top: 1px solid var(--color-borde);
+        padding-top: 1.25rem;
+        margin-top: 1.25rem;
+    }
+    .lista-roles-disponibles h3 {
+        color: var(--color-texto);
+        font-size: 0.9375rem;
+        font-weight: 600;
+        margin-bottom: 0.9375rem;
+    }
+    .rol-disponible-item {
+        padding: 0.625rem;
+        border-left: 3px solid var(--color-info);
+        background-color: var(--color-fondo);
+        margin-bottom: 0.625rem;
+        border-radius: var(--border-radius);
+    }
+    .rol-disponible-item div:first-child {
+        font-weight: 500;
+        color: var(--color-texto);
+        margin-bottom: 0.1875rem;
+    }
+    .rol-disponible-item div:last-child {
+        font-size: 0.75rem;
+        color: var(--color-texto-claro);
+    }
+
+    /* ===================================
+       COMPONENTES: FORMULARIOS
+       =================================== */
     .form-asignar {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 0.625rem;
+        margin-bottom: 1.25rem;
     }
-    
     .form-asignar select {
         flex: 1;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 0.625rem 0.75rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
     .form-asignar select:focus {
         outline: none;
-        border-color: #FF6347;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
     }
-    
+
+    /* ===================================
+       COMPONENTES: BOTONES
+       =================================== */
     .btn {
-        padding: 9px 18px;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 0.5625rem 1.125rem;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
         font-weight: 500;
         cursor: pointer;
-        border: none;
+        border: 1px solid transparent;
         text-decoration: none;
         display: inline-block;
         transition: all 0.2s;
+        text-align: center;
+        line-height: 1.5;
     }
-    
-    .btn-naranja {
-        background-color: #FF6347;
-        color: white;
+    .btn-primario { /* Mapeo de btn-naranja */
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
     }
-    
-    .btn-naranja:hover {
-        background-color: #e5533d;
+    .btn-primario:hover {
+        background-color: var(--color-primario-hover);
     }
-    
-    .btn-gris {
-        background-color: white;
-        color: #2C3E50;
-        border: 1px solid #ddd;
+    .btn-secundario { /* Mapeo de btn-gris */
+        background-color: var(--color-blanco);
+        color: var(--color-texto);
+        border-color: var(--color-borde);
     }
-    
-    .btn-gris:hover {
-        background-color: #f5f5f5;
+    .btn-secundario:hover {
+        background-color: var(--color-fondo);
     }
-    
-    .btn-rojo {
-        background-color: #dc3545;
-        color: white;
-        padding: 6px 14px;
-        font-size: 12px;
+    .btn-peligro { /* Mapeo de btn-rojo */
+        background-color: var(--color-peligro);
+        color: var(--color-blanco);
+        padding: 0.375rem 0.875rem;
+        font-size: 0.75rem;
     }
-    
-    .btn-rojo:hover {
+    .btn-peligro:hover {
         background-color: #c82333;
     }
-    
-    .alerta {
-        padding: 14px 18px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        font-size: 14px;
+    .btn-volver {
+        margin-bottom: 1.25rem;
     }
-    
+
+    /* ===================================
+       COMPONENTES: ALERTAS
+       =================================== */
+    .alerta {
+        padding: 0.875rem 1.125rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.25rem;
+        font-size: 0.875rem;
+        border: 1px solid;
+    }
     .alerta-exito {
         background-color: #d4edda;
         color: #155724;
-        border: 1px solid #c3e6cb;
+        border-color: #c3e6cb;
     }
-    
-    .alerta-error {
+    .alerta-peligro { /* Mapeo de alerta-error */
         background-color: #f8d7da;
         color: #721c24;
-        border: 1px solid #f5c6cb;
+        border-color: #f5c6cb;
     }
-    
     .texto-vacio {
         text-align: center;
-        padding: 30px;
-        color: #7f8c8d;
-        background-color: #f8f9fa;
-        border-radius: 6px;
+        padding: 1.875rem;
+        color: var(--color-texto-claro);
+        background-color: var(--color-fondo);
+        border-radius: var(--border-radius);
     }
 </style>
 
@@ -224,8 +290,8 @@ include __DIR__ . '/includes/header.php';
         Asigna o remueve roles para definir los permisos del empleado
     </p>
 
-    <div style="margin-bottom: 20px;">
-        <a href="empleados.php" class="btn btn-gris">← Volver a Empleados</a>
+    <div>
+        <a href="empleados.php" class="btn btn-secundario btn-volver">← Volver a Empleados</a>
     </div>
 
     <div id="mensaje-alerta"></div>
@@ -247,7 +313,7 @@ include __DIR__ . '/includes/header.php';
                                 <h4><?php echo htmlspecialchars($rol['NombreRol']); ?></h4>
                                 <p><?php echo htmlspecialchars($rol['Descripcion']); ?></p>
                             </div>
-                            <button class="btn btn-rojo btn-remover" 
+                            <button class="btn btn-peligro btn-remover" 
                                     data-id-rol="<?php echo $rol['IdRol']; ?>"
                                     data-nombre-rol="<?php echo htmlspecialchars($rol['NombreRol']); ?>">
                                 Remover
@@ -278,21 +344,15 @@ include __DIR__ . '/includes/header.php';
                                 </option>
                             <?php endforeach; ?>
                         </select>
-                        <button type="submit" class="btn btn-naranja">Asignar</button>
+                        <button type="submit" class="btn btn-primario">Asignar</button>
                     </form>
 
-                    <div style="border-top: 1px solid #e0e0e0; padding-top: 20px; margin-top: 20px;">
-                        <h3 style="color: #2C3E50; font-size: 15px; font-weight: 600; margin-bottom: 15px;">
-                            Roles Disponibles
-                        </h3>
+                    <div class="lista-roles-disponibles">
+                        <h3>Roles Disponibles</h3>
                         <?php foreach ($datos['roles_disponibles'] as $rol): ?>
-                            <div style="padding: 10px; border-left: 3px solid #17a2b8; background-color: #f8f9fa; margin-bottom: 10px; border-radius: 4px;">
-                                <div style="font-weight: 500; color: #2C3E50; margin-bottom: 3px;">
-                                    <?php echo htmlspecialchars($rol['NombreRol']); ?>
-                                </div>
-                                <div style="font-size: 12px; color: #7f8c8d;">
-                                    <?php echo htmlspecialchars($rol['Descripcion']); ?>
-                                </div>
+                            <div class="rol-disponible-item">
+                                <div><?php echo htmlspecialchars($rol['NombreRol']); ?></div>
+                                <div><?php echo htmlspecialchars($rol['Descripcion']); ?></div>
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -377,12 +437,11 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
 // Función para mostrar alertas
 function mostrarAlerta(mensaje, tipo) {
     const alertaDiv = document.getElementById('mensaje-alerta');
-    const claseAlerta = tipo === 'exito' ? 'alerta-exito' : 'alerta-error';
-    const icono = tipo === 'exito' ? '✓' : '❌';
+    const claseAlerta = tipo === 'exito' ? 'alerta-exito' : 'alerta-peligro';
     
     alertaDiv.innerHTML = `
         <div class="alerta ${claseAlerta}">
-            ${icono} ${mensaje}
+            ${mensaje}
         </div>
     `;
     

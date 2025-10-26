@@ -3,173 +3,213 @@
  * Vista: Formulario de Proveedor
  * Crear o editar proveedores
  */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../config/Auth.php';
+Auth::requiereAlgunaFuncionalidad(['PROVEEDORES_VER', 'PROVEEDORES_GESTIONAR']);
+
+ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ProveedorController.php';
 
-$idProveedor = isset($_GET['id']) ? (int)$_GET['id'] : null;
+ $idProveedor = isset($_GET['id']) ? (int)$_GET['id'] : null;
 
-$controller = new ProveedorController();
-$datos = $controller->mostrarFormulario($idProveedor);
+ $controller = new ProveedorController();
+ $datos = $controller->mostrarFormulario($idProveedor);
 
-$titulo = ($datos['modo'] === 'editar') ? "Editar Proveedor - Papelink" : "Nuevo Proveedor - Papelink";
+ $titulo = ($datos['modo'] === 'editar') ? "Editar Proveedor - Papelink" : "Nuevo Proveedor - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- ===================================
+     ESTILOS CSS PROFESIONAL INTEGRADOS
+     =================================== -->
 <style>
-    body {
-        background-color: #f5f5f5;
-        font-family: Arial, sans-serif;
+    /* ===================================
+       VARIABLES DE COLOR Y ESTILOS GENERALES
+       =================================== */
+    :root {
+        --color-primario: #495057;       /* Gris Oscuro para botones principales */
+        --color-primario-hover: #343a40; /* Gris más oscuro para hover */
+        --color-secundario: #6c757d;     /* Gris medio para texto secundario */
+        --color-exito: #28a745;          /* Verde estándar para éxito */
+        --color-peligro: #dc3545;        /* Rojo estándar para peligro/errores */
+        --color-info: #17a2b8;           /* Azul estándar para información */
+        --color-texto: #212529;          /* Negro suave para texto principal */
+        --color-texto-claro: #6c757d;    /* Gris para texto secundario */
+        --color-fondo: #f8f9fa;          /* Fondo muy claro */
+        --color-blanco: #ffffff;
+        --color-borde: #dee2e6;          /* Gris claro para bordes */
+        --border-radius: 4px;            /* Bordes más sutiles */
+        --sombra: 0 2px 4px rgba(0,0,0,0.05); /* Sombra muy ligera */
     }
-    
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-fondo);
+        color: var(--color-texto);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ===================================
+       LAYOUT Y CONTENEDOR
+       =================================== */
     .contenedor {
-        padding: 25px;
+        padding: 2rem;
         max-width: 900px;
         margin: 0 auto;
     }
-    
+
+    /* ===================================
+       TIPOGRAFÍA
+       =================================== */
+    h1.titulo-principal {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: var(--color-texto);
+        margin-bottom: 0.25rem;
+    }
+    .subtitulo {
+        color: var(--color-texto-claro);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /* ===================================
+       NAVEGACIÓN (BREADCRUMB)
+       =================================== */
     .breadcrumb {
         background: none;
         padding: 0;
-        margin-bottom: 20px;
-        font-size: 13px;
+        margin-bottom: 1.25rem;
+        font-size: 0.8125rem;
     }
-    
     .breadcrumb a {
-        color: #FF6347;
+        color: var(--color-primario);
         text-decoration: none;
     }
-    
     .breadcrumb a:hover {
         text-decoration: underline;
     }
-    
     .breadcrumb-separador {
-        color: #999;
-        margin: 0 8px;
+        color: var(--color-texto-claro);
+        margin: 0 0.5rem;
     }
-    
-    .titulo-principal {
-        color: #2C3E50;
-        font-size: 26px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-    
-    .subtitulo {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-bottom: 25px;
-    }
-    
+
+    /* ===================================
+       COMPONENTES: TARJETAS
+       =================================== */
     .tarjeta {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 30px;
+        background: var(--color-blanco);
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        box-shadow: var(--sombra);
     }
-    
     .form-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 20px;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
-    
     .form-campo {
-        margin-bottom: 20px;
+        margin-bottom: 1.5rem;
     }
-    
+    .form-campo.ancho-completo { grid-column: 1 / -1; }
     .form-campo label {
         display: block;
-        color: #2C3E50;
-        font-size: 14px;
+        color: var(--color-texto);
+        font-size: 0.875rem;
         font-weight: 500;
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
     }
-    
-    .form-campo label span {
-        color: #FF6347;
+    .form-campo label .requerido {
+        color: var(--color-peligro);
     }
-    
     .form-campo input,
     .form-campo textarea {
         width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        font-family: Arial, sans-serif;
+        padding: 0.75rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        font-family: inherit;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
     .form-campo input:focus,
     .form-campo textarea:focus {
         outline: none;
-        border-color: #FF6347;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
     }
-    
     .form-campo textarea {
         resize: vertical;
-        min-height: 80px;
+        min-height: 5rem;
     }
-    
+
+    /* ===================================
+       COMPONENTES: BOTONES
+       =================================== */
     .botones-grupo {
         display: flex;
-        gap: 12px;
-        margin-top: 30px;
+        gap: 0.75rem;
+        margin-top: 2rem;
     }
-    
     .btn {
-        padding: 11px 24px;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 0.6875rem 1.5rem;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
         font-weight: 500;
         cursor: pointer;
-        border: none;
+        border: 1px solid transparent;
         text-decoration: none;
         display: inline-block;
         transition: all 0.2s;
+        text-align: center;
+        line-height: 1.5;
     }
-    
-    .btn-naranja {
-        background-color: #FF6347;
-        color: white;
+    .btn-primario { /* Mapeo de btn-naranja */
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
     }
-    
-    .btn-naranja:hover {
-        background-color: #e5533d;
+    .btn-primario:hover {
+        background-color: var(--color-primario-hover);
     }
-    
-    .btn-gris {
-        background-color: white;
-        color: #2C3E50;
-        border: 1px solid #ddd;
+    .btn-secundario { /* Mapeo de btn-gris */
+        background-color: var(--color-blanco);
+        color: var(--color-texto);
+        border-color: var(--color-borde);
     }
-    
-    .btn-gris:hover {
-        background-color: #f5f5f5;
+    .btn-secundario:hover {
+        background-color: var(--color-fondo);
     }
-    
+
+    /* ===================================
+       COMPONENTES: ALERTAS
+       =================================== */
     .alerta {
-        padding: 14px 18px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        font-size: 14px;
+        padding: 0.875rem 1.125rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.25rem;
+        font-size: 0.875rem;
+        border: 1px solid;
     }
-    
-    .alerta-error {
+    .alerta-peligro { /* Mapeo de alerta-error */
         background-color: #f8d7da;
         color: #721c24;
-        border: 1px solid #f5c6cb;
+        border-color: #f5c6cb;
     }
-    
     .lista-errores {
-        margin: 10px 0 0 0;
-        padding-left: 20px;
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.25rem;
     }
-    
     .lista-errores li {
-        margin-bottom: 5px;
+        margin-bottom: 0.25rem;
     }
 </style>
 
@@ -191,7 +231,7 @@ include __DIR__ . '/includes/header.php';
     </p>
 
     <?php if (isset($_SESSION['errores'])): ?>
-        <div class="alerta alerta-error">
+        <div class="alerta alerta-peligro">
             <strong>Por favor corrige los siguientes errores:</strong>
             <ul class="lista-errores">
                 <?php 
@@ -212,8 +252,8 @@ include __DIR__ . '/includes/header.php';
 
             <div class="form-grid">
                 <!-- Nombre del Proveedor -->
-                <div class="form-campo" style="grid-column: 1 / -1;">
-                    <label>Nombre del Proveedor <span>*</span></label>
+                <div class="form-campo ancho-completo">
+                    <label>Nombre del Proveedor <span class="requerido">*</span></label>
                     <input type="text" 
                            name="nombre" 
                            required
@@ -240,7 +280,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
 
                 <!-- Dirección -->
-                <div class="form-campo" style="grid-column: 1 / -1;">
+                <div class="form-campo ancho-completo">
                     <label>Dirección</label>
                     <textarea name="direccion" 
                               placeholder="Dirección completa del proveedor"><?php echo isset($_SESSION['datos_form']['direccion']) ? htmlspecialchars($_SESSION['datos_form']['direccion']) : ($datos['proveedor']['Direccion'] ?? ''); ?></textarea>
@@ -248,10 +288,10 @@ include __DIR__ . '/includes/header.php';
             </div>
 
             <div class="botones-grupo">
-                <button type="submit" class="btn btn-naranja">
+                <button type="submit" class="btn btn-primario">
                     <?php echo $datos['modo'] === 'editar' ? 'Actualizar Proveedor' : 'Crear Proveedor'; ?>
                 </button>
-                <a href="proveedores.php" class="btn btn-gris">Cancelar</a>
+                <a href="proveedores.php" class="btn btn-secundario">Cancelar</a>
             </div>
         </form>
     </div>

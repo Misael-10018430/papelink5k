@@ -1,4 +1,14 @@
 <?php
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../config/Auth.php';
+Auth::requiereFuncionalidad('PEDIDOS_VER');
+
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EnvioController.php';
 

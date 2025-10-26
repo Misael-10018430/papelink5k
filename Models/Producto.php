@@ -1,15 +1,12 @@
 <?php
 require_once __DIR__ . '/../config/Database.php';
-
 class Producto {
     private $conn;
     private $db;
-    
     public function __construct() {
         $this->db = new Database();
         $this->conn = $this->db->getConnection();
-    }
-    
+    }  
     /**
      * Obtener todos los productos (para admin con filtros)
      */
@@ -30,7 +27,6 @@ class Producto {
             return [];
         }
     }
-    
     /**
      * Obtener productos para cliente (catálogo público)
      */
@@ -44,7 +40,6 @@ class Producto {
                 @PrecioMax = ?, 
                 @Pagina = ?, 
                 @ProductosPorPagina = ?";
-        
         $stmt = $this->conn->prepare($sql);
         $stmt->execute([
             $idCategoria, 
@@ -76,7 +71,6 @@ class Producto {
             return null;
         }
     }
-    
     /**
      * Crear nuevo producto
      */
@@ -95,7 +89,6 @@ class Producto {
                     @StockMinimo = ?, 
                     @CantidadInicial = ?,
                     @ImagenPrincipal = ?";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $datos['idCategoria'],
@@ -111,7 +104,6 @@ class Producto {
                 $datos['cantidadInicial'] ?? 0,
                 $datos['imagenPrincipal'] ?? null
             ]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             return $resultado;
         } catch (PDOException $e) {
@@ -119,7 +111,6 @@ class Producto {
             return ['error' => $e->getMessage()];
         }
     }
-    
     /**
      * Actualizar producto
      */
@@ -136,7 +127,6 @@ class Producto {
                     @PrecioUnitario = ?, 
                     @StockMinimo = ?,
                     @ImagenPrincipal = ?";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $datos['idProducto'],
@@ -150,7 +140,6 @@ class Producto {
                 $datos['stockMinimo'],
                 $datos['imagenPrincipal'] ?? null
             ]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             return $resultado;
         } catch (PDOException $e) {
@@ -158,7 +147,6 @@ class Producto {
             return ['error' => $e->getMessage()];
         }
     }
-    
     /**
      * Cambiar estado de producto (activar/desactivar)
      */
@@ -174,7 +162,6 @@ class Producto {
             return ['error' => $e->getMessage()];
         }
     }
-    
     /**
      * Obtener productos relacionados
      */

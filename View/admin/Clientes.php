@@ -1,552 +1,442 @@
 <?php
-/**
- * Vista: Gestión de Clientes
- * Listado de clientes con filtros y acciones
- */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../config/Auth.php';
+
+// ✅ VERIFICAR PERMISOS PARA CLIENTES
+Auth::requiereAlgunaFuncionalidad(['CLIENTES_VER', 'CLIENTES_EDITAR']);
+
+ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ClienteController.php';
 
-$controller = new ClienteController();
-$datos = $controller->listar();
+ $clienteController = new ClienteController();
 
-$titulo = "Gestión de Clientes - Papelink";
+// ✅ USAR EL MÉTODO LISTAR QUE YA EXISTE
+ $datos = $clienteController->listar();
+ $clientes = $datos['clientes'];
+ $tipos = $datos['tipos'];
+ $segmentos = $datos['segmentos'];
+ $paginacion = $datos['paginacion'];
+
+ $titulo = "Gestión de Clientes";
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- ===================================
+     ESTILOS CSS PROFESIONAL INTEGRADOS
+     =================================== -->
 <style>
+    /* ===================================
+       VARIABLES DE COLOR Y ESTILOS GENERALES
+       =================================== */
+    :root {
+        --color-primario: #495057;       /* Gris Oscuro para botones principales */
+        --color-primario-hover: #343a40; /* Gris más oscuro para hover */
+        --color-secundario: #6c757d;     /* Gris medio para botones secundarios */
+        --color-exito: #28a745;          /* Verde estándar para éxito */
+        --color-error: #dc3545;          /* Rojo estándar para error */
+        --color-texto: #212529;          /* Negro suave para texto */
+        --color-texto-claro: #6c757d;    /* Gris para texto secundario */
+        --color-fondo: #f8f9fa;          /* Fondo muy claro */
+        --color-blanco: #ffffff;
+        --color-borde: #dee2e6;          /* Gris claro para bordes */
+        --border-radius: 4px;            /* Bordes más sutiles */
+        --sombra: 0 2px 4px rgba(0,0,0,0.05); /* Sombra muy ligera */
+    }
+
     body {
-        background-color: #f5f5f5;
-        font-family: Arial, sans-serif;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-fondo);
+        color: var(--color-texto);
+        line-height: 1.6;
+        margin: 0;
+        padding: 2rem;
     }
-    
-    .contenedor {
-        padding: 25px;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-    
-    .titulo-principal {
-        color: #2C3E50;
-        font-size: 26px;
+
+    /* ===================================
+       TIPOGRAFÍA
+       =================================== */
+    h1.titulo-pagina {
+        font-size: 1.75rem;
         font-weight: 600;
-        margin-bottom: 5px;
+        color: var(--color-texto);
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
     }
-    
-    .subtitulo {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-bottom: 25px;
-    }
-    
-    .tarjeta {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-    
-    .grid-estadisticas {
+
+    /* ===================================
+       SISTEMA DE GRID
+       =================================== */
+    .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 15px;
-        margin-bottom: 20px;
+        gap: 1.5rem;
     }
-    
-    .tarjeta-estadistica {
-        background: white;
-        border-left: 4px solid #FF6347;
-        padding: 20px;
-        border-radius: 6px;
+
+    .grid-4 {
+        grid-template-columns: repeat(4, 1fr);
     }
-    
-    .tarjeta-estadistica.verde { border-left-color: #28a745; }
-    .tarjeta-estadistica.azul { border-left-color: #17a2b8; }
-    
-    .estadistica-label {
-        color: #7f8c8d;
-        font-size: 12px;
-        text-transform: uppercase;
-        margin-bottom: 8px;
-        font-weight: 500;
+
+    @media (max-width: 1024px) {
+        .grid-4 { grid-template-columns: repeat(2, 1fr); }
     }
-    
-    .estadistica-numero {
-        color: #2C3E50;
-        font-size: 30px;
-        font-weight: 700;
+    @media (max-width: 600px) {
+        .grid-4 { grid-template-columns: 1fr; }
     }
-    
-    .filtros-form {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        align-items: flex-end;
+
+    /* ===================================
+       COMPONENTES: TARJETAS
+       =================================== */
+    .tarjeta, .tarjeta-metrica {
+        background: var(--color-blanco);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-borde);
     }
-    
-    .campo {
-        flex: 1;
-        min-width: 180px;
+
+    .tarjeta-metrica {
+        text-align: center;
     }
-    
-    .campo label {
-        display: block;
-        color: #2C3E50;
-        font-size: 13px;
-        font-weight: 500;
-        margin-bottom: 6px;
-    }
-    
-    .campo input,
-    .campo select {
-        width: 100%;
-        padding: 9px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-    }
-    
-    .campo input:focus,
-    .campo select:focus {
-        outline: none;
-        border-color: #FF6347;
-    }
-    
-    .btn {
-        padding: 9px 18px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        border: none;
-        text-decoration: none;
-        display: inline-block;
-        transition: all 0.2s;
-    }
-    
-    .btn-naranja {
-        background-color: #FF6347;
-        color: white;
-    }
-    
-    .btn-naranja:hover {
-        background-color: #e5533d;
-    }
-    
-    .btn-gris {
-        background-color: white;
-        color: #2C3E50;
-        border: 1px solid #ddd;
-    }
-    
-    .btn-gris:hover {
-        background-color: #f5f5f5;
-    }
-    
-    .tabla-wrapper {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        overflow: hidden;
-    }
-    
-    .tabla {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .tabla thead {
-        background-color: #f8f9fa;
-    }
-    
-    .tabla th {
-        padding: 14px 12px;
-        text-align: left;
-        color: #2C3E50;
+
+    .tarjeta-metrica h3 {
+        font-size: 2rem;
         font-weight: 600;
-        font-size: 12px;
+        color: var(--color-primario);
+        margin: 0 0 0.5rem 0;
+    }
+
+    .tarjeta-metrica p {
+        color: var(--color-texto-claro);
+        margin: 0;
+        font-size: 0.875rem;
         text-transform: uppercase;
-        border-bottom: 2px solid #e0e0e0;
+        letter-spacing: 0.5px;
     }
-    
-    .tabla td {
-        padding: 14px 12px;
-        border-bottom: 1px solid #f0f0f0;
-        color: #2C3E50;
-        font-size: 14px;
-    }
-    
-    .tabla tbody tr:hover {
-        background-color: #f8f9fa;
-    }
-    
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 10px;
-        font-size: 11px;
+
+    /* ===================================
+       COMPONENTES: MENSAJES
+       =================================== */
+    .mensaje-exito, .mensaje-error {
+        padding: 1rem 1.25rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.5rem;
+        border: 1px solid;
         font-weight: 500;
     }
-    
-    .badge-azul {
-        background-color: #e3f2fd;
-        color: #1976d2;
-    }
-    
-    .badge-morado {
-        background-color: #f3e5f5;
-        color: #7b1fa2;
-    }
-    
-    .badge-gris {
-        background-color: #f0f0f0;
-        color: #757575;
-    }
-    
-    .toggle {
-        position: relative;
-        display: inline-block;
-        width: 42px;
-        height: 22px;
-    }
-    
-    .toggle input {
-        opacity: 0;
-        width: 0;
-        height: 0;
-    }
-    
-    .toggle-slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: .3s;
-        border-radius: 22px;
-    }
-    
-    .toggle-slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 3px;
-        bottom: 3px;
-        background-color: white;
-        transition: .3s;
-        border-radius: 50%;
-    }
-    
-    input:checked + .toggle-slider {
-        background-color: #28a745;
-    }
-    
-    input:checked + .toggle-slider:before {
-        transform: translateX(20px);
-    }
-    
-    .paginacion {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        padding: 20px;
-        flex-wrap: wrap;
-    }
-    
-    .paginacion a {
-        padding: 7px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        color: #2C3E50;
-        text-decoration: none;
-        font-size: 13px;
-    }
-    
-    .paginacion a:hover {
-        background-color: #FF6347;
-        color: white;
-        border-color: #FF6347;
-    }
-    
-    .paginacion .activo {
-        background-color: #FF6347;
-        color: white;
-        border-color: #FF6347;
-    }
-    
-    .paginacion .disabled {
-        opacity: 0.5;
-        pointer-events: none;
-    }
-    
-    .alerta {
-        padding: 14px 18px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        font-size: 14px;
-    }
-    
-    .alerta-exito {
+    .mensaje-exito {
         background-color: #d4edda;
         color: #155724;
-        border: 1px solid #c3e6cb;
+        border-color: #c3e6cb;
     }
-    
-    .alerta-error {
+    .mensaje-error {
         background-color: #f8d7da;
         color: #721c24;
-        border: 1px solid #f5c6cb;
+        border-color: #f5c6cb;
     }
-    
-    .texto-vacio {
+
+    /* ===================================
+       COMPONENTES: FILTROS Y FORMULARIOS
+       =================================== */
+    .filtros {
+        background: var(--color-blanco);
+        padding: 1.5rem;
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-borde);
+        margin-bottom: 1.5rem;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--color-texto);
+    }
+    .form-group input[type="text"], .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        font-size: 1rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input[type="text"]:focus, .form-group select:focus {
+        outline: none;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
+    }
+
+    /* ===================================
+       COMPONENTES: BOTONES
+       =================================== */
+    .btn {
+        display: inline-block;
+        padding: 0.75rem 1rem;
+        border: 1px solid transparent;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        font-weight: 500;
         text-align: center;
-        padding: 40px;
-        color: #7f8c8d;
+        text-decoration: none;
+        cursor: pointer;
+        transition: background-color 0.2s, border-color 0.2s;
+        line-height: 1.5;
+    }
+    .btn-primario { /* Antes btn-naranja */
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
+        border-color: var(--color-primario);
+    }
+    .btn-primario:hover {
+        background-color: var(--color-primario-hover);
+        border-color: var(--color-primario-hover);
+    }
+    .btn-secundario { /* Antes btn-azul */
+        background-color: var(--color-secundario);
+        color: var(--color-blanco);
+        border-color: var(--color-secundario);
+    }
+    .btn-secundario:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+    .btn-blanco {
+        background-color: var(--color-blanco);
+        color: var(--color-texto);
+        border-color: var(--color-borde);
+    }
+    .btn-blanco:hover {
+        background-color: #e2e6ea;
+        border-color: #dae0e5;
+    }
+
+    /* ===================================
+       COMPONENTES: TABLA
+       =================================== */
+    .tabla {
+        width: 100%;
+        background: var(--color-blanco);
+        border-radius: var(--border-radius);
+        border: 1px solid var(--color-borde);
+        overflow: hidden;
+        border-collapse: collapse;
+    }
+    .tabla thead { background-color: var(--color-fondo); }
+    .tabla th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        color: var(--color-texto);
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid var(--color-borde);
+    }
+    .tabla td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-top: 1px solid var(--color-borde);
+    }
+    .tabla tbody tr:hover { background-color: rgba(0,0,0,.02); }
+
+    /* ===================================
+       COMPONENTES: BADGES
+       =================================== */
+    .badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        text-transform: uppercase;
+    }
+    .badge-exito { background-color: #d4edda; color: #155724; } /* Antes badge-verde */
+    .badge-peligro { background-color: #f8d7da; color: #721c24; } /* Antes badge-rojo */
+    .badge-info { background-color: #d1ecf1; color: #0c5460; } /* Antes badge-azul */
+    .badge-secundario { background-color: #e2e3e5; color: #383d41; } /* Antes badge-gris */
+
+    /* ===================================
+       COMPONENTES: ACCIONES
+       =================================== */
+    .acciones {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    .acciones .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
     }
 </style>
 
-<div class="contenedor">
-    <h1 class="titulo-principal">Gestión de Clientes</h1>
-    <p class="subtitulo">Administra y consulta información de tus clientes</p>
+<!-- CONTENIDO DE LA PÁGINA -->
+<h1 class="titulo-pagina">Gestión de Clientes</h1>
 
-    <?php if (isset($_SESSION['success'])): ?>
-        <div class="alerta alerta-exito">
-            ✓ <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
-        </div>
-    <?php endif; ?>
-
-    <?php if (isset($_SESSION['error'])): ?>
-        <div class="alerta alerta-error">
-            ❌ <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
-        </div>
-    <?php endif; ?>
-
-    <!-- Filtros -->
-    <div class="tarjeta">
-        <form method="GET" action="clientes.php" class="filtros-form">
-            <div class="campo">
-                <label>Tipo de Cliente</label>
-                <select name="tipo">
-                    <option value="">Todos los tipos</option>
-                    <?php foreach ($datos['tipos'] as $tipo): ?>
-                        <option value="<?php echo $tipo['IdTipoCliente']; ?>" 
-                            <?php echo (isset($_GET['tipo']) && $_GET['tipo'] == $tipo['IdTipoCliente']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($tipo['NombreTipo']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="campo">
-                <label>Segmento</label>
-                <select name="segmento">
-                    <option value="">Todos los segmentos</option>
-                    <?php foreach ($datos['segmentos'] as $segmento): ?>
-                        <option value="<?php echo $segmento['IdSegmento']; ?>"
-                            <?php echo (isset($_GET['segmento']) && $_GET['segmento'] == $segmento['IdSegmento']) ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($segmento['NombreSegmento']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-
-            <div class="campo" style="max-width: 140px;">
-                <label>Estado</label>
-                <select name="estado">
-                    <option value="">Todos</option>
-                    <option value="1" <?php echo (isset($_GET['estado']) && $_GET['estado'] == '1') ? 'selected' : ''; ?>>Activos</option>
-                    <option value="0" <?php echo (isset($_GET['estado']) && $_GET['estado'] == '0') ? 'selected' : ''; ?>>Inactivos</option>
-                </select>
-            </div>
-
-            <div class="campo">
-                <label>Buscar Cliente</label>
-                <input type="text" name="busqueda" 
-                       placeholder="Nombre del cliente..."
-                       value="<?php echo isset($_GET['busqueda']) ? htmlspecialchars($_GET['busqueda']) : ''; ?>">
-            </div>
-
-            <button type="submit" class="btn btn-naranja">Filtrar</button>
-            
-            <?php if (isset($_GET['tipo']) || isset($_GET['segmento']) || isset($_GET['estado']) || isset($_GET['busqueda'])): ?>
-                <a href="clientes.php" class="btn btn-gris">Limpiar</a>
-            <?php endif; ?>
-        </form>
+<!-- MENSAJES -->
+<?php if (isset($_SESSION['exito'])): ?>
+    <div class="mensaje-exito">
+        <?php echo $_SESSION['exito']; unset($_SESSION['exito']); ?>
     </div>
+<?php endif; ?>
 
-    <!-- Estadísticas -->
-    <div class="grid-estadisticas">
-        <div class="tarjeta-estadistica">
-            <div class="estadistica-label">Total de Clientes</div>
-            <div class="estadistica-numero"><?php echo number_format($datos['paginacion']['total']); ?></div>
-        </div>
-        <div class="tarjeta-estadistica verde">
-            <div class="estadistica-label">Clientes Activos</div>
-            <div class="estadistica-numero">
-                <?php 
-                    $activos = array_filter($datos['clientes'], function($c) { return $c['Estado'] == 1; });
-                    echo number_format(count($activos)); 
-                ?>
-            </div>
-        </div>
-        <div class="tarjeta-estadistica azul">
-            <div class="estadistica-label">Mostrando</div>
-            <div class="estadistica-numero"><?php echo count($datos['clientes']); ?></div>
-        </div>
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="mensaje-error">
+        <?php echo $_SESSION['error']; unset($_SESSION['error']); ?>
     </div>
+<?php endif; ?>
 
-    <!-- Tabla -->
-    <div class="tabla-wrapper">
-        <table class="tabla">
-            <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Contacto</th>
-                    <th>Tipo</th>
-                    <th>Segmento</th>
-                    <th style="text-align: center;">Pedidos</th>
-                    <th>Total Gastado</th>
-                    <th>Registro</th>
-                    <th style="text-align: center;">Estado</th>
-                    <th style="text-align: center;">Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (empty($datos['clientes'])): ?>
-                    <tr>
-                        <td colspan="9" class="texto-vacio">
-                            No se encontraron clientes con los filtros seleccionados
-                        </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($datos['clientes'] as $cliente): ?>
-                        <tr>
-                            <td>
-                                <div style="font-weight: 500;">
-                                    <?php echo htmlspecialchars($cliente['NombreCliente']); ?>
-                                </div>
-                                <div style="font-size: 12px; color: #7f8c8d;">
-                                    ID: <?php echo $cliente['IdCliente']; ?>
-                                </div>
-                            </td>
-                            <td>
-                                <div><?php echo htmlspecialchars($cliente['Email']); ?></div>
-                                <div style="font-size: 12px; color: #7f8c8d;">
-                                    <?php echo htmlspecialchars($cliente['Telefono']); ?>
-                                </div>
-                            </td>
-                            <td>
-                                <span class="badge badge-azul">
-                                    <?php echo htmlspecialchars($cliente['TipoCliente']); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?php if (!empty($cliente['SegmentoCliente'])): ?>
-                                    <span class="badge badge-morado">
-                                        <?php echo htmlspecialchars($cliente['SegmentoCliente']); ?>
-                                    </span>
-                                <?php else: ?>
-                                    <span class="badge badge-gris">Sin segmento</span>
-                                <?php endif; ?>
-                            </td>
-                            <td style="text-align: center;">
-                                <strong><?php echo $cliente['TotalPedidos']; ?></strong>
-                            </td>
-                            <td>
-                                <strong style="color: #FF6347;">
-                                    $<?php echo number_format($cliente['TotalGastado'], 2); ?>
-                                </strong>
-                            </td>
-                            <td style="font-size: 12px; color: #7f8c8d;">
-                                <?php echo date('d/m/Y', strtotime($cliente['FechaRegistro'])); ?>
-                            </td>
-                            <td style="text-align: center;">
-                                <label class="toggle">
-                                    <input type="checkbox" class="estado-toggle"
-                                           <?php echo $cliente['Estado'] ? 'checked' : ''; ?>
-                                           data-id="<?php echo $cliente['IdCliente']; ?>">
-                                    <span class="toggle-slider"></span>
-                                </label>
-                            </td>
-                            <td style="text-align: center;">
-                                <a href="cliente_detalle.php?id=<?php echo $cliente['IdCliente']; ?>" 
-                                   class="btn btn-naranja">
-                                    Ver Detalle
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            </tbody>
-        </table>
-
-        <!-- Paginación -->
-        <?php if ($datos['paginacion']['total_paginas'] > 1): ?>
-            <div class="paginacion">
-                <?php 
-                $paginaActual = $datos['paginacion']['pagina_actual'];
-                $totalPaginas = $datos['paginacion']['total_paginas'];
-                
-                $queryParams = $_GET;
-                unset($queryParams['pagina']);
-                $queryString = http_build_query($queryParams);
-                $queryString = $queryString ? '&' . $queryString : '';
-                ?>
-
-                <a href="?pagina=<?php echo ($paginaActual - 1) . $queryString; ?>" 
-                   class="<?php echo ($paginaActual == 1) ? 'disabled' : ''; ?>">
-                    Anterior
-                </a>
-
-                <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
-                    <a href="?pagina=<?php echo $i . $queryString; ?>" 
-                       class="<?php echo ($i == $paginaActual) ? 'activo' : ''; ?>">
-                        <?php echo $i; ?>
-                    </a>
-                <?php endfor; ?>
-
-                <a href="?pagina=<?php echo ($paginaActual + 1) . $queryString; ?>" 
-                   class="<?php echo ($paginaActual == $totalPaginas) ? 'disabled' : ''; ?>">
-                    Siguiente
-                </a>
-            </div>
-        <?php endif; ?>
+<!-- ESTADÍSTICAS -->
+<div class="grid grid-4">
+    <div class="tarjeta-metrica">
+        <h3><?php echo $paginacion['total']; ?></h3>
+        <p>Total Clientes</p>
+    </div>
+    <div class="tarjeta-metrica">
+        <h3><?php echo count(array_filter($clientes, fn($c) => $c['Estado'] == 1)); ?></h3>
+        <p>Activos</p>
+    </div>
+    <div class="tarjeta-metrica">
+        <h3><?php echo count(array_filter($clientes, fn($c) => ($c['IdTipoCliente'] ?? 0) == 2)); ?></h3>
+        <p>Frecuentes</p>
+    </div>
+    <div class="tarjeta-metrica">
+        <h3><?php echo count(array_filter($clientes, fn($c) => ($c['CanalCliente'] ?? '') == 'DIGITAL')); ?></h3>
+        <p>Canal Digital</p>
     </div>
 </div>
 
-<script>
-document.querySelectorAll('.estado-toggle').forEach(toggle => {
-    toggle.addEventListener('change', function() {
-        const idCliente = this.getAttribute('data-id');
-        const nuevoEstado = this.checked ? 1 : 0;
-        
-        fetch('../../controllers/ClienteController.php?action=cambiarEstado', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: `id_cliente=${idCliente}&estado=${nuevoEstado}`
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.mensaje);
-            } else {
-                alert('Error: ' + data.mensaje);
-                this.checked = !this.checked;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al cambiar el estado');
-            this.checked = !this.checked;
-        });
-    });
-});
-</script>
+<!-- FILTROS -->
+<div class="filtros">
+    <h3 style="margin: 0 0 15px 0; font-size: 1rem;">Filtros de Búsqueda</h3>
+    <form method="GET" action="clientes.php">
+        <div class="grid grid-4">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Buscar:</label>
+                <input type="text" name="busqueda" placeholder="Nombre, email o teléfono..." 
+                       value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>">
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Tipo Cliente:</label>
+                <select name="tipo">
+                    <option value="">Todos</option>
+                    <?php foreach ($tipos as $tipo): ?>
+                        <option value="<?php echo $tipo['IdTipoCliente']; ?>" 
+                                <?php echo ($_GET['tipo'] ?? '') == $tipo['IdTipoCliente'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($tipo['NombreTipoCliente']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>Estado:</label>
+                <select name="estado">
+                    <option value="">Todos</option>
+                    <option value="1" <?php echo ($_GET['estado'] ?? '') === '1' ? 'selected' : ''; ?>>Activos</option>
+                    <option value="0" <?php echo ($_GET['estado'] ?? '') === '0' ? 'selected' : ''; ?>>Inactivos</option>
+                </select>
+            </div>
+            
+            <div class="form-group" style="margin-bottom: 0;">
+                <label>&nbsp;</label>
+                <button type="submit" class="btn btn-primario" style="width: 100%;">Filtrar</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- TABLA DE CLIENTES -->
+<?php if (empty($clientes)): ?>
+    <div class="tarjeta" style="text-align: center; padding: 60px;">
+        <h2 style="color: var(--color-texto-claro); font-weight: normal;">No hay clientes registrados</h2>
+        <p style="color: var(--color-texto-claro); margin-top: 10px;">Los clientes aparecerán aquí cuando se registren en el sistema</p>
+    </div>
+<?php else: ?>
+    <table class="tabla">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Contacto</th>
+                <th>Tipo</th>
+                <th>Canal</th>
+                <th>Pedidos</th>
+                <th>Total Gastado</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($clientes as $cliente): ?>
+                <tr>
+                    <td><?php echo $cliente['IdCliente']; ?></td>
+                    <td>
+                        <strong><?php echo htmlspecialchars($cliente['NombreCliente']); ?></strong><br>
+                        <small style="color: var(--color-texto-claro);">
+                            Registro: <?php echo date('d/m/Y', strtotime($cliente['FechaRegistro'])); ?>
+                        </small>
+                    </td>
+                    <td>
+                        <?php echo htmlspecialchars($cliente['Email']); ?><br>
+                        <?php echo htmlspecialchars($cliente['Telefono'] ?? 'N/A'); ?>
+                    </td>
+                    <td>
+                        <span class="badge <?php echo ($cliente['IdTipoCliente'] ?? 0) == 2 ? 'badge-info' : 'badge-secundario'; ?>">
+                            <?php echo htmlspecialchars($cliente['NombreTipoCliente'] ?? 'N/A'); ?>
+                        </span>
+                    </td>
+                    <td><?php echo htmlspecialchars($cliente['CanalCliente'] ?? 'N/A'); ?></td>
+                    <td>
+                        <strong><?php echo $cliente['TotalPedidos'] ?? 0; ?></strong> pedidos
+                    </td>
+                    <td>
+                        <strong style="color: var(--color-exito);">$<?php echo number_format($cliente['TotalGastado'] ?? 0, 2); ?></strong>
+                    </td>
+                    <td>
+                        <?php if ($cliente['Estado'] == 1): ?>
+                            <span class="badge badge-exito">Activo</span>
+                        <?php else: ?>
+                            <span class="badge badge-peligro">Inactivo</span>
+                        <?php endif; ?>
+                    </td>
+                    <td>
+                        <div class="acciones">
+                            <a href="cliente_detalle.php?id=<?php echo $cliente['IdCliente']; ?>" 
+                               class="btn btn-blanco">
+                                Ver
+                            </a>
+                            
+                            <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('CLIENTES_EDITAR')): ?>
+                            <a href="cliente_editar.php?id=<?php echo $cliente['IdCliente']; ?>" 
+                               class="btn btn-secundario">
+                                Editar
+                            </a>
+                            <?php endif; ?>
+                        </div>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+    
+    <!-- PAGINACIÓN -->
+    <?php if ($paginacion['total_paginas'] > 1): ?>
+        <div style="margin-top: 20px; display: flex; justify-content: center; gap: 5px;">
+            <?php for ($i = 1; $i <= $paginacion['total_paginas']; $i++): ?>
+                <a href="?pagina=<?php echo $i; ?><?php echo isset($_GET['busqueda']) ? '&busqueda=' . urlencode($_GET['busqueda']) : ''; ?><?php echo isset($_GET['tipo']) ? '&tipo=' . $_GET['tipo'] : ''; ?><?php echo isset($_GET['estado']) ? '&estado=' . $_GET['estado'] : ''; ?>" 
+                   class="btn <?php echo $paginacion['pagina_actual'] == $i ? 'btn-primario' : 'btn-blanco'; ?>">
+                    <?php echo $i; ?>
+                </a>
+            <?php endfor; ?>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

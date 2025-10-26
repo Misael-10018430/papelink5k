@@ -3,266 +3,299 @@
  * Vista: Detalle del Cliente
  * Información completa, estadísticas e historial de pedidos
  */
-
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ClienteController.php';
-
-$idCliente = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
+ $idCliente = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (!$idCliente) {
     $_SESSION['error'] = 'ID de cliente inválido';
     header('Location: clientes.php');
     exit;
 }
-
-$controller = new ClienteController();
-$datos = $controller->verDetalle($idCliente);
-
-$titulo = "Detalle del Cliente - Papelink";
+ $controller = new ClienteController();
+ $datos = $controller->verDetalle($idCliente);
+ $titulo = "Detalle del Cliente - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
+<!-- ===================================
+     ESTILOS CSS PROFESIONAL INTEGRADOS
+     =================================== -->
 <style>
-    body {
-        background-color: #f5f5f5;
-        font-family: Arial, sans-serif;
+    /* ===================================
+       VARIABLES DE COLOR Y ESTILOS GENERALES
+       =================================== */
+    :root {
+        --color-primario: #495057;       /* Gris Oscuro para botones principales */
+        --color-primario-hover: #343a40; /* Gris más oscuro para hover */
+        --color-secundario: #6c757d;     /* Gris medio para texto secundario */
+        --color-exito: #28a745;          /* Verde estándar para éxito */
+        --color-advertencia: #ffc107;    /* Amarillo estándar para advertencia */
+        --color-peligro: #dc3545;        /* Rojo estándar para peligro/errores */
+        --color-info: #17a2b8;           /* Azul estándar para información */
+        --color-texto: #212529;          /* Negro suave para texto principal */
+        --color-texto-claro: #6c757d;    /* Gris para texto secundario */
+        --color-fondo: #f8f9fa;          /* Fondo muy claro */
+        --color-blanco: #ffffff;
+        --color-borde: #dee2e6;          /* Gris claro para bordes */
+        --border-radius: 4px;            /* Bordes más sutiles */
+        --sombra: 0 2px 4px rgba(0,0,0,0.05); /* Sombra muy ligera */
     }
-    
+
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        background-color: var(--color-fondo);
+        color: var(--color-texto);
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+    }
+
+    /* ===================================
+       LAYOUT Y CONTENEDOR
+       =================================== */
     .contenedor {
-        padding: 25px;
+        padding: 2rem;
         max-width: 1400px;
         margin: 0 auto;
     }
-    
-    .breadcrumb {
-        background: none;
-        padding: 0;
-        margin-bottom: 20px;
-        font-size: 13px;
-    }
-    
-    .breadcrumb a {
-        color: #FF6347;
-        text-decoration: none;
-    }
-    
-    .breadcrumb a:hover {
-        text-decoration: underline;
-    }
-    
-    .breadcrumb-separador {
-        color: #999;
-        margin: 0 8px;
-    }
-    
-    .titulo-principal {
-        color: #2C3E50;
-        font-size: 26px;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-    
-    .subtitulo {
-        color: #7f8c8d;
-        font-size: 14px;
-        margin-bottom: 25px;
-    }
-    
     .grid-layout {
         display: grid;
         grid-template-columns: 2fr 1fr;
-        gap: 20px;
+        gap: 1.5rem;
     }
-    
     @media (max-width: 992px) {
-        .grid-layout {
-            grid-template-columns: 1fr;
-        }
+        .grid-layout { grid-template-columns: 1fr; }
     }
-    
-    .tarjeta {
-        background: white;
-        border: 1px solid #e0e0e0;
-        border-radius: 6px;
-        padding: 25px;
-        margin-bottom: 20px;
-    }
-    
-    .tarjeta-titulo {
-        color: #2C3E50;
-        font-size: 18px;
+
+    /* ===================================
+       TIPOGRAFÍA
+       =================================== */
+    h1.titulo-principal {
+        font-size: 1.75rem;
         font-weight: 600;
-        margin-bottom: 20px;
-        padding-bottom: 12px;
-        border-bottom: 2px solid #f0f0f0;
+        color: var(--color-texto);
+        margin-bottom: 0.25rem;
     }
-    
+    .subtitulo {
+        color: var(--color-texto-claro);
+        font-size: 0.875rem;
+        margin-bottom: 1.5rem;
+    }
+    .tarjeta-titulo {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: var(--color-texto);
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
+    }
+
+    /* ===================================
+       NAVEGACIÓN (BREADCRUMB)
+       =================================== */
+    .breadcrumb {
+        background: none;
+        padding: 0;
+        margin-bottom: 1.25rem;
+        font-size: 0.8125rem;
+    }
+    .breadcrumb a {
+        color: var(--color-primario);
+        text-decoration: none;
+    }
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+    .breadcrumb-separador {
+        color: var(--color-texto-claro);
+        margin: 0 0.5rem;
+    }
+
+    /* ===================================
+       COMPONENTES: TARJETAS
+       =================================== */
+    .tarjeta {
+        background: var(--color-blanco);
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--sombra);
+    }
     .info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 20px;
+        gap: 1.25rem;
     }
-    
     .info-campo {
-        margin-bottom: 15px;
+        margin-bottom: 1rem;
     }
-    
+    .info-campo.ancho-completo { grid-column: 1 / -1; }
     .info-label {
-        color: #7f8c8d;
-        font-size: 12px;
+        color: var(--color-texto-claro);
+        font-size: 0.75rem;
         text-transform: uppercase;
-        margin-bottom: 6px;
+        margin-bottom: 0.375rem;
         font-weight: 500;
     }
-    
     .info-valor {
-        color: #2C3E50;
-        font-size: 15px;
+        color: var(--color-texto);
+        font-size: 0.9375rem;
         font-weight: 500;
     }
-    
+
+    /* ===================================
+       COMPONENTES: ESTADÍSTICAS
+       =================================== */
     .estadisticas-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-        gap: 15px;
-        margin-bottom: 0;
+        gap: 1rem;
     }
-    
     .estadistica-box {
         text-align: center;
-        padding: 20px 15px;
-        background-color: #fff3e0;
-        border-radius: 6px;
+        padding: 1.25rem;
+        background-color: var(--color-fondo);
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
     }
-    
-    .estadistica-box.verde { background-color: #e8f5e9; }
-    .estadistica-box.amarillo { background-color: #fff3e0; }
-    .estadistica-box.azul { background-color: #e3f2fd; }
-    
     .estadistica-numero {
-        color: #FF6347;
-        font-size: 28px;
+        font-size: 1.75rem;
         font-weight: 700;
-        margin: 0 0 5px 0;
+        margin: 0 0 0.25rem 0;
     }
-    
-    .estadistica-numero.verde { color: #28a745; }
-    .estadistica-numero.amarillo { color: #ffc107; }
-    .estadistica-numero.azul { color: #2196f3; }
-    
+    .estadistica-numero.primario { color: var(--color-primario); }
+    .estadistica-numero.exito { color: var(--color-exito); }
+    .estadistica-numero.advertencia { color: var(--color-advertencia); }
+    .estadistica-numero.info { color: var(--color-info); }
     .estadistica-label {
-        color: #7f8c8d;
-        font-size: 11px;
+        color: var(--color-texto-claro);
+        font-size: 0.6875rem;
         text-transform: uppercase;
         font-weight: 500;
     }
-    
+
+    /* ===================================
+       COMPONENTES: TABLA
+       =================================== */
     .tabla {
         width: 100%;
         border-collapse: collapse;
-        font-size: 13px;
+        font-size: 0.8125rem;
     }
-    
     .tabla thead {
-        background-color: #f8f9fa;
+        background-color: var(--color-fondo);
     }
-    
     .tabla th {
-        padding: 12px 10px;
+        padding: 0.75rem;
         text-align: left;
-        color: #2C3E50;
+        color: var(--color-texto);
         font-weight: 600;
-        font-size: 11px;
+        font-size: 0.6875rem;
         text-transform: uppercase;
-        border-bottom: 2px solid #e0e0e0;
+        border-bottom: 2px solid var(--color-borde);
     }
-    
     .tabla td {
-        padding: 12px 10px;
-        border-bottom: 1px solid #f0f0f0;
-        color: #2C3E50;
+        padding: 0.75rem;
+        border-bottom: 1px solid var(--color-borde);
+        color: var(--color-texto);
     }
-    
     .tabla tbody tr:hover {
-        background-color: #f8f9fa;
+        background-color: rgba(0,0,0,.02);
     }
-    
-    .badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 10px;
-        font-size: 11px;
-        font-weight: 500;
-        color: white;
-    }
-    
+    .texto-valor-destacado { color: var(--color-peligro); font-weight: 600; }
+
+    /* ===================================
+       COMPONENTES: FORMULARIOS
+       =================================== */
     .form-select {
         width: 100%;
-        padding: 10px 12px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        margin-bottom: 15px;
+        padding: 0.625rem 0.75rem;
+        border: 1px solid var(--color-borde);
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
+        margin-bottom: 0.9375rem;
+        transition: border-color 0.2s, box-shadow 0.2s;
     }
-    
     .form-select:focus {
         outline: none;
-        border-color: #FF6347;
+        border-color: var(--color-primario);
+        box-shadow: 0 0 0 2px rgba(73, 80, 87, 0.25);
     }
-    
+
+    /* ===================================
+       COMPONENTES: BOTONES
+       =================================== */
     .btn {
-        padding: 10px 20px;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 0.625rem 1.25rem;
+        border-radius: var(--border-radius);
+        font-size: 0.875rem;
         font-weight: 500;
         cursor: pointer;
-        border: none;
+        border: 1px solid transparent;
         text-decoration: none;
         display: inline-block;
         transition: all 0.2s;
         text-align: center;
+        line-height: 1.5;
     }
-    
-    .btn-naranja {
-        background-color: #FF6347;
-        color: white;
+    .btn-primario { /* Mapeo de btn-naranja */
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
         width: 100%;
     }
-    
-    .btn-naranja:hover {
-        background-color: #e5533d;
+    .btn-primario:hover {
+        background-color: var(--color-primario-hover);
     }
-    
-    .btn-gris {
-        background-color: white;
-        color: #2C3E50;
-        border: 1px solid #ddd;
+    .btn-secundario { /* Mapeo de btn-gris */
+        background-color: var(--color-blanco);
+        color: var(--color-texto);
+        border: 1px solid var(--color-borde);
         width: 100%;
-        margin-bottom: 8px;
+        margin-bottom: 0.5rem;
     }
-    
-    .btn-gris:hover {
-        background-color: #f5f5f5;
+    .btn-secundario:hover {
+        background-color: var(--color-fondo);
     }
-    
+    .btn-enlace {
+        color: var(--color-primario);
+        text-decoration: none;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .btn-enlace:hover {
+        text-decoration: underline;
+    }
+
+    /* ===================================
+       COMPONENTES: BADGES Y ALERTAS
+       =================================== */
+    .badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        border-radius: 0.25rem;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        color: var(--color-blanco);
+        text-transform: uppercase;
+    }
     .alerta {
-        padding: 14px 18px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        font-size: 14px;
+        padding: 0.875rem 1.125rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.25rem;
+        font-size: 0.875rem;
+        border: 1px solid;
     }
-    
     .alerta-exito {
         background-color: #d4edda;
         color: #155724;
-        border: 1px solid #c3e6cb;
+        border-color: #c3e6cb;
     }
-    
     .texto-vacio {
         text-align: center;
-        padding: 30px;
-        color: #7f8c8d;
-        font-size: 14px;
+        padding: 1.875rem;
+        color: var(--color-texto-claro);
+        font-size: 0.875rem;
     }
 </style>
 
@@ -275,20 +308,17 @@ include __DIR__ . '/includes/header.php';
         <span class="breadcrumb-separador">/</span>
         <span>Detalle del Cliente</span>
     </div>
-
     <h1 class="titulo-principal">
         <?php echo htmlspecialchars($datos['perfil']['NombreCliente']); ?>
     </h1>
     <p class="subtitulo">
         Cliente desde el <?php echo date('d/m/Y', strtotime($datos['perfil']['FechaRegistro'])); ?>
     </p>
-
     <?php if (isset($_SESSION['success'])): ?>
         <div class="alerta alerta-exito">
-            ✓ <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
+            <?php echo $_SESSION['success']; unset($_SESSION['success']); ?>
         </div>
     <?php endif; ?>
-
     <div class="grid-layout">
         <!-- Columna Izquierda -->
         <div>
@@ -298,33 +328,23 @@ include __DIR__ . '/includes/header.php';
                 <div class="info-grid">
                     <div class="info-campo">
                         <div class="info-label">Nombre Completo</div>
-                        <div class="info-valor">
-                            <?php echo htmlspecialchars($datos['perfil']['NombreCliente']); ?>
-                        </div>
+                        <div class="info-valor"><?php echo htmlspecialchars($datos['perfil']['NombreCliente']); ?></div>
                     </div>
                     <div class="info-campo">
                         <div class="info-label">Email</div>
-                        <div class="info-valor">
-                            <?php echo htmlspecialchars($datos['perfil']['Email']); ?>
-                        </div>
+                        <div class="info-valor"><?php echo htmlspecialchars($datos['perfil']['Email']); ?></div>
                     </div>
                     <div class="info-campo">
                         <div class="info-label">Teléfono</div>
-                        <div class="info-valor">
-                            <?php echo htmlspecialchars($datos['perfil']['Telefono']); ?>
-                        </div>
+                        <div class="info-valor"><?php echo htmlspecialchars($datos['perfil']['Telefono']); ?></div>
                     </div>
                     <div class="info-campo">
                         <div class="info-label">Canal de Registro</div>
-                        <div class="info-valor">
-                            <?php echo htmlspecialchars($datos['perfil']['CanalCliente']); ?>
-                        </div>
+                        <div class="info-valor"><?php echo htmlspecialchars($datos['perfil']['CanalCliente']); ?></div>
                     </div>
-                    <div class="info-campo" style="grid-column: 1 / -1;">
+                    <div class="info-campo ancho-completo">
                         <div class="info-label">Dirección</div>
-                        <div class="info-valor">
-                            <?php echo htmlspecialchars($datos['perfil']['Direccion']); ?>
-                        </div>
+                        <div class="info-valor"><?php echo htmlspecialchars($datos['perfil']['Direccion']); ?></div>
                     </div>
                     <div class="info-campo">
                         <div class="info-label">Último Acceso</div>
@@ -334,38 +354,28 @@ include __DIR__ . '/includes/header.php';
                     </div>
                 </div>
             </div>
-
             <!-- Estadísticas -->
             <div class="tarjeta">
                 <h2 class="tarjeta-titulo">Estadísticas de Compras</h2>
                 <div class="estadisticas-grid">
                     <div class="estadistica-box">
-                        <div class="estadistica-numero">
-                            <?php echo $datos['estadisticas']['TotalPedidos']; ?>
-                        </div>
+                        <div class="estadistica-numero primario"><?php echo $datos['estadisticas']['TotalPedidos']; ?></div>
                         <div class="estadistica-label">Total Pedidos</div>
                     </div>
-                    <div class="estadistica-box verde">
-                        <div class="estadistica-numero verde">
-                            $<?php echo number_format($datos['estadisticas']['TotalGastado'], 2); ?>
-                        </div>
+                    <div class="estadistica-box">
+                        <div class="estadistica-numero exito">$<?php echo number_format($datos['estadisticas']['TotalGastado'], 2); ?></div>
                         <div class="estadistica-label">Total Gastado</div>
                     </div>
-                    <div class="estadistica-box amarillo">
-                        <div class="estadistica-numero amarillo">
-                            <?php echo $datos['estadisticas']['PedidosPendientes']; ?>
-                        </div>
+                    <div class="estadistica-box">
+                        <div class="estadistica-numero advertencia"><?php echo $datos['estadisticas']['PedidosPendientes']; ?></div>
                         <div class="estadistica-label">Pendientes</div>
                     </div>
-                    <div class="estadistica-box azul">
-                        <div class="estadistica-numero azul">
-                            <?php echo $datos['estadisticas']['PedidosCompletados']; ?>
-                        </div>
+                    <div class="estadistica-box">
+                        <div class="estadistica-numero info"><?php echo $datos['estadisticas']['PedidosCompletados']; ?></div>
                         <div class="estadistica-label">Completados</div>
                     </div>
                 </div>
             </div>
-
             <!-- Productos Más Comprados -->
             <?php if (!empty($datos['productos_top'])): ?>
             <div class="tarjeta">
@@ -383,25 +393,20 @@ include __DIR__ . '/includes/header.php';
                         <tr>
                             <td><?php echo htmlspecialchars($producto['NombreProducto']); ?></td>
                             <td style="text-align: center;">
-                                <strong style="color: #FF6347;"><?php echo $producto['CantidadTotal']; ?></strong>
+                                <strong class="texto-valor-destacado"><?php echo $producto['CantidadTotal']; ?></strong>
                             </td>
-                            <td style="text-align: center;">
-                                <?php echo $producto['VecesComprado']; ?> veces
-                            </td>
+                            <td style="text-align: center;"><?php echo $producto['VecesComprado']; ?> veces</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
             <?php endif; ?>
-
             <!-- Historial de Pedidos -->
             <div class="tarjeta">
                 <h2 class="tarjeta-titulo">Historial de Pedidos (Últimos 10)</h2>
                 <?php if (empty($datos['historial'])): ?>
-                    <div class="texto-vacio">
-                        Este cliente aún no ha realizado pedidos
-                    </div>
+                    <div class="texto-vacio">Este cliente aún no ha realizado pedidos</div>
                 <?php else: ?>
                     <table class="tabla">
                         <thead>
@@ -417,11 +422,9 @@ include __DIR__ . '/includes/header.php';
                             <?php foreach ($datos['historial'] as $pedido): ?>
                             <tr>
                                 <td><strong>#<?php echo $pedido['IdPedido']; ?></strong></td>
-                                <td style="font-size: 12px;">
-                                    <?php echo date('d/m/Y H:i', strtotime($pedido['FechaPedido'])); ?>
-                                </td>
+                                <td><?php echo date('d/m/Y H:i', strtotime($pedido['FechaPedido'])); ?></td>
                                 <td>
-                                    <strong style="color: #FF6347;">
+                                    <strong class="texto-valor-destacado">
                                         $<?php echo number_format($pedido['Total'], 2); ?>
                                     </strong>
                                 </td>
@@ -431,8 +434,7 @@ include __DIR__ . '/includes/header.php';
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" 
-                                       style="color: #FF6347; text-decoration: none; font-size: 12px;">
+                                    <a href="pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-enlace">
                                         Ver
                                     </a>
                                 </td>
@@ -443,12 +445,11 @@ include __DIR__ . '/includes/header.php';
                 <?php endif; ?>
             </div>
         </div>
-
         <!-- Columna Derecha -->
         <div>
             <!-- Tipo de Cliente -->
             <div class="tarjeta">
-                <h3 class="tarjeta-titulo" style="font-size: 16px;">Tipo de Cliente</h3>
+                <h3 class="tarjeta-titulo">Tipo de Cliente</h3>
                 <form id="formTipoCliente">
                     <input type="hidden" name="id_cliente" value="<?php echo $idCliente; ?>">
                     <select name="id_tipo" class="form-select">
@@ -459,15 +460,12 @@ include __DIR__ . '/includes/header.php';
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="submit" class="btn btn-naranja">
-                        Actualizar Tipo
-                    </button>
+                    <button type="submit" class="btn btn-primario">Actualizar Tipo</button>
                 </form>
             </div>
-
             <!-- Segmento -->
             <div class="tarjeta">
-                <h3 class="tarjeta-titulo" style="font-size: 16px;">Segmento</h3>
+                <h3 class="tarjeta-titulo">Segmento</h3>
                 <form id="formSegmento">
                     <input type="hidden" name="id_cliente" value="<?php echo $idCliente; ?>">
                     <select name="id_segmento" class="form-select">
@@ -479,21 +477,14 @@ include __DIR__ . '/includes/header.php';
                             </option>
                         <?php endforeach; ?>
                     </select>
-                    <button type="submit" class="btn btn-naranja">
-                        Actualizar Segmento
-                    </button>
+                    <button type="submit" class="btn btn-primario">Actualizar Segmento</button>
                 </form>
             </div>
-
             <!-- Acciones Rápidas -->
             <div class="tarjeta">
-                <h3 class="tarjeta-titulo" style="font-size: 16px;">Acciones Rápidas</h3>
-                <a href="clientes.php" class="btn btn-gris">
-                    Volver a Clientes
-                </a>
-                <a href="pedidos.php?cliente=<?php echo $idCliente; ?>" class="btn btn-gris">
-                    Ver Todos sus Pedidos
-                </a>
+                <h3 class="tarjeta-titulo">Acciones Rápidas</h3>
+                <a href="clientes.php" class="btn btn-secundario">Volver a Clientes</a>
+                <a href="pedidos.php?cliente=<?php echo $idCliente; ?>" class="btn btn-secundario">Ver Todos sus Pedidos</a>
             </div>
         </div>
     </div>
@@ -503,8 +494,7 @@ include __DIR__ . '/includes/header.php';
 // Cambiar tipo de cliente
 document.getElementById('formTipoCliente').addEventListener('submit', function(e) {
     e.preventDefault();
-    const formData = new FormData(this);
-    
+    const formData = new FormData(this); 
     fetch('../../controllers/ClienteController.php?action=cambiarTipo', {
         method: 'POST',
         body: formData

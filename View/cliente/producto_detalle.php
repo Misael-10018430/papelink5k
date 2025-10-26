@@ -528,7 +528,7 @@ include 'includes/header.php';
             <?php endif; ?>
 
             <div class="info-adicional">
-                <h4>📦 Información de Envío</h4>
+                <h4> Información de Envío</h4>
                 <ul>
                     <li>Envío a domicilio: $50.00 (3-5 días hábiles)</li>
                     <li>Recoger en sucursal: GRATIS (24 horas)</li>

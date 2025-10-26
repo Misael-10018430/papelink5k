@@ -16,21 +16,74 @@ session_start();
         
         body {
             font-family: Arial, Helvetica, sans-serif;
-            background: linear-gradient(135deg, #0a0a0aff 0%, #1a1a1a 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .background-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://images.unsplash.com/photo-1664735245380-75ad87571bca?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&q=80&w=1194');
+            background-size: cover;
+            background-position: center;
+            filter: brightness(0.7);
+            z-index: -1;
+        }
+        
+        .login-wrapper {
+            display: flex;
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .brand-section {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 100px;
+            color: white;
+        }
+        
+        .brand-name {
+            font-size: 8rem; /* Increased from 4rem to 5rem */
+            font-weight: bold;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+        
+        .brand-tagline {
+            font-size: 1.5rem;
+            text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        .login-section {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
         }
         
         .login-container {
-            background-color: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            background-color: rgba(255, 255, 255, 0.42);
+            backdrop-filter: blur(10px);
+            padding: 60px;
+            border-radius: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             width: 100%;
-            max-width: 420px;
+            max-width: 460px;
         }
         
         .logo {
@@ -52,7 +105,7 @@ session_start();
         
         .subtitulo {
             text-align: center;
-            color: #666;
+            color: #eaeaeaff;
             margin-bottom: 30px;
             font-size: 15px;
         }
@@ -240,7 +293,29 @@ session_start();
             color: #2c3e50;
         }
         
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
+            .login-wrapper {
+                flex-direction: column;
+            }
+            
+            .brand-section {
+                flex: none;
+                height: 30vh;
+            }
+            
+            .brand-name {
+                font-size: 2.5rem;
+            }
+            
+            .brand-tagline {
+                font-size: 1.2rem;
+            }
+            
+            .login-section {
+                flex: 1;
+                padding: 20px;
+            }
+            
             .login-container {
                 padding: 30px 20px;
             }
@@ -257,93 +332,103 @@ session_start();
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">PAPELINK</div>
-        
-        <h2>Bienvenido</h2>
-        <p class="subtitulo">Inicia sesión para continuar</p>
-        
-        <?php if (isset($_SESSION['registro_exitoso']) && $_SESSION['registro_exitoso']): ?>
-            <!-- MENSAJE ESPECIAL DE REGISTRO EXITOSO -->
-            <div class="mensaje-registro-exitoso">
-                <div class="icono">🎉</div>
-                <h3>¡Cuenta creada exitosamente!</h3>
-                <p>
-                    Hola <strong><?php echo htmlspecialchars($_SESSION['nombre_registrado'] ?? 'Usuario'); ?></strong>,<br>
-                    tu cuenta ha sido creada. Ahora puedes iniciar sesión.
-                </p>
-            </div>
-            <?php 
-                unset($_SESSION['registro_exitoso']); 
-                unset($_SESSION['nombre_registrado']);
-                // Pre-llenar el email si existe
-                if (isset($_SESSION['email_registrado'])) {
-                    $_SESSION['email_anterior'] = $_SESSION['email_registrado'];
-                    unset($_SESSION['email_registrado']);
-                }
-            ?>
-        <?php endif; ?>
-        
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="mensaje-error">
-                ❌ <?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if (isset($_SESSION['exito']) && !isset($_SESSION['registro_exitoso'])): ?>
-            <div class="mensaje-exito">
-                ✓ <?php echo htmlspecialchars($_SESSION['exito']); unset($_SESSION['exito']); ?>
-            </div>
-        <?php endif; ?>
-        
-        <form method="POST" action="../../controllers/AuthController.php">
-            <input type="hidden" name="accion" value="login_unificado">
-            
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" 
-                       name="email" 
-                       required 
-                       placeholder="tu@email.com"
-                       autocomplete="email"
-                       value="<?php echo isset($_SESSION['email_anterior']) ? htmlspecialchars($_SESSION['email_anterior']) : ''; unset($_SESSION['email_anterior']); ?>">
-            </div>
-            
-            <div class="form-group">
-                <label>Contraseña:</label>
-                <input type="password" 
-                       name="password" 
-                       required 
-                       placeholder="••••••••"
-                       autocomplete="current-password">
-            </div>
-            
-            <button type="submit" class="btn-login">
-                Iniciar Sesión
-            </button>
-        </form>
-        
-        <div class="separador">━━━━━━━━━ o ━━━━━━━━━</div>
-        
-        <a href="registro.php" class="btn-registro">
-            Crear cuenta nueva
-        </a>
-        
-        <div class="volver">
-            <a href="index.php">← Continuar sin cuenta</a>
+    <div class="background-container"></div>
+    
+    <div class="login-wrapper">
+        <div class="brand-section">
+            <div class="brand-name">PAPELINK</div>
+            <div class="brand-tagline">Variedad de productos a tu alcanze</div>
         </div>
         
-        <!-- Sección para empleados -->
-        <div class="admin-section">
-            <div class="titulo-admin">
-                <strong>¿Eres empleado?</strong><br>
-                <span style="font-size: 12px;">Accede al panel administrativo</span>
+        <div class="login-section">
+            <div class="login-container">
+                <div class="logo">PAPELINK</div>
+                
+                <h2>Bienvenido</h2>
+                <p class="subtitulo">Inicia sesión para continuar</p>
+                
+                <?php if (isset($_SESSION['registro_exitoso']) && $_SESSION['registro_exitoso']): ?>
+                    <!-- MENSAJE ESPECIAL DE REGISTRO EXITOSO -->
+                    <div class="mensaje-registro-exitoso">
+                        <div class="icono">🎉</div>
+                        <h3>¡Cuenta creada exitosamente!</h3>
+                        <p>
+                            Hola <strong><?php echo htmlspecialchars($_SESSION['nombre_registrado'] ?? 'Usuario'); ?></strong>,<br>
+                            tu cuenta ha sido creada. Ahora puedes iniciar sesión.
+                        </p>
+                    </div>
+                    <?php 
+                        unset($_SESSION['registro_exitoso']); 
+                        unset($_SESSION['nombre_registrado']);
+                        // Pre-llenar el email si existe
+                        if (isset($_SESSION['email_registrado'])) {
+                            $_SESSION['email_anterior'] = $_SESSION['email_registrado'];
+                            unset($_SESSION['email_registrado']);
+                        }
+                    ?>
+                <?php endif; ?>
+                
+                <?php if (isset($_SESSION['error'])): ?>
+                    <div class="mensaje-error">
+                        ❌ <?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
+                    </div>
+                <?php endif; ?>
+                
+                <?php if (isset($_SESSION['exito']) && !isset($_SESSION['registro_exitoso'])): ?>
+                    <div class="mensaje-exito">
+                        ✓ <?php echo htmlspecialchars($_SESSION['exito']); unset($_SESSION['exito']); ?>
+                    </div>
+                <?php endif; ?>
+                
+                <form method="POST" action="../../controllers/AuthController.php">
+                    <input type="hidden" name="accion" value="login_unificado">
+                    
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" 
+                               name="email" 
+                               required 
+                               placeholder="tu@email.com"
+                               autocomplete="email"
+                               value="<?php echo isset($_SESSION['email_anterior']) ? htmlspecialchars($_SESSION['email_anterior']) : ''; unset($_SESSION['email_anterior']); ?>">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Contraseña:</label>
+                        <input type="password" 
+                               name="password" 
+                               required 
+                               placeholder="••••••••"
+                               autocomplete="current-password">
+                    </div>
+                    
+                    <button type="submit" class="btn-login">
+                        Iniciar Sesión
+                    </button>
+                </form>
+                
+                <div class="separador">━━━━━━━━━ o ━━━━━━━━━</div>
+                
+                <a href="registro.php" class="btn-registro">
+                    Crear cuenta nueva
+                </a>
+                
+                <div class="volver">
+                    <a href="index.php">← Continuar sin cuenta</a>
+                </div>
+                
+                <!-- Sección para empleados -->
+                <div class="admin-section">
+                    <div class="titulo-admin">
+                        <strong>¿Eres empleado?</strong><br>
+                        <span style="font-size: 12px;">Accede al panel administrativo</span>
+                    </div>
+                    <a href="../admin/login.php" class="btn-admin">
+                        Acceso Administrativo →
+                    </a>
+                </div>
             </div>
-            <a href="../admin/login.php" class="btn-admin">
-                Acceso Administrativo →
-            </a>
         </div>
     </div>
 </body>
 </html>
-```

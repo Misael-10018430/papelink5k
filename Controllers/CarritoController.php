@@ -9,8 +9,7 @@ class CarritoController {
     
     public function __construct() {
         $this->carritoModel = new Carrito();
-    }
-    
+    }    
     /**
      * Verificar que el cliente esté logueado
      */
@@ -21,40 +20,33 @@ class CarritoController {
             exit();
         }
         return $_SESSION['cliente_id'];
-    }
-    
+    }    
     /**
      * Agregar producto al carrito
      */
     public function agregar() {
-        $idCliente = $this->verificarCliente();
-        
+        $idCliente = $this->verificarCliente();        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: ../../view/cliente/productos.php");
             exit();
-        }
-        
+        }       
         $idProducto = (int)$_POST['id_producto'];
-        $cantidad = (int)$_POST['cantidad'];
-        
+        $cantidad = (int)$_POST['cantidad'];        
         if ($cantidad <= 0) {
             $_SESSION['error'] = 'Cantidad inválida';
             header("Location: ../../view/cliente/producto_detalle.php?id=" . $idProducto);
             exit();
-        }
-        
+        }        
         $resultado = $this->carritoModel->agregar($idCliente, $idProducto, $cantidad);
         
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = $resultado['mensaje'];
         } else {
             $_SESSION['error'] = $resultado['error'];
-        }
-        
+        }        
         header("Location: ../../view/cliente/carrito.php");
         exit();
-    }
-    
+    }   
     /**
      * Ver carrito
      */
@@ -81,66 +73,52 @@ class CarritoController {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header("Location: ../../view/cliente/carrito.php");
             exit();
-        }
-        
+        }        
         $idCarrito = (int)$_POST['id_carrito'];
-        $cantidad = (int)$_POST['cantidad'];
-        
+        $cantidad = (int)$_POST['cantidad'];       
         $resultado = $this->carritoModel->actualizarCantidad($idCarrito, $cantidad);
         
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = $resultado['mensaje'];
         } else {
             $_SESSION['error'] = $resultado['error'];
-        }
-        
+        }        
         header("Location: ../../view/cliente/carrito.php");
         exit();
-    }
-    
+    }    
     /**
      * Eliminar producto
      */
     public function eliminar() {
         $this->verificarCliente();
-        
         if (!isset($_GET['id'])) {
             header("Location: ../../view/cliente/carrito.php");
             exit();
-        }
-        
-        $idCarrito = (int)$_GET['id'];
-        
+        }        
+        $idCarrito = (int)$_GET['id'];       
         $resultado = $this->carritoModel->eliminar($idCarrito);
-        
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = $resultado['mensaje'];
         } else {
             $_SESSION['error'] = $resultado['error'];
-        }
-        
+        }       
         header("Location: ../../view/cliente/carrito.php");
         exit();
     }
-    
     /**
      * Vaciar carrito
      */
     public function vaciar() {
         $idCliente = $this->verificarCliente();
-        
         $resultado = $this->carritoModel->vaciar($idCliente);
-        
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = $resultado['mensaje'];
         } else {
             $_SESSION['error'] = $resultado['error'];
         }
-        
         header("Location: ../../view/cliente/carrito.php");
         exit();
     }
-    
     /**
      * Contar items (para header)
      */
@@ -172,31 +150,25 @@ class CarritoController {
         exit;
     }*/
 }
-
 // =====================================================
 // ENRUTADOR: Procesar las acciones del carrito
 // =====================================================
 if (isset($_GET['action'])) {
     $controller = new CarritoController();
     $action = $_GET['action'];
-    
     switch ($action) {
         case 'agregar':
             $controller->agregar();
             break;
-        
         case 'actualizar':
             $controller->actualizarCantidad();
             break;
-        
         case 'eliminar':
             $controller->eliminar();
             break;
-        
         case 'vaciar':
             $controller->vaciar();
             break;
-        
         /*case 'contar':
             $controller->contar();
             break;

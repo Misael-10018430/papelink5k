@@ -316,7 +316,6 @@ include_once __DIR__ . '/includes/header.php';
 <?php if (empty($pedidos)): ?>
     <!-- Sin pedidos -->
     <div class="sin-pedidos">
-        <div class="sin-pedidos-icono">📦</div>
         <h2>Aún no tienes pedidos</h2>
         <p>Comienza a comprar en nuestra tienda y tus pedidos aparecerán aquí</p>
         <a href="productos.php" class="btn btn-naranja">Ver productos</a>

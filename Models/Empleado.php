@@ -3,17 +3,13 @@
  * Modelo Empleado
  * Gestión de empleados, roles y permisos del sistema
  */
-
 require_once __DIR__ . '/../config/Database.php';
-
 class Empleado {
     private $conn;
-
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-
     /**
      * Obtener todos los empleados
      */
@@ -21,16 +17,13 @@ class Empleado {
         try {
             $sql = "EXEC sp_ObtenerEmpleados @Estado = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$estado]);
-            
+            $stmt->execute([$estado]);           
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerEmpleados: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener un empleado por ID
      */
@@ -43,34 +36,28 @@ class Empleado {
                         Email,
                         Estado
                     FROM Empleados 
-                    WHERE IdEmpleado = ?";
-            
+                    WHERE IdEmpleado = ?";           
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idEmpleado]);
-            
+            $stmt->execute([$idEmpleado]);           
             return $stmt->fetch(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerPorId: " . $e->getMessage());
             return null;
         }
     }
-
     /**
      * Registrar nuevo empleado
      */
     public function registrar($datos) {
         try {
             // Hash de la contraseña
-            $passwordHash = password_hash($datos['password'], PASSWORD_BCRYPT);
-            
+            $passwordHash = password_hash($datos['password'], PASSWORD_BCRYPT);            
             $sql = "EXEC sp_RegistrarEmpleado 
                     @NombreCompleto = ?,
                     @Usuario = ?,
                     @Email = ?,
                     @ContraseñaHash = ?,
-                    @IdRol = ?";
-            
+                    @IdRol = ?";           
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $datos['nombre'],
@@ -78,34 +65,28 @@ class Empleado {
                 $datos['email'],
                 $passwordHash,
                 $datos['id_rol'] ?? null
-            ]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            ]);           
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);            
             return [
                 'success' => true,
                 'mensaje' => 'Empleado registrado correctamente',
                 'id' => $resultado['IdEmpleado'] ?? null
             ];
-
         } catch (PDOException $e) {
-            error_log("Error en registrar: " . $e->getMessage());
-            
+            error_log("Error en registrar: " . $e->getMessage());            
             // Detectar errores específicos
             $mensaje = 'Error al registrar el empleado';
             if (strpos($e->getMessage(), '50001') !== false) {
                 $mensaje = 'El nombre de usuario ya está registrado';
             } elseif (strpos($e->getMessage(), '50002') !== false) {
                 $mensaje = 'El email ya está registrado';
-            }
-            
+            }            
             return [
                 'success' => false,
                 'mensaje' => $mensaje
             ];
         }
     }
-
     /**
      * Actualizar empleado
      */
@@ -114,37 +95,30 @@ class Empleado {
             $sql = "EXEC sp_ActualizarEmpleado 
                     @IdEmpleado = ?,
                     @NombreCompleto = ?,
-                    @Email = ?";
-            
+                    @Email = ?";          
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $idEmpleado,
                 $datos['nombre'],
                 $datos['email'] ?? null
-            ]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            ]);           
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Empleado actualizado correctamente'
             ];
-
         } catch (PDOException $e) {
-            error_log("Error en actualizar: " . $e->getMessage());
-            
+            error_log("Error en actualizar: " . $e->getMessage());            
             $mensaje = 'Error al actualizar el empleado';
             if (strpos($e->getMessage(), '50035') !== false) {
                 $mensaje = 'El email ya está registrado por otro empleado';
-            }
-            
+            }            
             return [
                 'success' => false,
                 'mensaje' => $mensaje
             ];
         }
     }
-
     /**
      * Cambiar estado del empleado (Activo/Inactivo)
      */
@@ -152,15 +126,12 @@ class Empleado {
         try {
             $sql = "EXEC sp_CambiarEstadoEmpleado @IdEmpleado = ?, @Estado = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idEmpleado, $estado]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            $stmt->execute([$idEmpleado, $estado]);           
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Estado actualizado correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en cambiarEstado: " . $e->getMessage());
             return [
@@ -169,49 +140,41 @@ class Empleado {
             ];
         }
     }
-
     /**
      * Cambiar contraseña del empleado
      */
     public function cambiarContrasena($idEmpleado, $passwordActual, $passwordNueva) {
         try {
             $passwordActualHash = password_hash($passwordActual, PASSWORD_BCRYPT);
-            $passwordNuevaHash = password_hash($passwordNueva, PASSWORD_BCRYPT);
-            
+            $passwordNuevaHash = password_hash($passwordNueva, PASSWORD_BCRYPT);            
             $sql = "EXEC sp_CambiarContraseñaEmpleado 
                     @IdEmpleado = ?,
                     @ContraseñaActualHash = ?,
-                    @ContraseñaNuevaHash = ?";
-            
+                    @ContraseñaNuevaHash = ?";            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $idEmpleado,
                 $passwordActualHash,
                 $passwordNuevaHash
-            ]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            ]);            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);           
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Contraseña actualizada correctamente'
             ];
 
         } catch (PDOException $e) {
-            error_log("Error en cambiarContrasena: " . $e->getMessage());
-            
+            error_log("Error en cambiarContrasena: " . $e->getMessage());           
             $mensaje = 'Error al cambiar la contraseña';
             if (strpos($e->getMessage(), '50036') !== false) {
                 $mensaje = 'La contraseña actual es incorrecta';
-            }
-            
+            }           
             return [
                 'success' => false,
                 'mensaje' => $mensaje
             ];
         }
     }
-
     // ========================================
     // GESTIÓN DE ROLES
     // ========================================
@@ -232,7 +195,6 @@ class Empleado {
             return [];
         }
     }
-
     /**
      * Obtener roles asignados a un empleado
      */
@@ -245,19 +207,15 @@ class Empleado {
                     FROM Empleado_Roles er
                     INNER JOIN Roles r ON er.IdRol = r.IdRol
                     WHERE er.IdEmpleado = ?
-                    ORDER BY r.NombreRol";
-            
+                    ORDER BY r.NombreRol";           
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idEmpleado]);
-            
+            $stmt->execute([$idEmpleado]);            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerRolesEmpleado: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Asignar rol a empleado
      */
@@ -265,30 +223,24 @@ class Empleado {
         try {
             $sql = "EXEC sp_AsignarRolEmpleado @IdEmpleado = ?, @IdRol = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idEmpleado, $idRol]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            $stmt->execute([$idEmpleado, $idRol]);            
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Rol asignado correctamente'
             ];
-
         } catch (PDOException $e) {
-            error_log("Error en asignarRol: " . $e->getMessage());
-            
+            error_log("Error en asignarRol: " . $e->getMessage());            
             $mensaje = 'Error al asignar el rol';
             if (strpos($e->getMessage(), '50037') !== false) {
                 $mensaje = 'El empleado ya tiene asignado este rol';
-            }
-            
+            }            
             return [
                 'success' => false,
                 'mensaje' => $mensaje
             ];
         }
     }
-
     /**
      * Remover rol de empleado
      */
@@ -296,15 +248,12 @@ class Empleado {
         try {
             $sql = "EXEC sp_RemoverRolEmpleado @IdEmpleado = ?, @IdRol = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idEmpleado, $idRol]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            $stmt->execute([$idEmpleado, $idRol]);           
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);           
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Rol removido correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en removerRol: " . $e->getMessage());
             return [
@@ -313,7 +262,6 @@ class Empleado {
             ];
         }
     }
-
     /**
      * Obtener funcionalidades de un rol
      */
@@ -321,8 +269,7 @@ class Empleado {
         try {
             $sql = "EXEC sp_ObtenerFuncionalidadesRol @IdRol = ?";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idRol]);
-            
+            $stmt->execute([$idRol]);           
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
@@ -330,7 +277,6 @@ class Empleado {
             return [];
         }
     }
-
     /**
      * Verificar si un empleado tiene permiso para una funcionalidad
      */
@@ -338,15 +284,11 @@ class Empleado {
         try {
             $sql = "EXEC sp_VerificarPermisoEmpleado 
                     @IdEmpleado = ?,
-                    @NombreFuncionalidad = ?";
-            
+                    @NombreFuncionalidad = ?";            
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idEmpleado, $nombreFuncionalidad]);
-            
-            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+            $stmt->execute([$idEmpleado, $nombreFuncionalidad]);          
+            $resultado = $stmt->fetch(PDO::FETCH_ASSOC);         
             return (bool)($resultado['TienePermiso'] ?? 0);
-
         } catch (PDOException $e) {
             error_log("Error en verificarPermiso: " . $e->getMessage());
             return false;

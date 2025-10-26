@@ -3,9 +3,7 @@
  * Modelo Proveedor
  * Gestión de proveedores del sistema
  */
-
 require_once __DIR__ . '/../config/Database.php';
-
 class Proveedor {
     private $conn;
 
@@ -13,7 +11,6 @@ class Proveedor {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-
     /**
      * Obtener todos los proveedores
      */
@@ -22,15 +19,12 @@ class Proveedor {
             $sql = "EXEC sp_ObtenerProveedores @Estado = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$estado]);
-            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerProveedores: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener un proveedor por ID
      */
@@ -45,18 +39,14 @@ class Proveedor {
                         Estado
                     FROM Proveedores 
                     WHERE IdProveedor = ?";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idProveedor]);
-            
             return $stmt->fetch(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerPorId: " . $e->getMessage());
             return null;
         }
     }
-
     /**
      * Crear nuevo proveedor
      */
@@ -67,7 +57,6 @@ class Proveedor {
                     @Telefono = ?,
                     @Email = ?,
                     @Direccion = ?";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $datos['nombre'],
@@ -75,15 +64,12 @@ class Proveedor {
                 $datos['email'] ?? null,
                 $datos['direccion'] ?? null
             ]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Proveedor creado correctamente',
                 'id' => $resultado['IdProveedor'] ?? null
             ];
-
         } catch (PDOException $e) {
             error_log("Error en crear: " . $e->getMessage());
             return [
@@ -92,7 +78,6 @@ class Proveedor {
             ];
         }
     }
-
     /**
      * Actualizar proveedor
      */
@@ -104,7 +89,6 @@ class Proveedor {
                     @Telefono = ?,
                     @Email = ?,
                     @Direccion = ?";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $idProveedor,
@@ -113,14 +97,11 @@ class Proveedor {
                 $datos['email'] ?? null,
                 $datos['direccion'] ?? null
             ]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Proveedor actualizado correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en actualizar: " . $e->getMessage());
             return [
@@ -129,7 +110,6 @@ class Proveedor {
             ];
         }
     }
-
     /**
      * Cambiar estado del proveedor (Activo/Inactivo)
      */
@@ -138,14 +118,11 @@ class Proveedor {
             $sql = "EXEC sp_CambiarEstadoProveedor @IdProveedor = ?, @Estado = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idProveedor, $estado]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Estado actualizado correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en cambiarEstado: " . $e->getMessage());
             return [
@@ -154,7 +131,6 @@ class Proveedor {
             ];
         }
     }
-
     /**
      * Obtener historial de compras de un proveedor
      */
@@ -169,19 +145,15 @@ class Proveedor {
                     FROM ComprasProveedores c
                     INNER JOIN EstadosCompra ec ON c.IdEstadoCompra = ec.IdEstadoCompra
                     WHERE c.IdProveedor = ?
-                    ORDER BY c.FechaCompra DESC";
-            
+                    ORDER BY c.FechaCompra DESC";     
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$limite, $idProveedor]);
-            
+            $stmt->execute([$limite, $idProveedor]);   
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerHistorialCompras: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener estadísticas del proveedor
      */
@@ -193,12 +165,9 @@ class Proveedor {
                         ISNULL(AVG(Total), 0) AS PromedioCompra
                     FROM ComprasProveedores
                     WHERE IdProveedor = ?";
-            
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$idProveedor]);
-            
+            $stmt->execute([$idProveedor]);         
             return $stmt->fetch(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerEstadisticas: " . $e->getMessage());
             return [

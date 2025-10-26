@@ -3,17 +3,13 @@
  * Modelo Cliente
  * Gestión de clientes del sistema
  */
-
 require_once __DIR__ . '/../config/Database.php';
-
 class Cliente {
     private $conn;
-
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-
     /**
      * Obtener listado de clientes (Admin)
      */
@@ -25,7 +21,6 @@ class Cliente {
             $busqueda = isset($filtros['busqueda']) ? $filtros['busqueda'] : null;
             $pagina = isset($filtros['pagina']) ? $filtros['pagina'] : 1;
             $registrosPorPagina = isset($filtros['registros']) ? $filtros['registros'] : 20;
-
             $sql = "EXEC sp_ObtenerClientesAdmin 
                     @IdTipoCliente = ?, 
                     @IdSegmento = ?, 
@@ -33,7 +28,6 @@ class Cliente {
                     @BusquedaNombre = ?,
                     @Pagina = ?,
                     @RegistrosPorPagina = ?";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([
                 $idTipoCliente, 
@@ -43,21 +37,17 @@ class Cliente {
                 $pagina,
                 $registrosPorPagina
             ]);
-
             // Primer resultset: datos de clientes
             $clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
             // Segundo resultset: total de registros
             $stmt->nextRowset();
             $totalRegistros = $stmt->fetch(PDO::FETCH_ASSOC);
-
             return [
                 'clientes' => $clientes,
                 'total' => $totalRegistros['TotalRegistros'] ?? 0,
                 'pagina_actual' => $pagina,
                 'registros_por_pagina' => $registrosPorPagina
             ];
-
         } catch (PDOException $e) {
             error_log("Error en obtenerClientesAdmin: " . $e->getMessage());
             return [
@@ -68,7 +58,6 @@ class Cliente {
             ];
         }
     }
-
     /**
      * Obtener perfil completo de un cliente
      */
@@ -77,15 +66,12 @@ class Cliente {
             $sql = "EXEC sp_ObtenerPerfilCliente @IdCliente = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idCliente]);
-            
             return $stmt->fetch(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerPerfilCliente: " . $e->getMessage());
             return null;
         }
     }
-
     /**
      * Obtener estadísticas del cliente
      */
@@ -94,19 +80,15 @@ class Cliente {
             $sql = "EXEC sp_ObtenerEstadisticasCliente @IdCliente = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idCliente]);
-
             // Primer resultset: estadísticas generales
             $estadisticas = $stmt->fetch(PDO::FETCH_ASSOC);
-            
             // Segundo resultset: productos más comprados
             $stmt->nextRowset();
             $productosTop = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
             return [
                 'estadisticas' => $estadisticas,
                 'productos_top' => $productosTop
             ];
-
         } catch (PDOException $e) {
             error_log("Error en obtenerEstadisticas: " . $e->getMessage());
             return [
@@ -120,7 +102,6 @@ class Cliente {
             ];
         }
     }
-
     /**
      * Cambiar estado del cliente (Activo/Inactivo)
      */
@@ -129,13 +110,11 @@ class Cliente {
             $sql = "EXEC sp_CambiarEstadoCliente @IdCliente = ?, @Estado = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idCliente, $estado]);
-            
             $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
             return [
                 'success' => true,
                 'mensaje' => $resultado['Mensaje'] ?? 'Estado actualizado correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en cambiarEstado: " . $e->getMessage());
             return [
@@ -144,7 +123,6 @@ class Cliente {
             ];
         }
     }
-
     /**
      * Obtener tipos de cliente disponibles
      */
@@ -153,15 +131,12 @@ class Cliente {
             $sql = "EXEC sp_ObtenerTiposCliente";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute();
-            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerTiposCliente: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Obtener segmentos de cliente disponibles
      */
@@ -172,16 +147,13 @@ class Cliente {
                     WHERE Estado = 1 
                     ORDER BY NombreSegmento";
             $stmt = $this->conn->prepare($sql);
-            $stmt->execute();
-            
+            $stmt->execute(); 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerSegmentosCliente: " . $e->getMessage());
             return [];
         }
     }
-
     /**
      * Cambiar tipo de cliente
      */
@@ -190,7 +162,6 @@ class Cliente {
             $sql = "UPDATE Clientes SET IdTipoCliente = ? WHERE IdCliente = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idTipoCliente, $idCliente]);
-            
             return [
                 'success' => true,
                 'mensaje' => 'Tipo de cliente actualizado correctamente'
@@ -204,7 +175,6 @@ class Cliente {
             ];
         }
     }
-
     /**
      * Cambiar segmento del cliente
      */
@@ -213,12 +183,10 @@ class Cliente {
             $sql = "UPDATE Clientes SET IdSegmentoCliente = ? WHERE IdCliente = ?";
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$idSegmento, $idCliente]);
-            
             return [
                 'success' => true,
                 'mensaje' => 'Segmento actualizado correctamente'
             ];
-
         } catch (PDOException $e) {
             error_log("Error en cambiarSegmentoCliente: " . $e->getMessage());
             return [
@@ -227,7 +195,6 @@ class Cliente {
             ];
         }
     }
-
     /**
      * Obtener historial de pedidos del cliente
      */
@@ -243,12 +210,9 @@ class Cliente {
                     INNER JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
                     WHERE p.IdCliente = ?
                     ORDER BY p.FechaPedido DESC";
-            
             $stmt = $this->conn->prepare($sql);
             $stmt->execute([$limite, $idCliente]);
-            
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
-
         } catch (PDOException $e) {
             error_log("Error en obtenerHistorialPedidos: " . $e->getMessage());
             return [];
