@@ -3,17 +3,19 @@
  * Controlador de Clientes
  * Maneja todas las acciones relacionadas con la gestión de clientes
  */
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Cliente.php';
+
 class ClienteController {
     private $clienteModel;
+    
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        } 
-        $this->clienteModel = new Cliente();
+        // La sesión ahora se gestiona desde config/config.php
         // NO validar sesión aquí - la validación se hace en las vistas
         // El controlador solo proporciona los métodos para trabajar con clientes
+        $this->clienteModel = new Cliente();
     }
+    
     /**
      * Listar clientes con filtros
      */
@@ -29,8 +31,10 @@ class ClienteController {
         $resultado = $this->clienteModel->obtenerClientesAdmin($filtros);
         $tipos = $this->clienteModel->obtenerTiposCliente();
         $segmentos = $this->clienteModel->obtenerSegmentosCliente();
+        
         // Calcular paginación
         $totalPaginas = ceil($resultado['total'] / $resultado['registros_por_pagina']);
+        
         return [
             'clientes' => $resultado['clientes'],
             'tipos' => $tipos,
@@ -44,21 +48,25 @@ class ClienteController {
             ]
         ];
     }
+    
     /**
      * Ver detalle de un cliente
      */
     public function verDetalle($idCliente) {
         if (!$idCliente || !is_numeric($idCliente)) {
             $_SESSION['error'] = 'ID de cliente inválido';
-            header('Location: clientes.php');
+            redirect('view/admin/clientes.php');
             exit;
         }
+        
         $perfil = $this->clienteModel->obtenerPerfilCliente($idCliente); 
+        
         if (!$perfil) {
             $_SESSION['error'] = 'Cliente no encontrado';
-            header('Location: clientes.php');
+            redirect('view/admin/clientes.php');
             exit;
         }
+        
         $estadisticas = $this->clienteModel->obtenerEstadisticas($idCliente);
         $historialPedidos = $this->clienteModel->obtenerHistorialPedidos($idCliente);
         $tipos = $this->clienteModel->obtenerTiposCliente();
@@ -73,6 +81,7 @@ class ClienteController {
             'segmentos' => $segmentos
         ];
     }
+    
     /**
      * Cambiar estado del cliente (AJAX)
      */
@@ -83,25 +92,31 @@ class ClienteController {
             echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
             exit;
         }
+        
         $idCliente = isset($_POST['id_cliente']) ? (int)$_POST['id_cliente'] : 0;
         $estado = isset($_POST['estado']) ? (int)$_POST['estado'] : 0;
+        
         if (!$idCliente) {
             echo json_encode(['success' => false, 'mensaje' => 'ID de cliente inválido']);
             exit;
         }
+        
         $resultado = $this->clienteModel->cambiarEstado($idCliente, $estado);
         echo json_encode($resultado);
         exit;
     }
+    
     /**
      * Cambiar tipo de cliente (AJAX)
      */
     public function cambiarTipo() {
         header('Content-Type: application/json');
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
             exit;
         }
+        
         $idCliente = isset($_POST['id_cliente']) ? (int)$_POST['id_cliente'] : 0;
         $idTipoCliente = isset($_POST['id_tipo']) ? (int)$_POST['id_tipo'] : 0;
 
@@ -109,30 +124,37 @@ class ClienteController {
             echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
             exit;
         }
+        
         $resultado = $this->clienteModel->cambiarTipoCliente($idCliente, $idTipoCliente);
         echo json_encode($resultado);
         exit;
     }
+    
     /**
      * Cambiar segmento del cliente (AJAX)
      */
     public function cambiarSegmento() {
         header('Content-Type: application/json');
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
             exit;
         }
+        
         $idCliente = isset($_POST['id_cliente']) ? (int)$_POST['id_cliente'] : 0;
         $idSegmento = isset($_POST['id_segmento']) ? (int)$_POST['id_segmento'] : 0;
+        
         if (!$idCliente || !$idSegmento) {
             echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
             exit;
         }
+        
         $resultado = $this->clienteModel->cambiarSegmentoCliente($idCliente, $idSegmento);
         echo json_encode($resultado);
         exit;
     }
 }
+
 // ========================================
 // MANEJO DE ACCIONES DIRECTAS (AJAX)
 // ========================================
@@ -140,6 +162,7 @@ class ClienteController {
 if (isset($_GET['action']) && basename($_SERVER['PHP_SELF']) === 'ClienteController.php') {
     $controller = new ClienteController();
     $action = $_GET['action'];
+    
     // Ejecutar el método solicitado
     if (method_exists($controller, $action)) {
         $controller->$action();
@@ -149,3 +172,4 @@ if (isset($_GET['action']) && basename($_SERVER['PHP_SELF']) === 'ClienteControl
         exit;
     }
 }
+?>

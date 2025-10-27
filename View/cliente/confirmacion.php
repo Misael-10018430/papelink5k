@@ -5,36 +5,36 @@ require_once __DIR__ . '/../../models/Pedido.php';
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
     $_SESSION['error'] = 'Debe iniciar sesión';
-    header('Location: login.php');
+    redirect('view/cliente/login.php');
     exit;
 }
 
 // Verificar que se haya proporcionado un ID de pedido
 if (!isset($_GET['pedido'])) {
     $_SESSION['error'] = 'No se especificó un pedido';
-    header('Location: index.php');
+    redirect('view/cliente/index.php');
     exit;
 }
 
-$idPedido = (int)$_GET['pedido'];
-$idCliente = $_SESSION['cliente_id'];
+ $idPedido = (int)$_GET['pedido'];
+ $idCliente = $_SESSION['cliente_id'];
 
 // Obtener detalles del pedido
-$pedidoModel = new Pedido();
-$detallePedido = $pedidoModel->obtenerDetalle($idPedido, $idCliente);
+ $pedidoModel = new Pedido();
+ $detallePedido = $pedidoModel->obtenerDetalle($idPedido, $idCliente);
 
 // Si no se encuentra el pedido, redirigir
 if (empty($detallePedido)) {
     $_SESSION['error'] = 'Pedido no encontrado';
-    header('Location: mis_pedidos.php');
+    redirect('view/cliente/mis_pedidos.php');
     exit;
 }
 
-$pedido = $detallePedido['pedido'];
-$productos = $detallePedido['productos'];
-$envio = $detallePedido['envio'];
+ $pedido = $detallePedido['pedido'];
+ $productos = $detallePedido['productos'];
+ $envio = $detallePedido['envio'];
 
-$titulo = "Pedido Confirmado - Papelink";
+ $titulo = "Pedido Confirmado - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -221,10 +221,10 @@ include __DIR__ . '/includes/header.php';
 
         <!-- Botones de acción -->
         <div class="acciones-confirmacion">
-            <a href="mis_pedidos.php" class="btn btn-secundario">
+            <a href="<?php echo BASE_URL; ?>view/cliente/mis_pedidos.php" class="btn btn-secundario">
                 Ver Mis Pedidos
             </a>
-            <a href="productos.php" class="btn btn-primary">
+            <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="btn btn-primary">
                 Seguir Comprando
             </a>
         </div>

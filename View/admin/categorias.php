@@ -1,12 +1,17 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+/**
+ * Vista: Gestión de Categorías
+ * Crear, editar y administrar categorías de productos
+ */
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereFuncionalidad('PRODUCTOS_EDITAR');
+
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
+
  $categoriaController = new CategoriaController();
+
 // Procesar acciones
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $accion = $_POST['accion'] ?? '';
@@ -20,9 +25,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $categoriaController->cambiarEstado();
     }
 }
+
 // Obtener categorías con filtros
  $estado = isset($_GET['estado']) ? (int)$_GET['estado'] : null;
  $categorias = $categoriaController->listarAdmin();
+
 // Variables para el formulario
  $accionForm = $_GET['accion'] ?? '';
  $idCategoria = $_GET['id'] ?? null;
@@ -36,7 +43,8 @@ if ($accionForm === 'editar' && $idCategoria) {
         }
     }
 }
-include 'includes/header.php';
+
+include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- ===================================
@@ -323,7 +331,7 @@ include 'includes/header.php';
     <div>
         <div class="tarjeta">
             <h2><?php echo $accionForm === 'editar' ? 'Editar Categoría' : 'Nueva Categoría'; ?></h2>
-            <form method="POST" action="categorias.php">
+            <form method="POST" action="<?php echo BASE_URL; ?>view/admin/categorias.php">
                 <input type="hidden" name="accion" value="<?php echo $accionForm === 'editar' ? 'actualizar' : 'crear'; ?>">
                 <?php if ($accionForm === 'editar' && $categoriaEditar): ?>
                     <input type="hidden" name="id_categoria" value="<?php echo $categoriaEditar['IdCategoria']; ?>">
@@ -342,7 +350,7 @@ include 'includes/header.php';
                         <?php echo $accionForm === 'editar' ? 'Actualizar' : 'Crear Categoría'; ?>
                     </button>
                     <?php if ($accionForm === 'editar'): ?>
-                        <a href="categorias.php" class="btn btn-secundario">Cancelar</a>
+                        <a href="<?php echo BASE_URL; ?>view/admin/categorias.php" class="btn btn-secundario">Cancelar</a>
                     <?php endif; ?>
                 </div>
             </form>
@@ -372,7 +380,7 @@ include 'includes/header.php';
     <div>
         <!-- FILTROS -->
         <div class="filtros">
-            <form method="GET" action="categorias.php">
+            <form method="GET" action="<?php echo BASE_URL; ?>view/admin/categorias.php">
                 <div class="form-group">
                     <label>Estado:</label>
                     <select name="estado">
@@ -387,7 +395,7 @@ include 'includes/header.php';
                 </div>
                 <div class="form-group">
                     <label>&nbsp;</label>
-                    <a href="categorias.php" class="btn btn-secundario">Limpiar</a>
+                    <a href="<?php echo BASE_URL; ?>view/admin/categorias.php" class="btn btn-secundario">Limpiar</a>
                 </div>
             </form>
         </div>
@@ -430,17 +438,17 @@ include 'includes/header.php';
                             </td>
                             <td>
                                 <div class="acciones">
-                                    <a href="categorias.php?accion=editar&id=<?php echo $categoria['IdCategoria']; ?>" 
+                                    <a href="<?php echo BASE_URL; ?>view/admin/categorias.php?accion=editar&id=<?php echo $categoria['IdCategoria']; ?>" 
                                        class="btn btn-secundario">
                                         Editar
                                     </a>
                                     <?php if ($categoria['Estado'] == 1): ?>
-                                        <a href="categorias.php?accion=cambiar_estado&id=<?php echo $categoria['IdCategoria']; ?>&estado=0" 
+                                        <a href="<?php echo BASE_URL; ?>view/admin/categorias.php?accion=cambiar_estado&id=<?php echo $categoria['IdCategoria']; ?>&estado=0" 
                                            class="btn btn-peligro"
                                            onclick="return confirmarAccion('¿Desactivar esta categoría?')">
                                         </a>
                                     <?php else: ?>
-                                        <a href="categorias.php?accion=cambiar_estado&id=<?php echo $categoria['IdCategoria']; ?>&estado=1" 
+                                        <a href="<?php echo BASE_URL; ?>view/admin/categorias.php?accion=cambiar_estado&id=<?php echo $categoria['IdCategoria']; ?>&estado=1" 
                                            class="btn btn-exito"
                                            onclick="return confirmarAccion('¿Activar esta categoría?')">
                                         </a>
@@ -455,4 +463,4 @@ include 'includes/header.php';
     </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

@@ -3,16 +3,17 @@
  * Controlador de Configuración
  * Maneja todas las acciones relacionadas con la configuración del sistema
  */
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Configuracion.php';
 
 class ConfiguracionController {
     private $configuracionModel;
+    
     public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }       
+        // La sesión ahora se gestiona desde config/config.php
         $this->configuracionModel = new Configuracion();
     }
+    
     /**
      * Obtener todas las configuraciones y datos del sistema
      */
@@ -21,6 +22,7 @@ class ConfiguracionController {
         $rolesConFuncionalidades = $this->configuracionModel->obtenerRolesConFuncionalidades();
         $estadosPedido = $this->configuracionModel->obtenerEstadosPedido();
         $estadosEnvio = $this->configuracionModel->obtenerEstadosEnvio();
+        
         return [
             'configuraciones' => $configuraciones,
             'roles' => $rolesConFuncionalidades,
@@ -28,15 +30,18 @@ class ConfiguracionController {
             'estados_envio' => $estadosEnvio
         ];
     }
+    
     /**
      * Guardar configuraciones (AJAX)
      */
     public function guardar() {
         header('Content-Type: application/json');
+        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
             exit;
         }
+        
         // Validar datos
         $configuraciones = [];
         
@@ -73,25 +78,31 @@ class ConfiguracionController {
         if (isset($_POST['COSTO_ENVIO_ESTANDAR'])) {
             $configuraciones['COSTO_ENVIO_ESTANDAR'] = trim($_POST['COSTO_ENVIO_ESTANDAR']);
         }
+        
         if (empty($configuraciones)) {
             echo json_encode(['success' => false, 'mensaje' => 'No se recibieron configuraciones']);
             exit;
         }
+        
         // Actualizar configuraciones
         $resultado = $this->configuracionModel->actualizarMultiple($configuraciones);
+        
         if ($resultado['success']) {
             $_SESSION['success'] = $resultado['mensaje'];
         }
+        
         echo json_encode($resultado);
         exit;
     }
 }
+
 // ========================================
 // MANEJO DE ACCIONES DIRECTAS (AJAX)
 // ========================================
 if (isset($_GET['action']) && basename($_SERVER['PHP_SELF']) === 'ConfiguracionController.php') {
     $controller = new ConfiguracionController();
     $action = $_GET['action'];
+    
     if (method_exists($controller, $action)) {
         $controller->$action();
     } else {
@@ -100,3 +111,4 @@ if (isset($_GET['action']) && basename($_SERVER['PHP_SELF']) === 'ConfiguracionC
         exit;
     }
 }
+?>

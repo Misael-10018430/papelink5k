@@ -1,15 +1,15 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-require_once __DIR__ . '/../../config/Auth.php';
 require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/Auth.php';
 require_once __DIR__ . '/../../controllers/PedidoController.php';
-//  VERIFICAR PERMISOS PARA PEDIDOS
+
+// VERIFICAR PERMISOS PARA PEDIDOS
 Auth::requiereAlgunaFuncionalidad(['PEDIDOS_VER', 'PEDIDOS_GESTIONAR']);
+
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
  $pedidoController = new PedidoController();
  $pedidos = $pedidoController->listar();
+
  $titulo = "Gestión de Pedidos";
 include __DIR__ . '/includes/header.php';
 ?>
@@ -280,7 +280,7 @@ include __DIR__ . '/includes/header.php';
 <!-- Filtros -->
 <div class="filtros">
     <h3 style="margin: 0 0 15px 0; font-size: 1rem;">Filtros de Búsqueda</h3>
-    <form method="GET" action="pedidos.php">
+    <form method="GET" action="<?php echo BASE_URL; ?>view/admin/pedidos.php">
         <div class="grid grid-4">
             <div class="form-group" style="margin-bottom: 0;">
                 <label>Estado:</label>
@@ -356,7 +356,7 @@ include __DIR__ . '/includes/header.php';
                     <td><?php echo htmlspecialchars($pedido['TipoEntrega']); ?></td>
                     <td><?php echo $pedido['TotalProductos']; ?> items</td>
                     <td>
-                        <a href="pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn btn-blanco">
+                        <a href="<?php echo BASE_URL; ?>view/admin/pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn btn-blanco">
                             Ver Detalle
                         </a>
                     </td>

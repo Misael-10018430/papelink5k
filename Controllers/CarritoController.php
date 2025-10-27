@@ -2,8 +2,6 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Carrito.php';
 
-
-
 class CarritoController {
     private $carritoModel;
     
@@ -16,7 +14,7 @@ class CarritoController {
     private function verificarCliente() {
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debes iniciar sesión para usar el carrito';
-            header("Location: ../../view/cliente/login.php");
+            redirect('view/cliente/login.php');
             exit();
         }
         return $_SESSION['cliente_id'];
@@ -27,14 +25,14 @@ class CarritoController {
     public function agregar() {
         $idCliente = $this->verificarCliente();        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: ../../view/cliente/productos.php");
+            redirect('view/cliente/productos.php');
             exit();
         }       
         $idProducto = (int)$_POST['id_producto'];
         $cantidad = (int)$_POST['cantidad'];        
         if ($cantidad <= 0) {
             $_SESSION['error'] = 'Cantidad inválida';
-            header("Location: ../../view/cliente/producto_detalle.php?id=" . $idProducto);
+            redirect('view/cliente/producto_detalle.php?id=' . $idProducto);
             exit();
         }        
         $resultado = $this->carritoModel->agregar($idCliente, $idProducto, $cantidad);
@@ -44,7 +42,7 @@ class CarritoController {
         } else {
             $_SESSION['error'] = $resultado['error'];
         }        
-        header("Location: ../../view/cliente/carrito.php");
+        redirect('view/cliente/carrito.php');
         exit();
     }   
     /**
@@ -71,7 +69,7 @@ class CarritoController {
         $this->verificarCliente();
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: ../../view/cliente/carrito.php");
+            redirect('view/cliente/carrito.php');
             exit();
         }        
         $idCarrito = (int)$_POST['id_carrito'];
@@ -83,7 +81,7 @@ class CarritoController {
         } else {
             $_SESSION['error'] = $resultado['error'];
         }        
-        header("Location: ../../view/cliente/carrito.php");
+        redirect('view/cliente/carrito.php');
         exit();
     }    
     /**
@@ -92,7 +90,7 @@ class CarritoController {
     public function eliminar() {
         $this->verificarCliente();
         if (!isset($_GET['id'])) {
-            header("Location: ../../view/cliente/carrito.php");
+            redirect('view/cliente/carrito.php');
             exit();
         }        
         $idCarrito = (int)$_GET['id'];       
@@ -102,7 +100,7 @@ class CarritoController {
         } else {
             $_SESSION['error'] = $resultado['error'];
         }       
-        header("Location: ../../view/cliente/carrito.php");
+        redirect('view/cliente/carrito.php');
         exit();
     }
     /**
@@ -116,7 +114,7 @@ class CarritoController {
         } else {
             $_SESSION['error'] = $resultado['error'];
         }
-        header("Location: ../../view/cliente/carrito.php");
+        redirect('view/cliente/carrito.php');
         exit();
     }
     /**
@@ -150,6 +148,7 @@ class CarritoController {
         exit;
     }*/
 }
+
 // =====================================================
 // ENRUTADOR: Procesar las acciones del carrito
 // =====================================================
@@ -174,7 +173,7 @@ if (isset($_GET['action'])) {
             break;
         */
         default:
-            header("Location: ../../view/cliente/carrito.php");
+            redirect('view/cliente/carrito.php');
             break;
     }
 } 

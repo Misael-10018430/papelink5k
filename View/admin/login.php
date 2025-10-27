@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../config/config.php';
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -308,7 +308,7 @@ session_start();
                 </div>
             <?php endif; ?>
             
-            <form method="POST" action="../../controllers/AuthController.php">
+            <form method="POST" action="<?php echo BASE_URL; ?>controllers/AuthController.php">
                 <input type="hidden" name="accion" value="login_admin">
                 
                 <div class="form-group">
@@ -336,7 +336,7 @@ session_start();
             </form>
             
             <div class="volver">
-                <a href="../cliente/index.php">← Volver al dashboard Cliente</a>
+                <a href="<?php echo BASE_URL; ?>view/cliente/index.php">← Volver al dashboard Cliente</a>
             </div>
         </div>
     </div>

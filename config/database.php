@@ -1,11 +1,11 @@
 <?php
 /**
  * Clase de conexión a la base de datos
- * MySQL para Somee.com hosting
+ * Conexión a SQL Server para Azure
  */
 if (!class_exists('Database')) {
     class Database {
-        // Configuración para Somee.com MySQL
+        // Configuración para la base de datos
         private $host;
         private $db_name;
         private $username;
@@ -13,12 +13,12 @@ if (!class_exists('Database')) {
         public $conn;
         
         public function __construct() {
-            // Usar variables de entorno en producción (Vercel)
+            // Usar variables de entorno en producción (Azure)
             // o valores por defecto para desarrollo local
-            $this->host = getenv('DB_HOST') ?: 'PapelinkSk.mssql.somee.com';
-            $this->db_name = getenv('DB_NAME') ?: 'PapelinkSk';
-            $this->username = getenv('DB_USER') ?: 'Misa_SQLLogin_1';
-            $this->password = getenv('DB_PASSWORD') ?: 'vzmb7ytjhk';
+            $this->host = getenv('DB_HOST') ?: 'localhost';
+            $this->db_name = getenv('DB_NAME') ?: 'papelink_local';
+            $this->username = getenv('DB_USER') ?: 'root';
+            $this->password = getenv('DB_PASSWORD') ?: '';
         }
         
         /**
@@ -28,7 +28,7 @@ if (!class_exists('Database')) {
         public function getConnection() {
             $this->conn = null;           
             try {
-                // Conexión con PDO para SQL Server (corregido)
+                // Conexión con PDO para SQL Server (Formato correcto para Azure)
                 $dsn = "sqlsrv:Server={$this->host};Database={$this->db_name}";
                 
                 $this->conn = new PDO(
@@ -39,15 +39,15 @@ if (!class_exists('Database')) {
                         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
                         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                         PDO::ATTR_EMULATE_PREPARES => false,
-                        // Eliminada la opción específica de MySQL
                     ]
                 );
                 
             } catch(PDOException $exception) {
                 error_log("Database Connection Error: " . $exception->getMessage());
                 
-                // En desarrollo mostrar error, en producción no
-                if (getenv('VERCEL_ENV') !== 'production') {
+                // CAMBIO CLAVE: Lógica para mostrar errores solo en desarrollo local
+                // Si la variable de entorno DB_HOST existe, asumimos que estamos en producción (Azure) y no mostramos errores.
+                if (!getenv('DB_HOST')) {
                     echo "Error de conexión: " . $exception->getMessage();
                 }
             }            

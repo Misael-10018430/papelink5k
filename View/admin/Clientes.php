@@ -1,16 +1,15 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+/**
+ * Vista: Gestión de Clientes
+ * Listado y gestión de clientes del sistema
+ */
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 
 // ✅ VERIFICAR PERMISOS PARA CLIENTES
 Auth::requiereAlgunaFuncionalidad(['CLIENTES_VER', 'CLIENTES_EDITAR']);
 
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-
-require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ClienteController.php';
 
  $clienteController = new ClienteController();
@@ -314,7 +313,7 @@ include __DIR__ . '/includes/header.php';
 <!-- FILTROS -->
 <div class="filtros">
     <h3 style="margin: 0 0 15px 0; font-size: 1rem;">Filtros de Búsqueda</h3>
-    <form method="GET" action="clientes.php">
+    <form method="GET" action="<?php echo BASE_URL; ?>view/admin/clientes.php">
         <div class="grid grid-4">
             <div class="form-group" style="margin-bottom: 0;">
                 <label>Buscar:</label>
@@ -408,13 +407,13 @@ include __DIR__ . '/includes/header.php';
                     </td>
                     <td>
                         <div class="acciones">
-                            <a href="cliente_detalle.php?id=<?php echo $cliente['IdCliente']; ?>" 
+                            <a href="<?php echo BASE_URL; ?>view/admin/cliente_detalle.php?id=<?php echo $cliente['IdCliente']; ?>" 
                                class="btn btn-blanco">
                                 Ver
                             </a>
                             
                             <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('CLIENTES_EDITAR')): ?>
-                            <a href="cliente_editar.php?id=<?php echo $cliente['IdCliente']; ?>" 
+                            <a href="<?php echo BASE_URL; ?>view/admin/cliente_editar.php?id=<?php echo $cliente['IdCliente']; ?>" 
                                class="btn btn-secundario">
                                 Editar
                             </a>
@@ -430,7 +429,7 @@ include __DIR__ . '/includes/header.php';
     <?php if ($paginacion['total_paginas'] > 1): ?>
         <div style="margin-top: 20px; display: flex; justify-content: center; gap: 5px;">
             <?php for ($i = 1; $i <= $paginacion['total_paginas']; $i++): ?>
-                <a href="?pagina=<?php echo $i; ?><?php echo isset($_GET['busqueda']) ? '&busqueda=' . urlencode($_GET['busqueda']) : ''; ?><?php echo isset($_GET['tipo']) ? '&tipo=' . $_GET['tipo'] : ''; ?><?php echo isset($_GET['estado']) ? '&estado=' . $_GET['estado'] : ''; ?>" 
+                <a href="<?php echo BASE_URL; ?>view/admin/clientes.php?pagina=<?php echo $i; ?><?php echo isset($_GET['busqueda']) ? '&busqueda=' . urlencode($_GET['busqueda']) : ''; ?><?php echo isset($_GET['tipo']) ? '&tipo=' . $_GET['tipo'] : ''; ?><?php echo isset($_GET['estado']) ? '&estado=' . $_GET['estado'] : ''; ?>" 
                    class="btn <?php echo $paginacion['pagina_actual'] == $i ? 'btn-primario' : 'btn-blanco'; ?>">
                     <?php echo $i; ?>
                 </a>

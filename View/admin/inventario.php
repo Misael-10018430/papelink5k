@@ -1,8 +1,5 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 
 // ✅ VERIFICAR PERMISOS PARA INVENTARIO
@@ -11,7 +8,6 @@ Auth::requiereAlgunaFuncionalidad(['INVENTARIO_VER', 'INVENTARIO_AJUSTAR']);
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
  $puede_ajustar = Auth::tieneFuncionalidad('INVENTARIO_AJUSTAR');
-
 
 require_once __DIR__ . '/../../controllers/InventarioController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
@@ -330,7 +326,7 @@ include 'includes/header.php';
     
     <!-- FILTROS -->
     <div class="filtros">
-        <form method="GET" action="inventario.php" style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <form method="GET" action="<?php echo BASE_URL; ?>view/admin/inventario.php" style="display: flex; gap: 15px; flex-wrap: wrap;">
             <div class="form-group">
                 <label>Categoría:</label>
                 <select name="categoria">
@@ -359,7 +355,7 @@ include 'includes/header.php';
             
             <div class="form-group">
                 <label>&nbsp;</label>
-                <a href="inventario.php" class="btn btn-secundario">Limpiar</a>
+                <a href="<?php echo BASE_URL; ?>view/admin/inventario.php" class="btn btn-secundario">Limpiar</a>
             </div>
         </form>
     </div>
@@ -462,7 +458,7 @@ include 'includes/header.php';
                         </td>
                         <td>
                             <div class="acciones">
-                                <a href="inventario.php?accion=ajustar&id=<?php echo $item['IdProducto']; ?>" 
+                                <a href="<?php echo BASE_URL; ?>view/admin/inventario.php?accion=ajustar&id=<?php echo $item['IdProducto']; ?>" 
                                    class="btn btn-primario">
                                     Ajustar
                                 </a>
@@ -489,7 +485,7 @@ include 'includes/header.php';
     ?>
     
     <div style="margin-bottom: 20px;">
-        <a href="inventario.php" class="btn btn-secundario">← Volver al inventario</a>
+        <a href="<?php echo BASE_URL; ?>view/admin/inventario.php" class="btn btn-secundario">← Volver al inventario</a>
     </div>
     
     <?php if ($productoInfo): ?>
@@ -505,7 +501,7 @@ include 'includes/header.php';
                 <p><strong>Costo Unitario:</strong> $<?php echo number_format($productoInfo['CostoUnitario'], 2); ?></p>
             </div>
             
-            <form method="POST" action="inventario.php">
+            <form method="POST" action="<?php echo BASE_URL; ?>view/admin/inventario.php">
                 <input type="hidden" name="accion" value="ajustar">
                 <input type="hidden" name="id_producto" value="<?php echo $idProductoAjustar; ?>">
                 
@@ -544,7 +540,7 @@ include 'includes/header.php';
                 <!-- BOTONES -->
                 <div style="margin-top: 20px; display: flex; gap: 10px;">
                     <button type="submit" class="btn btn-primario">Realizar Ajuste</button>
-                    <a href="inventario.php" class="btn btn-secundario">Cancelar</a>
+                    <a href="<?php echo BASE_URL; ?>view/admin/inventario.php" class="btn btn-secundario">Cancelar</a>
                 </div>
             </form>
         </div>

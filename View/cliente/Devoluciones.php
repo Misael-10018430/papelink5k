@@ -4,17 +4,16 @@
  * Gestión de devoluciones de pedidos
  */
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Incluir configuración del sistema
+require_once __DIR__ . '/../../config/config.php';
 
 // Verificar que el cliente esté autenticado
 if (!isset($_SESSION['cliente_id'])) {
-    header('Location: login.php');
+    redirect('view/cliente/login.php');
     exit();
 }
 
-$titulo = "Mis Devoluciones - Papelink";
+ $titulo = "Mis Devoluciones - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -571,7 +570,7 @@ function cargarDevoluciones() {
     lista.style.display = 'none';
     sinDatos.style.display = 'none';
     
-    fetch('../../controllers/DevolucionController.php?action=listarDevoluciones')
+    fetch('<?php echo BASE_URL; ?>controllers/DevolucionController.php?action=listarDevoluciones')
         .then(response => response.json())
         .then(data => {
             loading.style.display = 'none';
@@ -670,7 +669,7 @@ function cargarPedidosDevolvibles() {
     const select = document.getElementById('select-pedido');
     select.innerHTML = '<option value="">Cargando...</option>';
     
-    fetch('../../controllers/DevolucionController.php?action=obtenerPedidosDevolvibles')
+    fetch('<?php echo BASE_URL; ?>controllers/DevolucionController.php?action=obtenerPedidosDevolvibles')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -707,7 +706,7 @@ function cargarProductosPedido() {
         return;
     }
     
-    fetch(`../../controllers/DevolucionController.php?action=obtenerDetallePedido&id=${idPedido}`)
+    fetch(`<?php echo BASE_URL; ?>controllers/DevolucionController.php?action=obtenerDetallePedido&id=${idPedido}`)
         .then(response => response.json())
         .then(data => {
             if (data.success && data.detalle.productos.length > 0) {
@@ -845,7 +844,7 @@ document.getElementById('form-solicitud-devolucion').addEventListener('submit', 
     formData.append('productos', JSON.stringify(productos));
     
     // Enviar solicitud
-    fetch('../../controllers/DevolucionController.php?action=solicitarDevolucion', {
+    fetch('<?php echo BASE_URL; ?>controllers/DevolucionController.php?action=solicitarDevolucion', {
         method: 'POST',
         body: formData
     })
@@ -872,7 +871,7 @@ function verDetalle(idDevolucion) {
     document.getElementById('modal-detalle').classList.add('activo');
     document.getElementById('contenido-detalle').innerHTML = '<div class="loading">Cargando...</div>';
     
-    fetch(`../../controllers/DevolucionController.php?action=obtenerDetalle&id=${idDevolucion}`)
+    fetch(`<?php echo BASE_URL; ?>controllers/DevolucionController.php?action=obtenerDetalle&id=${idDevolucion}`)
         .then(response => response.json())
         .then(data => {
             if (data.success) {

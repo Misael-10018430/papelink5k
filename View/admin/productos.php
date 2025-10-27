@@ -1,16 +1,15 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::checkEmpleadoLogin();
 Auth::requiereAlgunaFuncionalidad(['PRODUCTOS_VER', 'PRODUCTOS_CREAR', 'PRODUCTOS_EDITAR']);
+
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
 require_once __DIR__ . '/../../controllers/MarcaController.php';
+
  $productoController = new ProductoController();
  $categoriaController = new CategoriaController();
  $marcaController = new MarcaController();
@@ -368,7 +367,7 @@ include 'includes/header.php';
     <!-- VISTA DE LISTADO -->
     <!-- FILTROS -->
     <div class="filtros">
-        <form method="GET" action="productos.php" class="form-filtros">
+        <form method="GET" action="<?php echo BASE_URL; ?>view/admin/productos.php" class="form-filtros">
             <div class="form-group">
                 <label>Categoría:</label>
                 <select name="categoria">
@@ -410,7 +409,7 @@ include 'includes/header.php';
                 <button type="submit" class="btn btn-primario">Filtrar</button>
             </div>            
             <div class="form-group">
-                <a href="productos.php" class="btn btn-blanco">Limpiar</a>
+                <a href="<?php echo BASE_URL; ?>view/admin/productos.php" class="btn btn-blanco">Limpiar</a>
             </div>
         </form>
     </div>
@@ -418,7 +417,7 @@ include 'includes/header.php';
     <!-- BOTÓN NUEVO PRODUCTO -->
     <div class="contenedor-botones">
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('PRODUCTOS_CREAR')): ?>
-        <a href="productos.php?accion=nuevo" class="btn btn-primario">
+        <a href="<?php echo BASE_URL; ?>view/admin/productos.php?accion=nuevo" class="btn btn-primario">
             Nuevo Producto
         </a>
         <?php endif; ?>
@@ -474,20 +473,20 @@ include 'includes/header.php';
                 <td>
                     <div class="acciones">
                         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('PRODUCTOS_EDITAR')): ?>
-                        <a href="productos.php?accion=editar&id=<?php echo $producto['IdProducto']; ?>" 
+                        <a href="<?php echo BASE_URL; ?>view/admin/productos.php?accion=editar&id=<?php echo $producto['IdProducto']; ?>" 
                            class="btn btn-blanco">
                             Editar
                         </a>
                         <?php endif; ?>           
                         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('PRODUCTOS_ELIMINAR')): ?>
                             <?php if ($producto['Estado'] == 1): ?>
-                                <a href="productos.php?accion=cambiar_estado&id=<?php echo $producto['IdProducto']; ?>&estado=0" 
+                                <a href="<?php echo BASE_URL; ?>view/admin/productos.php?accion=cambiar_estado&id=<?php echo $producto['IdProducto']; ?>&estado=0" 
                                    class="btn btn-peligro"
                                    onclick="return confirmarAccion('¿Desactivar este producto?')">
                                     Desactivar
                                 </a>
                             <?php else: ?>
-                                <a href="productos.php?accion=cambiar_estado&id=<?php echo $producto['IdProducto']; ?>&estado=1" 
+                                <a href="<?php echo BASE_URL; ?>view/admin/productos.php?accion=cambiar_estado&id=<?php echo $producto['IdProducto']; ?>&estado=1" 
                                    class="btn btn-exito"
                                    onclick="return confirmarAccion('¿Activar este producto?')">
                                     Activar
@@ -511,13 +510,13 @@ include 'includes/header.php';
     if ($accionForm === 'nuevo') {
         if (!Auth::esAdministrador() && !Auth::tieneFuncionalidad('PRODUCTOS_CREAR')) {
             $_SESSION['error'] = 'No tiene permisos para crear productos';
-            header('Location: productos.php');
+            redirect('view/admin/productos.php');
             exit();
         }
     } elseif ($accionForm === 'editar') {
         if (!Auth::esAdministrador() && !Auth::tieneFuncionalidad('PRODUCTOS_EDITAR')) {
             $_SESSION['error'] = 'No tiene permisos para editar productos';
-            header('Location: productos.php');
+            redirect('view/admin/productos.php');
             exit();
         }
     }
@@ -525,12 +524,12 @@ include 'includes/header.php';
 
     <!-- FORMULARIO DE PRODUCTO -->   
     <div class="contenedor-botones">
-        <a href="productos.php" class="btn btn-blanco">Volver al listado</a>
+        <a href="<?php echo BASE_URL; ?>view/admin/productos.php" class="btn btn-blanco">Volver al listado</a>
     </div>   
     <div class="tarjeta">
         <h2><?php echo $accionForm === 'nuevo' ? 'Crear Nuevo Producto' : 'Editar Producto'; ?></h2>
         
-        <form method="POST" action="productos.php" enctype="multipart/form-data">
+        <form method="POST" action="<?php echo BASE_URL; ?>view/admin/productos.php" enctype="multipart/form-data">
             <input type="hidden" name="accion" value="<?php echo $accionForm === 'nuevo' ? 'crear' : 'actualizar'; ?>">
             <?php if ($accionForm === 'editar'): ?>
                 <input type="hidden" name="id_producto" value="<?php echo $productoEditar['IdProducto']; ?>">
@@ -623,7 +622,7 @@ include 'includes/header.php';
                 <label>Imagen del Producto:</label>
                 <?php if ($accionForm === 'editar' && !empty($productoEditar['ImagenPrincipal'])): ?>
                     <div class="contenedor-imagen-previa">
-                        <img src="../../assets/img/productos/<?php echo $productoEditar['ImagenPrincipal']; ?>" 
+                        <img src="<?php echo BASE_URL; ?>assets/img/productos/<?php echo $productoEditar['ImagenPrincipal']; ?>" 
                              alt="Imagen actual" 
                              class="imagen-previa">
                         <p class="texto-secundario">
@@ -655,7 +654,7 @@ include 'includes/header.php';
                 <button type="submit" class="btn btn-primario">
                     <?php echo $accionForm === 'nuevo' ? 'Crear Producto' : 'Actualizar Producto'; ?>
                 </button>
-                <a href="productos.php" class="btn btn-blanco">Cancelar</a>
+                <a href="<?php echo BASE_URL; ?>view/admin/productos.php" class="btn btn-blanco">Cancelar</a>
             </div>
         </form>
     </div>    

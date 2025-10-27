@@ -1,20 +1,21 @@
 <?php
+// Incluir el archivo de configuración principal.
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/PedidoController.php';
 
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
     $_SESSION['error'] = 'Debe iniciar sesión para ver sus pedidos';
-    header('Location: login.php');
+    header('Location: ' . BASE_URL . 'view/cliente/login.php');
     exit;
 }
 
 // Obtener pedidos del cliente
-$pedidoController = new PedidoController();
-$pedidos = $pedidoController->misPedidos();
+ $pedidoController = new PedidoController();
+ $pedidos = $pedidoController->misPedidos();
 
 // Incluir header
-include_once __DIR__ . '/includes/header.php';
+include __DIR__ . '/includes/header.php';
 ?>
 <div class="contenedor-principal">
 <style>
@@ -299,7 +300,7 @@ include_once __DIR__ . '/includes/header.php';
 <!-- Filtros (opcional) -->
 <div class="filtros-pedidos">
     <label>Filtrar por estado:</label>
-    <select onchange="window.location.href='mis_pedidos.php?estado=' + this.value">
+    <select onchange="window.location.href='<?php echo BASE_URL; ?>view/cliente/mis_pedidos.php?estado=' + this.value">
         <option value="">Todos los estados</option>
         <option value="Pendiente" <?php echo (isset($_GET['estado']) && $_GET['estado'] === 'Pendiente') ? 'selected' : ''; ?>>Pendiente</option>
         <option value="En Proceso" <?php echo (isset($_GET['estado']) && $_GET['estado'] === 'En Proceso') ? 'selected' : ''; ?>>En Proceso</option>
@@ -318,7 +319,7 @@ include_once __DIR__ . '/includes/header.php';
     <div class="sin-pedidos">
         <h2>Aún no tienes pedidos</h2>
         <p>Comienza a comprar en nuestra tienda y tus pedidos aparecerán aquí</p>
-        <a href="productos.php" class="btn btn-naranja">Ver productos</a>
+        <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="btn btn-naranja">Ver productos</a>
     </div>
 <?php else: ?>
     <!-- Listado de pedidos -->
@@ -403,7 +404,7 @@ include_once __DIR__ . '/includes/header.php';
                     </div>
                     
                     <div class="pedido-acciones">
-                        <a href="Pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
+                        <a href="<?php echo BASE_URL; ?>view/cliente/Pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
                             Ver Detalle
                         </a>
                         
@@ -414,7 +415,6 @@ include_once __DIR__ . '/includes/header.php';
                         </button>
                         <?php endif; ?>
                     </div>
-                </div>
             </div>
         <?php endforeach; ?>
     </div>
@@ -423,7 +423,7 @@ include_once __DIR__ . '/includes/header.php';
 <script>
 function confirmarCancelacion(idPedido, numeroPedido) {
     if (confirm('¿Está seguro que desea cancelar el pedido ' + numeroPedido + '?\n\nEsta acción no se puede deshacer.')) {
-        window.location.href = '../../controllers/PedidoController.php?action=cancelar&id=' + idPedido + '&confirmar=si';
+        window.location.href = '<?php echo BASE_URL; ?>controllers/PedidoController.php?action=cancelar&id=' + idPedido + '&confirmar=si';
     }
 }
 
@@ -444,4 +444,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<?php include_once __DIR__ . '/includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

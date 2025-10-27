@@ -1,13 +1,13 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+/**
+ * Vista: Dashboard Principal
+ * Panel principal para empleados y administradores
+ */
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::checkEmpleadoLogin();
 
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-
 require_once __DIR__ . '/../../controllers/InventarioController.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 
@@ -23,7 +23,7 @@ require_once __DIR__ . '/../../controllers/ProductoController.php';
  $ingresosHoy = 18750.00;
  $ingresosMes = 287640.00;
 
-include 'includes/header.php';
+include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- ===================================
@@ -321,7 +321,7 @@ include 'includes/header.php';
                                 Stock mínimo: <strong style="color: var(--color-advertencia);"><?php echo $producto['StockMinimo']; ?> unidades</strong>
                             </div>
                             <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('INVENTARIO_AJUSTAR')): ?>
-                            <a href="inventario.php?accion=ajustar&id=<?php echo $producto['IdProducto']; ?>" class="btn btn-primario">
+                            <a href="<?php echo BASE_URL; ?>view/admin/inventario.php?accion=ajustar&id=<?php echo $producto['IdProducto']; ?>" class="btn btn-primario">
                                 Reabastecer
                             </a>
                             <?php endif; ?>
@@ -380,25 +380,25 @@ include 'includes/header.php';
     <h2>Accesos Directos</h2>
     <div class="grid grid-4">
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('PRODUCTOS_CREAR')): ?>
-        <a href="productos.php?accion=nuevo" class="btn btn-primario acceso-directo">
+        <a href="<?php echo BASE_URL; ?>view/admin/productos.php?accion=nuevo" class="btn btn-primario acceso-directo">
              Nuevo Producto
         </a>
         <?php endif; ?>
         
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('PEDIDOS_VER')): ?>
-        <a href="pedidos.php" class="btn btn-primario acceso-directo">
+        <a href="<?php echo BASE_URL; ?>view/admin/pedidos.php" class="btn btn-primario acceso-directo">
             Ver Pedidos
         </a>
         <?php endif; ?>
         
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('REPORTES_VER')): ?>
-        <a href="reportes.php" class="btn btn-primario acceso-directo">
+        <a href="<?php echo BASE_URL; ?>view/admin/reportes.php" class="btn btn-primario acceso-directo">
             Ver Reportes
         </a>
         <?php endif; ?>
         
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('INVENTARIO_VER')): ?>
-        <a href="inventario.php" class="btn btn-primario acceso-directo">
+        <a href="<?php echo BASE_URL; ?>view/admin/inventario.php" class="btn btn-primario acceso-directo">
             Gestionar Inventario
         </a>
         <?php endif; ?>
@@ -406,4 +406,4 @@ include 'includes/header.php';
 
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

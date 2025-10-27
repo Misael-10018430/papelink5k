@@ -3,11 +3,12 @@
  * Vista: Reportes del Sistema
  * Generación de reportes de ventas, inventario y finanzas
  */
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 //VERIFICAR PERMISO PARA REPORTES
 Auth::requiereFuncionalidad('REPORTES_VER');
+
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-require_once __DIR__ . '/../../config/config.php';
  $titulo = "Reportes del Sistema - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
@@ -510,7 +511,7 @@ document.getElementById('form-ventas-periodo').addEventListener('submit', functi
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('../../controllers/ReporteController.php?action=generarVentasPorPeriodo', {
+    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarVentasPorPeriodo', {
         method: 'POST',
         body: formData
     })
@@ -583,7 +584,7 @@ document.getElementById('form-ventas-metodo').addEventListener('submit', functio
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('../../controllers/ReporteController.php?action=generarVentasPorMetodoPago', {
+    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarVentasPorMetodoPago', {
         method: 'POST',
         body: formData
     })
@@ -622,7 +623,7 @@ document.getElementById('form-ventas-cliente').addEventListener('submit', functi
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('../../controllers/ReporteController.php?action=generarVentasPorCliente', {
+    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarVentasPorCliente', {
         method: 'POST',
         body: formData
     })
@@ -661,7 +662,7 @@ document.getElementById('form-financiero').addEventListener('submit', function(e
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('../../controllers/ReporteController.php?action=generarReporteFinanciero', {
+    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarReporteFinanciero', {
         method: 'POST',
         body: formData
     })
@@ -734,7 +735,7 @@ document.getElementById('form-productos').addEventListener('submit', function(e)
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('../../controllers/ReporteController.php?action=generarProductosMasVendidos', {
+    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarProductosMasVendidos', {
         method: 'POST',
         body: formData
     })
@@ -771,7 +772,7 @@ document.getElementById('btn-inventario').addEventListener('click', function() {
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('../../controllers/ReporteController.php?action=generarInventarioActual', {
+    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarInventarioActual', {
         method: 'POST'
     })
     .then(response => response.json())

@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Categoria.php';
+
 class CategoriaController {
     private $categoriaModel;
     
@@ -26,13 +27,13 @@ class CategoriaController {
      */
     public function crear() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: categorias.php");
+            redirect('view/admin/categorias.php');
             exit();
         }
         // Validar
         if (empty($_POST['nombre_categoria'])) {
             $_SESSION['error'] = 'El nombre de la categoría es obligatorio';
-            header("Location: categorias.php?accion=nuevo");
+            redirect('view/admin/categorias.php?accion=nuevo');
             exit();
         }
         $nombreCategoria = trim($_POST['nombre_categoria']);
@@ -41,10 +42,10 @@ class CategoriaController {
         if (isset($resultado['error'])) {
             $_SESSION['error'] = 'Error al crear la categoría: ' . $resultado['error'];
             $_SESSION['datos_form'] = $_POST;
-            header("Location: categorias.php?accion=nuevo");
+            redirect('view/admin/categorias.php?accion=nuevo');
         } else {
             $_SESSION['exito'] = 'Categoría creada exitosamente';
-            header("Location: categorias.php");
+            redirect('view/admin/categorias.php');
         }
         exit();
     }
@@ -53,13 +54,13 @@ class CategoriaController {
      */
     public function actualizar() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header("Location: categorias.php");
+            redirect('view/admin/categorias.php');
             exit();
         }
         // Validar
         if (empty($_POST['id_categoria']) || empty($_POST['nombre_categoria'])) {
             $_SESSION['error'] = 'Datos incompletos';
-            header("Location: categorias.php");
+            redirect('view/admin/categorias.php');
             exit();
         }
         $idCategoria = (int)$_POST['id_categoria'];
@@ -69,10 +70,10 @@ class CategoriaController {
         if (isset($resultado['error'])) {
             $_SESSION['error'] = 'Error al actualizar la categoría: ' . $resultado['error'];
             $_SESSION['datos_form'] = $_POST;
-            header("Location: categorias.php?accion=editar&id=" . $idCategoria);
+            redirect('view/admin/categorias.php?accion=editar&id=' . $idCategoria);
         } else {
             $_SESSION['exito'] = 'Categoría actualizada exitosamente';
-            header("Location: categorias.php");
+            redirect('view/admin/categorias.php');
         }
         exit();
     }
@@ -83,7 +84,7 @@ class CategoriaController {
     public function cambiarEstado() {
         if (!isset($_GET['id']) || !isset($_GET['estado'])) {
             $_SESSION['error'] = 'Parámetros incompletos';
-            header("Location: categorias.php");
+            redirect('view/admin/categorias.php');
             exit();
         }
         $idCategoria = (int)$_GET['id'];
@@ -95,7 +96,7 @@ class CategoriaController {
             $mensaje = $estado == 1 ? 'activada' : 'desactivada';
             $_SESSION['exito'] = "Categoría $mensaje exitosamente";
         }
-        header("Location: categorias.php");
+        redirect('view/admin/categorias.php');
         exit();
     }
 }

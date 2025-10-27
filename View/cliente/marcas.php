@@ -1,4 +1,8 @@
 <?php
+// Incluir el archivo de configuración principal.
+require_once __DIR__ . '/../../config/config.php';
+
+// Incluir los controladores necesarios.
 require_once __DIR__ . '/../../controllers/MarcaController.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 
@@ -32,7 +36,7 @@ if (isset($_GET['id'])) {
     }
 }
 
-include 'includes/header.php';
+include __DIR__ . '/includes/header.php';
 ?>
 
 <!-- ESTILOS ESPECÍFICOS PARA MARCAS -->
@@ -337,9 +341,9 @@ include 'includes/header.php';
         <!-- VISTA DE GRID DE MARCAS -->
         <div class="marcas-grid">
             <?php foreach ($marcas as $marca): ?>
-                <a href="marcas.php?id=<?php echo $marca['IdMarca']; ?>" class="marca-card">
+                <a href="<?php echo BASE_URL; ?>view/cliente/marcas.php?id=<?php echo $marca['IdMarca']; ?>" class="marca-card">
                     <?php if (!empty($marca['LogoMarca'])): ?>
-                        <img src="<?php echo htmlspecialchars($marca['LogoMarca']); ?>" 
+                        <img src="<?php echo asset($marca['LogoMarca']); ?>" 
                              alt="<?php echo htmlspecialchars($marca['NombreMarca']); ?>"
                              class="marca-logo"
                              onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
@@ -371,14 +375,14 @@ include 'includes/header.php';
         
     <?php else: ?>
         <!-- VISTA DE PRODUCTOS DE LA MARCA -->
-        <a href="marcas.php" class="btn-volver">
+        <a href="<?php echo BASE_URL; ?>view/cliente/marcas.php" class="btn-volver">
             ← Volver a Marcas
         </a>
         
         <div class="seccion-productos">
             <div class="titulo-seccion">
                 <?php if (!empty($marcaSeleccionada['LogoMarca'])): ?>
-                    <img src="<?php echo htmlspecialchars($marcaSeleccionada['LogoMarca']); ?>" 
+                    <img src="<?php echo asset($marcaSeleccionada['LogoMarca']); ?>" 
                          alt="Logo"
                          style="width: 40px; height: 40px; object-fit: contain; border-radius: 8px;">
                 <?php endif; ?>
@@ -418,7 +422,7 @@ include 'includes/header.php';
                         <div class="producto-card">
                             <?php
                             $rutaImagenProducto = !empty($producto['ImagenPrincipal']) 
-                                ? '../../assets/img/productos/' . $producto['ImagenPrincipal']
+                                ? asset('assets/img/productos/' . $producto['ImagenPrincipal'])
                                 : 'https://via.placeholder.com/240x180/f8f9fa/666666?text=' . urlencode(substr($producto['NombreProducto'], 0, 15));
                             ?>
                             <img src="<?php echo $rutaImagenProducto; ?>" 
@@ -435,7 +439,7 @@ include 'includes/header.php';
                             </div>
                             
                             <?php if ($producto['Disponible']): ?>
-                                <a href="producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="btn-ver-producto">
+                                <a href="<?php echo BASE_URL; ?>view/cliente/producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="btn-ver-producto">
                                     Ver Detalles
                                 </a>
                             <?php else: ?>
@@ -452,4 +456,4 @@ include 'includes/header.php';
     <?php endif; ?>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include __DIR__ . '/includes/footer.php'; ?>

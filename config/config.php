@@ -1,13 +1,15 @@
 <?php
 /**
- * Configuración básica del sistema Papelink - Optimizada para Vercel
+ * Configuración básica del sistema Papelink - Optimizada para Azure
  */
 
 // =====================================================
-// DETECCIÓN DE ENTORNO
+// DETECCIÓN DE ENTORNO (CAMBIO CLAVE)
 // =====================================================
-$isProduction = getenv('VERCEL_ENV') === 'production';
-$isVercel = getenv('VERCEL') === '1';
+// En lugar de buscar variables de Vercel, detectamos si estamos en producción
+// comprobando si las variables de la base de datos están configuradas (como en Azure).
+ $isProduction = getenv('DB_HOST') !== false;
+ $isLocalhost = (php_sapi_name() === 'cli' || isset($_SERVER['REMOTE_ADDR']) && in_array($_SERVER['REMOTE_ADDR'], ['127.0.0.1', '::1']));
 
 // =====================================================
 // RUTAS DEL PROYECTO
@@ -18,10 +20,10 @@ if (!defined('ROOT_PATH')) {
 
 // Base URL dinámica según el entorno
 if (!defined('BASE_URL')) {
-    if ($isProduction && $isVercel) {
-        // En producción de Vercel, usar la URL del dominio
-        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'https://';
-        $host = $_SERVER['HTTP_HOST'] ?? 'tu-dominio.vercel.app';
+    if ($isProduction) {
+        // En producción (Azure), usar la URL del dominio automáticamente
+        $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+        $host = $_SERVER['HTTP_HOST'] ?? 'papelink5k-app.azurewebsites.net';
         define('BASE_URL', $protocol . $host . '/');
     } else {
         // En desarrollo local
@@ -174,21 +176,17 @@ if (!defined('ASSETS_PATH')) {
 }
 
 // =====================================================
-// CONFIGURACIÓN ESPECÍFICA PARA VERCEL
+// CONFIGURACIÓN ESPECÍFICA PARA AZURE (ANTES VERCEL)
 // =====================================================
-if ($isVercel) {
-    // Configuraciones específicas para el entorno serverless de Vercel
-    ini_set('max_execution_time', 10); // Vercel tiene límite de 10 segundos para funciones
-    
-    // Headers para mejorar el performance
+if ($isProduction) {
+    // Configuraciones específicas para el entorno de producción (Azure)
+    // Headers para mejorar el performance y seguridad
     if (!headers_sent()) {
         header('X-Content-Type-Options: nosniff');
         header('X-Frame-Options: DENY');
         header('X-XSS-Protection: 1; mode=block');
         
-        if ($isProduction) {
-            header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
-        }
+        header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
     }
 }
 
