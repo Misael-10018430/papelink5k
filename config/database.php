@@ -15,12 +15,21 @@ if (!class_exists('Database')) {
         public function __construct() {
             // Usar variables de entorno en producción (Azure)
             // o valores por defecto para desarrollo local
+            $this->host = getenv('DB_HOST') ?: 'papelinkserverfinal.database.windows.net';
+            $this->db_name = getenv('DB_NAME') ?: 'papelinkDB';
+            $this->username = getenv('DB_USER') ?: 'sqladmin';
+            $this->password = getenv('DB_PASSWORD') ?: 'dmmisa1257Vv$#/90Q';
+        }
+        /*
+             public function __construct() {
+            // Usar variables de entorno en producción (Azure)
+            // o valores por defecto para desarrollo local
             $this->host = getenv('DB_HOST') ?: 'localhost';
             $this->db_name = getenv('DB_NAME') ?: 'papelink_local';
             $this->username = getenv('DB_USER') ?: 'root';
             $this->password = getenv('DB_PASSWORD') ?: '';
         }
-        
+        */
         /**
          * Obtener conexión a la base de datos
          * @return PDO|null
