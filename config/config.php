@@ -27,7 +27,7 @@ if (!defined('BASE_URL')) {
         define('BASE_URL', $protocol . $host . '/');
     } else {
         // En desarrollo local
-        define('BASE_URL', 'http://localhost/papelink5k/');
+        define('BASE_URL', 'https://papelink5k-app-g9hhh8fegxe8gvgy.westus3-01.azurewebsites.net/');
     }
 }
 
