@@ -1,19 +1,18 @@
-
 <?php
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/MarcaController.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 
- $marcaController = new MarcaController();
- $productoController = new ProductoController();
+$marcaController = new MarcaController();
+$productoController = new ProductoController();
 
 // Obtener todas las marcas activas
- $marcas = $marcaController->listarActivas();
+$marcas = $marcaController->listarActivas();
 
 // Si se selecciona una marca, mostrar sus productos
- $marcaSeleccionada = null;
- $nombreMarcaSeleccionada = '';
- $productos = [];
+$marcaSeleccionada = null;
+$nombreMarcaSeleccionada = '';
+$productos = [];
 
 if (isset($_GET['id'])) {
     $idMarca = (int)$_GET['id'];
@@ -35,8 +34,12 @@ if (isset($_GET['id'])) {
 }
 
 $titulo = $marcaSeleccionada ? "Productos de " . $nombreMarcaSeleccionada . " - Papelink" : "Marcas - Papelink";
+
+// ⭐ IMPORTANTE: Incluir header SIN variables adicionales
+// El header debe leer directamente de $_SESSION
 include 'includes/header.php';
 ?>
+
 
 <!-- ESTILOS ESPECÍFICOS PARA MARCAS -->
 <style>
