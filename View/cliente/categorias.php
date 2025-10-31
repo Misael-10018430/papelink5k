@@ -461,7 +461,7 @@ include 'includes/header.php';
     <?php else: ?>
         <!-- VISTA DE PRODUCTOS DE UNA CATEGORÍA -->
         <div class="breadcrumbs">
-            <a href="index.php">Inicio</a> / 
+            <a href="<?php echo BASE_URL; ?>">Inicio</a> / 
             <a href="categorias.php">Categorías</a> / 
             <span><?php echo htmlspecialchars($nombreCategoriaSeleccionada); ?></span>
         </div>
