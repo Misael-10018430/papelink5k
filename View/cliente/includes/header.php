@@ -532,14 +532,14 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             </div>
             
             <div class="header-icons">
-                <a href="<?php echo $clienteLogueado ? 'mi_cuenta.php' : 'login.php'; ?>" class="user-icon">
-                    <i class="fas fa-user"></i>
-                </a>
-                <a href="carrito.php" class="cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count" id="carritoBadge" style="display: none;">0</span>
-                </a>
-            </div>
+            <a href="<?php echo $clienteLogueado ? 'mi_cuenta.php' : 'login.php'; ?>" class="user-icon">
+                <i class="fas fa-user"></i>
+            </a>
+            <a href="<?php echo $clienteLogueado ? 'carrito.php' : 'login.php'; ?>" class="cart-icon">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="carritoBadge" style="display: none;">0</span>
+            </a>
+</div>
         </div>
         
         <!-- Menú de navegación integrado en el header -->
