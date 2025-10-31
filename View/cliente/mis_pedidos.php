@@ -444,5 +444,5 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
+</div>
 <?php include_once __DIR__ . '/includes/footer.php'; ?>

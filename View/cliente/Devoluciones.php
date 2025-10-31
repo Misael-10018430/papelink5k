@@ -4,9 +4,7 @@
  * Gestión de devoluciones de pedidos
  */
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+require_once __DIR__ . '/../../config/config.php';
 
 // Verificar que el cliente esté autenticado
 if (!isset($_SESSION['cliente_id'])) {
@@ -17,7 +15,6 @@ if (!isset($_SESSION['cliente_id'])) {
 $titulo = "Mis Devoluciones - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
-
 <style>
     /* ============================================
        ESTILOS GENERALES
@@ -986,5 +983,5 @@ function getBadgeClass(estado) {
     return badges[estado] || 'badge-azul';
 }
 </script>
-
+</div>
 <?php include __DIR__ . '/includes/footer.php'; ?>

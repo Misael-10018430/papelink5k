@@ -697,7 +697,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         }
         actualizarContadorCarrito();
         <?php endif; ?>
-        
+                
         // Carrusel de imágenes
         document.addEventListener('DOMContentLoaded', function() {
             const carouselContainer = document.getElementById('carouselContainer');

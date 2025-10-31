@@ -1,4 +1,3 @@
-
 <?php
 require_once __DIR__ . '/../../config/config.php';
 
@@ -9,11 +8,10 @@ if (!isset($_SESSION['cliente_id'])) {
     exit;
 }
 
-$titulo = "Mi Cuenta - Papelink";
-include __DIR__ . '/includes/header.php';
-
 // Obtener datos del cliente desde la BD
 require_once __DIR__ . '/../../models/Usuario.php';
+require_once __DIR__ . '/../../config/Database.php';
+
 $usuarioModel = new Usuario();
 
 // Query para obtener info del cliente
@@ -26,11 +24,18 @@ try {
     $stmt->execute([$_SESSION['cliente_id']]);
     $cliente = $stmt->fetch(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    $_SESSION['error'] = 'Error al cargar datos';
-    $cliente = [];
+    $_SESSION['error'] = 'Error al cargar datos: ' . $e->getMessage();
+    $cliente = [
+        'NombreCliente' => 'Usuario',
+        'Email' => '',
+        'Telefono' => '',
+        'Direccion' => ''
+    ];
 }
-?>
 
+$titulo = "Mi Cuenta - Papelink";
+include __DIR__ . '/includes/header.php';
+?>
 <div class="mi-cuenta-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs">
@@ -555,5 +560,5 @@ function mostrarSeccion(seccion) {
     event.target.closest('.menu-item').classList.add('active');
 }
 </script>
-
+</div>
 <?php include __DIR__ . '/includes/footer.php'; ?>
