@@ -434,7 +434,7 @@ include 'includes/header.php';
 
 <div class="detalle-container">
     <div class="breadcrumbs">
-        <a href="index.php">Inicio</a> / 
+        <a href="<?php echo BASE_URL; ?>">Inicio</a> / 
         <a href="productos.php">Productos</a> / 
         <span><?php echo htmlspecialchars($producto['NombreProducto']); ?></span>
     </div>

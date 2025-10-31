@@ -594,7 +594,7 @@ include 'includes/header.php';
 
                     <div class="fila-productos" id="fila1">
                         <?php foreach ($fila1 as $producto): ?>
-                            <a href="producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="card-producto">
+                            <a href="<?php echo BASE_URL; ?>view/cliente/producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="card-producto">
                                 <div class="producto-imagen-container">
                                     <?php
                                     if (!empty($producto['ImagenPrincipal'])) {
