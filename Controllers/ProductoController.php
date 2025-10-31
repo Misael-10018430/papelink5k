@@ -240,12 +240,17 @@ class ProductoController {
      * Obtener producto por ID
      */
     public function obtenerPorId($idProducto) {
-        //  VERIFICAR PERMISO PARA VER PRODUCTOS
+    // Solo verificar permisos si es un empleado intentando acceder desde el admin
+    if (isset($_SESSION['tipo_usuario']) && $_SESSION['tipo_usuario'] === 'empleado') {
+        // Es empleado, verificar permisos
         if (!Auth::esAdministrador() && !Auth::tieneFuncionalidad('PRODUCTOS_VER')) {
             return null;
         }
-        return $this->productoModel->obtenerPorId($idProducto);
     }
+    return $this->productoModel->obtenerPorId($idProducto);
+    }
+    
+    // Para clientes o público, permitir acceso
     /**
      * Subir imagen de producto
      */

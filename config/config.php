@@ -23,17 +23,19 @@ if (!defined('BASE_PATH')) {
 
 // Base URL dinámica según el entorno
 if (!defined('BASE_URL')) {
-    if ($isProduction) {
-        // En producción (Azure), usar la URL del dominio automáticamente
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'];
+    // Detectar protocolo
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
+    $host = $_SERVER['HTTP_HOST'];
+    
+    // Detectar si estamos en Azure
+    if (strpos($host, 'azurewebsites.net') !== false || $isProduction) {
+        // En Azure
         define('BASE_URL', $protocol . $host . '/');
     } else {
         // En desarrollo local
         define('BASE_URL', 'http://localhost/papelink5k/');
     }
 }
-
 // =====================================================
 // ZONA HORARIA
 // =====================================================
