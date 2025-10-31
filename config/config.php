@@ -7,7 +7,7 @@
 // DETECCIÓN DE ENTORNO
 // =====================================================
 $isProduction = getenv('DB_HOST') !== false;
-$isVercel = getenv('DB_HOST')  !== false;
+$isAzure = getenv('DB_HOST')  !== false;
 
 // =====================================================
 // RUTAS DEL PROYECTO
@@ -130,16 +130,16 @@ return '$' . number_format($precio, 2);
 
 // Verificar si está logueado
 if (!function_exists('estaLogueado')) {
-function estaLogueado() {
-return isset($_SESSION['cliente_id']) && !empty($_SESSION['cliente_id']);
-}
+    function estaLogueado() {
+        return isset($_SESSION['cliente_id']) && !empty($_SESSION['cliente_id']);
+    }
 }
 
 // Verificar si es empleado
 if (!function_exists('esEmpleado')) {
-function esEmpleado() {
-return isset($_SESSION['empleado_id']) && !empty($_SESSION['empleado_id']);
-}
+    function esEmpleado() {
+        return isset($_SESSION['empleado_id']) && !empty($_SESSION['empleado_id']);
+    }
 }
 
 // Generar número de pedido único
@@ -151,22 +151,22 @@ return 'PED-' . date('Ymd') . '-' . strtoupper(substr(uniqid(), -6));
 
 // Función para debug (solo en desarrollo)
 if (!function_exists('debug')) {
-function debug($data, $die = false) {
-global $isProduction;
-if (!$isProduction) {
-echo '<pre>';
-print_r($data);
-echo '</pre>';
-if ($die) die();
-}
-}
+    function debug($data, $die = false) {
+        global $isProduction;
+        if (!$isProduction) {
+            echo '<pre>';
+            print_r($data);
+            echo '</pre>';
+            if ($die) die();
+        }
+    }
 }
 
 // Función para obtener la URL base de assets
 if (!function_exists('asset')) {
-function asset($path) {
-return BASE_URL . ltrim($path, '/');
-}
+    function asset($path) {
+        return BASE_URL . ltrim($path, '/');
+    }
 }
 
 // =====================================================
