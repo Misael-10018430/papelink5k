@@ -382,7 +382,7 @@ document.getElementById('formAsignarRol')?.addEventListener('submit', function(e
         return;
     }
     
-    fetch('../../controllers/EmpleadoController.php?action=asignarRol', {
+    fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=asignarRol', {
         method: 'POST',
         body: new URLSearchParams(formData)
     })
@@ -412,7 +412,7 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
             return;
         }
         
-        fetch('../../controllers/EmpleadoController.php?action=removerRol', {
+        fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

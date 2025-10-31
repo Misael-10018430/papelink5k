@@ -495,7 +495,7 @@ include __DIR__ . '/includes/header.php';
 document.getElementById('formTipoCliente').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this); 
-    fetch('../../controllers/ClienteController.php?action=cambiarTipo', {
+    fetch('<?php echo BASE_URL; ?>controllers/ClienteController.php?action=cambiarTipo', {
         method: 'POST',
         body: formData
     })
@@ -519,7 +519,7 @@ document.getElementById('formSegmento').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     
-    fetch('../../controllers/ClienteController.php?action=cambiarSegmento', {
+    fetch('<?php echo BASE_URL; ?>controllers/ClienteController.php?action=cambiarSegmento', {
         method: 'POST',
         body: formData
     })

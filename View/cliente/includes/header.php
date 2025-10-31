@@ -521,21 +521,21 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             </div>
             
             <div class="logo">
-                <a href="<?php echo BASE_PATH; ?>index.php">PAPELINK</a>
+                <a href="<?php echo BASE_URL; ?>">PAPELINK</a>
             </div>
             
             <div class="search-bar">
-                <form method="GET" action="<?php echo BASE_PATH; ?>productos.php" style="display: flex; gap: 10px; width: 100%;">
+                <form method="GET" action="<?php echo BASE_URL; ?>view/cliente/productos.php" style="display: flex; gap: 10px; width: 100%;">
                     <input type="text" name="busqueda" placeholder="Buscar productos..." value="<?php echo htmlspecialchars($_GET['busqueda'] ?? ''); ?>">
                     <button type="submit">Buscar</button>
                 </form>
             </div>
             
             <div class="header-icons">
-                <a href="<?php echo $clienteLogueado ? BASE_PATH . 'mi_cuenta.php' : BASE_PATH . 'login.php'; ?>" class="user-icon">
+                <a href="<?php echo $clienteLogueado ? BASE_URL . 'view/cliente/mi_cuenta.php' : BASE_URL . 'view/cliente/login.php'; ?>" class="user-icon">
                     <i class="fas fa-user"></i>
                 </a>
-                <a href="<?php echo BASE_PATH; ?>carrito.php" class="cart-icon">
+                <a href="<?php echo BASE_URL; ?>view/cliente/carrito.php" class="cart-icon">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="carritoBadge" style="display: none;">0</span>
                 </a>
@@ -547,22 +547,22 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             <div class="nav-container">
                 <ul>
                     <li>
-                        <a href="<?php echo BASE_PATH; ?>index.php" class="<?php echo $paginaActual == 'index' ? 'active' : ''; ?>">
+                        <a href="<?php echo BASE_URL; ?>" class="<?php echo $paginaActual == 'index' ? 'active' : ''; ?>">
                             <i class="fas fa-home"></i> Inicio
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo BASE_PATH; ?>productos.php" class="<?php echo $paginaActual == 'productos' ? 'active' : ''; ?>">
+                        <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="<?php echo $paginaActual == 'productos' ? 'active' : ''; ?>">
                             <i class="fas fa-box"></i> Todos los Productos
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo BASE_PATH; ?>categorias.php" class="<?php echo $paginaActual == 'categorias' ? 'active' : ''; ?>">
+                        <a href="<?php echo BASE_URL; ?>view/cliente/categorias.php" class="<?php echo $paginaActual == 'categorias' ? 'active' : ''; ?>">
                             <i class="fas fa-folder"></i> Categorías
                         </a>
                     </li>
                     <li>
-                        <a href="<?php echo BASE_PATH; ?>marcas.php" class="<?php echo $paginaActual == 'marcas' ? 'active' : ''; ?>">
+                        <a href="<?php echo BASE_URL; ?>view/cliente/marcas.php" class="<?php echo $paginaActual == 'marcas' ? 'active' : ''; ?>">
                             <i class="fas fa-tag"></i> Marcas
                         </a>
                     </li>
@@ -637,24 +637,24 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         <div class="menu-section">
             <div class="menu-section-title">Navegación</div>
             <ul>
-                <li><a href="<?php echo BASE_PATH; ?>index.php"><i class="fas fa-home"></i> Inicio</a></li>
-                <li><a href="<?php echo BASE_PATH; ?>productos.php"><i class="fas fa-box"></i> Productos</a></li>
-                <li><a href="<?php echo BASE_PATH; ?>categorias.php"><i class="fas fa-folder"></i> Categorías</a></li>
-                <li><a href="<?php echo BASE_PATH; ?>marcas.php"><i class="fas fa-tag"></i> Marcas</a></li>
+                <li><a href="<?php echo BASE_URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
+                <li><a href="<?php echo BASE_URL; ?>view/cliente/productos.php"><i class="fas fa-box"></i> Productos</a></li>
+                <li><a href="<?php echo BASE_URL; ?>view/cliente/categorias.php"><i class="fas fa-folder"></i> Categorías</a></li>
+                <li><a href="<?php echo BASE_URL; ?>view/cliente/marcas.php"><i class="fas fa-tag"></i> Marcas</a></li>
             </ul>
         </div>
         
         <div class="menu-section">
             <div class="menu-section-title">Mi Cuenta</div>
             <ul>
-                <li><a href="<?php echo BASE_PATH; ?>carrito.php"><i class="fas fa-shopping-cart"></i> Mi Carrito</a></li>
+                <li><a href="<?php echo BASE_URL; ?>view/cliente/carrito.php"><i class="fas fa-shopping-cart"></i> Mi Carrito</a></li>
                 <?php if ($clienteLogueado): ?>
-                    <li><a href="<?php echo BASE_PATH; ?>mis_pedidos.php"><i class="fas fa-clipboard-list"></i> Mis Pedidos</a></li>
-                    <li><a href="<?php echo BASE_PATH; ?>mi_cuenta.php"><i class="fas fa-user-circle"></i> Mi Cuenta</a></li>
-                    <li><a href="<?php echo BASE_PATH; ?>devoluciones.php"><i class="fas fa-undo"></i> Mis Devoluciones</a></li>
-                    <li><a href="../../controllers/AuthController.php?action=logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>view/cliente/mis_pedidos.php"><i class="fas fa-clipboard-list"></i> Mis Pedidos</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>view/cliente/mi_cuenta.php"><i class="fas fa-user-circle"></i> Mi Cuenta</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>view/cliente/devoluciones.php"><i class="fas fa-undo"></i> Mis Devoluciones</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>controllers/AuthController.php?action=logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
                 <?php else: ?>
-                    <li><a href="<?php echo BASE_PATH; ?>login.php"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
+                    <li><a href="<?php echo BASE_URL; ?>view/cliente/login.php"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
                 <?php endif; ?>
             </ul>
         </div>

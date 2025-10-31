@@ -474,7 +474,7 @@ document.querySelectorAll('.estado-toggle').forEach(toggle => {
         const idEmpleado = this.getAttribute('data-id');
         const nuevoEstado = this.checked ? 1 : 0;
         
-        fetch('../../controllers/EmpleadoController.php?action=cambiarEstado', {
+        fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=cambiarEstado', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

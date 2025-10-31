@@ -253,7 +253,7 @@ include __DIR__ . '/includes/header.php';
             <!-- Estado del Pedido -->
             <div class="detalle-card">
                 <h2>Gestionar Estado</h2>
-                <form method="POST" action="../../controllers/PedidoController.php?action=cambiar_estado" class="form-estado">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/PedidoController.php?action=cambiar_estado" class="form-estado">
                     <input type="hidden" name="id_pedido" value="<?php echo $detalle['IdPedido']; ?>">
                     
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estado Actual:</label>

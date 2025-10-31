@@ -377,7 +377,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             <?php echo htmlspecialchars($_SESSION['rol_usuario'] ?? 'Empleado'); ?>
         </span>
     </div>
-    <a href="../../controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
+    <a href="<?php echo BASE_URL; ?>controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
         Cerrar Sesión
     </a>
 </div>

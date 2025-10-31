@@ -347,7 +347,7 @@ document.getElementById('form-filtros').addEventListener('submit', function(e) {
 });
 
 function cargarEstadisticas() {
-    fetch('../../controllers/DevolucionAdminController.php?action=obtenerEstadisticas')
+    fetch('<?php echo BASE_URL; ?>controllers/DevolucionAdminController.php?action=obtenerEstadisticas')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -367,7 +367,7 @@ function cargarDevoluciones() {
     const fechaInicio = document.getElementById('fecha_inicio').value;
     const fechaFin = document.getElementById('fecha_fin').value;
     
-    let url = '../../controllers/DevolucionAdminController.php?action=listarDevoluciones';
+    let url = '<?php echo BASE_URL; ?>controllers/DevolucionAdminController.php?action=listarDevoluciones';
     url += '&estado=' + encodeURIComponent(estado);
     if (fechaInicio) url += '&fecha_inicio=' + fechaInicio;
     if (fechaFin) url += '&fecha_fin=' + fechaFin;

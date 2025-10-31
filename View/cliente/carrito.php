@@ -638,7 +638,7 @@ function actualizarCantidad(idCarrito, cantidad, stockDisponible) {
     
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '../../controllers/CarritoController.php?action=actualizar';
+    form.action = '<?php echo BASE_URL; ?>controllers/CarritoController.php?action=actualizar';
     
     const inputId = document.createElement('input');
     inputId.type = 'hidden';
@@ -659,14 +659,14 @@ function actualizarCantidad(idCarrito, cantidad, stockDisponible) {
 // Confirmar eliminación
 function confirmarEliminacion(idCarrito, nombreProducto) {
     if (confirm('¿Eliminar "' + nombreProducto + '" del carrito?')) {
-        window.location.href = '../../controllers/CarritoController.php?action=eliminar&id=' + idCarrito;
+        window.location.href = '<?php echo BASE_URL; ?>controllers/CarritoController.php?action=eliminar&id=' + idCarrito;
     }
 }
 
 // Confirmar vaciar carrito
 function confirmarVaciarCarrito() {
     if (confirm('¿Está seguro que desea vaciar todo el carrito?')) {
-        window.location.href = '../../controllers/CarritoController.php?action=vaciar';
+        window.location.href = '<?php echo BASE_URL; ?>controllers/CarritoController.php?action=vaciar';
     }
 }
 </script>

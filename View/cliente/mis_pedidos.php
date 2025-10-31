@@ -424,7 +424,7 @@ include_once __DIR__ . '/includes/header.php';
 <script>
 function confirmarCancelacion(idPedido, numeroPedido) {
     if (confirm('¿Está seguro que desea cancelar el pedido ' + numeroPedido + '?\n\nEsta acción no se puede deshacer.')) {
-        window.location.href = '../../controllers/PedidoController.php?action=cancelar&id=' + idPedido + '&confirmar=si';
+        window.location.href = '<?php echo BASE_URL; ?>controllers/PedidoController.php?action=cancelar&id=' + idPedido + '&confirmar=si';
     }
 }
 

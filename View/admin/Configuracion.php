@@ -482,7 +482,7 @@ document.getElementById('formConfiguracion').addEventListener('submit', function
     submitBtn.disabled = true;
     submitBtn.textContent = 'Guardando...';
     
-    fetch('../../controllers/ConfiguracionController.php?action=guardar', {
+    fetch('<?php echo BASE_URL; ?>controllers/ConfiguracionController.php?action=guardar', {
         method: 'POST',
         body: formData
     })

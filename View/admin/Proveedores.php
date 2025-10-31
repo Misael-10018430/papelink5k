@@ -452,7 +452,7 @@ document.querySelectorAll('.estado-toggle').forEach(toggle => {
         const idProveedor = this.getAttribute('data-id');
         const nuevoEstado = this.checked ? 1 : 0;
         
-        fetch('../../controllers/ProveedorController.php?action=cambiarEstado', {
+        fetch('<?php echo BASE_URL; ?>controllers/ProveedorController.php?action=cambiarEstado', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

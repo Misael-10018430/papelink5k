@@ -777,7 +777,7 @@ function agregarAlCarrito(idProducto, nombreProducto) {
     <?php endif; ?>
 
     // Enviar petición al servidor
-    fetch('../../controllers/CarritoController.php?action=agregar', {
+    fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=agregar', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -797,7 +797,7 @@ function agregarAlCarrito(idProducto, nombreProducto) {
 
 // Función para actualizar el contador del carrito
 function actualizarContadorCarrito() {
-    fetch('../../controllers/CarritoController.php?action=contar')
+    fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=contar')
         .then(response => response.json())
         .then(data => {
             const badge = document.getElementById('carritoBadge');

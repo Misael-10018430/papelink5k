@@ -487,7 +487,7 @@ include 'includes/header.php';
             </div>
 
             <?php if ($producto['Disponible']): ?>
-                <form method="POST" action="../../controllers/CarritoController.php?action=agregar" id="formAgregarCarrito">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/CarritoController.php?action=agregar" id="formAgregarCarrito">
                     <input type="hidden" name="id_producto" value="<?php echo $producto['IdProducto']; ?>">
                     
                     <div class="selector-cantidad">
@@ -645,7 +645,7 @@ function comprarAhora() {
     const form = document.getElementById('formAgregarCarrito');
     const formData = new FormData(form);
     
-    fetch('../../controllers/CarritoController.php?action=agregar', {
+    fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=agregar', {
         method: 'POST',
         body: formData
     })

@@ -74,7 +74,7 @@ try {
                 <a href="#direcciones" class="menu-item" onclick="mostrarSeccion('direcciones')">
                     <span class="icono"></span> Direcciones
                 </a>
-                <a href="../../controllers/AuthController.php?action=logout" class="menu-item logout">
+                <a href="<?php echo BASE_URL; ?>controllers/AuthController.php?action=logout" class="menu-item logout">
                     <span class="icono"></span> Cerrar Sesión
                 </a>
             </nav>
@@ -137,7 +137,7 @@ try {
             <section id="seccion-datos" class="seccion-cuenta">
                 <h1>Información Personal</h1>
                 
-                <form method="POST" action="../../controllers/ClienteController.php?action=actualizar_datos" class="form-datos">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/ClienteController.php?action=actualizar_datos" class="form-datos">
                     <div class="form-grid">
                         <div class="form-group">
                             <label>Nombre Completo:</label>
@@ -166,7 +166,7 @@ try {
                 <hr style="margin: 40px 0;">
 
                 <h2>Cambiar Contraseña</h2>
-                <form method="POST" action="../../controllers/ClienteController.php?action=cambiar_contrasena" class="form-password">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/ClienteController.php?action=cambiar_contrasena" class="form-password">
                     <div class="form-group">
                         <label>Contraseña Actual:</label>
                         <input type="password" name="password_actual" required>

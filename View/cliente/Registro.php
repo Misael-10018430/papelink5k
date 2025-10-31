@@ -324,7 +324,7 @@ require_once __DIR__ . '/../../config/config.php';
                     <?php unset($_SESSION['errores']); ?>
                 <?php endif; ?>
                 
-                <form method="POST" action="../../controllers/AuthController.php">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/AuthController.php">
                     <input type="hidden" name="accion" value="registro_cliente">
                     
                     <div class="form-group">
@@ -393,7 +393,7 @@ require_once __DIR__ . '/../../config/config.php';
                 </a>
                 
                 <div class="volver">
-                    <a href="index.php">← Continuar sin cuenta</a>
+                    <a href="<?php echo BASE_URL; ?>">← Continuar sin cuenta</a>
                 </div>
                 
                 <!-- Sección para empleados -->
@@ -402,7 +402,7 @@ require_once __DIR__ . '/../../config/config.php';
                         <strong>¿Eres empleado?</strong><br>
                         <span style="font-size: 12px;">Accede al panel administrativo</span>
                     </div>
-                    <a href="../admin/login.php" class="btn-admin">
+                    <a href="<?php echo BASE_URL; ?>view/admin/login.php" class="btn-admin">
                         Acceso Administrativo →
                     </a>
                 </div>

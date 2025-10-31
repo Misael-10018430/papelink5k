@@ -350,7 +350,7 @@ require_once __DIR__ . '/../../config/config.php';
                 <?php if (isset($_SESSION['registro_exitoso']) && $_SESSION['registro_exitoso']): ?>
                     <!-- MENSAJE ESPECIAL DE REGISTRO EXITOSO -->
                     <div class="mensaje-registro-exitoso">
-                        <div class="icono">🎉</div>
+                 
                         <h3>¡Cuenta creada exitosamente!</h3>
                         <p>
                             Hola <strong><?php echo htmlspecialchars($_SESSION['nombre_registrado'] ?? 'Usuario'); ?></strong>,<br>
@@ -380,7 +380,7 @@ require_once __DIR__ . '/../../config/config.php';
                     </div>
                 <?php endif; ?>
                 
-                <form method="POST" action="../../controllers/AuthController.php">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/AuthController.php">
                     <input type="hidden" name="accion" value="login_unificado">
                     
                     <div class="form-group">
@@ -414,7 +414,7 @@ require_once __DIR__ . '/../../config/config.php';
                 </a>
                 
                 <div class="volver">
-                    <a href="index.php">← Continuar sin cuenta</a>
+                    a href="<?php echo BASE_URL; ?>">← Continuar sin cuenta</a>
                 </div>
                 
                 <!-- Sección para empleados -->

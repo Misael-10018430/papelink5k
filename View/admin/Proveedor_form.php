@@ -245,7 +245,7 @@ include __DIR__ . '/includes/header.php';
     <?php endif; ?>
 
     <div class="tarjeta">
-        <form method="POST" action="../../controllers/ProveedorController.php?action=guardar">
+        <form method="POST" action="<?php echo BASE_URL; ?>controllers/ProveedorController.php?action=guardar">
             <?php if ($datos['modo'] === 'editar'): ?>
                 <input type="hidden" name="id_proveedor" value="<?php echo $datos['proveedor']['IdProveedor']; ?>">
             <?php endif; ?>
