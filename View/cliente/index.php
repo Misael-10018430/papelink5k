@@ -2,11 +2,9 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
-require_once __DIR__ . '/../../controllers/MarcaController.php';
 
 $productoController = new ProductoController();
 $categoriaController = new CategoriaController();
-$marcaController = new MarcaController();
 
 // Obtener productos destacados de la BD
 $productosDestacados = [];
