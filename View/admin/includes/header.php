@@ -1,10 +1,12 @@
 <?php
-/**
- * Vista: Header del Panel Administrativo
- * Componente de navegación y estructura principal del panel
- */
+// Cargar configuración global (incluye session_start automático)
 require_once __DIR__ . '/../../../config/config.php';
+
+// Cargar sistema de autenticación
 require_once __DIR__ . '/../../../config/Auth.php';
+
+// Obtener la página actual
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 ?>
 <!DOCTYPE html>
 <html lang="es">
@@ -12,7 +14,7 @@ require_once __DIR__ . '/../../../config/Auth.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $titulo ?? 'Panel Administrativo - Papelink'; ?></title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>assets/css/styles.css">
+    <link rel="stylesheet" href="../../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -234,7 +236,7 @@ require_once __DIR__ . '/../../../config/Auth.php';
     </div>
     <div class="menu-admin">
         <!-- Dashboard - Todos tienen acceso -->
-        <a href="<?php echo BASE_URL; ?>view/admin/dashboard.php" class="<?php echo ($paginaActual ?? '') == 'dashboard' ? 'activo' : ''; ?>">
+        <a href="dashboard.php" class="<?php echo ($paginaActual ?? '') == 'dashboard' ? 'activo' : ''; ?>">
             Dashboard
         </a>
         <!-- VENTAS -->
@@ -245,17 +247,17 @@ require_once __DIR__ . '/../../../config/Auth.php';
         </div>
         <?php if (Auth::esAdministrador() || 
                   Auth::tieneAlgunaFuncionalidad(['PEDIDOS_VER', 'PEDIDOS_GESTIONAR'])): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/pedidos.php" class="<?php echo ($paginaActual ?? '') == 'pedidos' ? 'activo' : ''; ?>">
+        <a href="pedidos.php" class="<?php echo ($paginaActual ?? '') == 'pedidos' ? 'activo' : ''; ?>">
             Pedidos
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('ENVIOS_VER')): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/envios.php" class="<?php echo ($paginaActual ?? '') == 'envios' ? 'activo' : ''; ?>">
+        <a href="envios.php" class="<?php echo ($paginaActual ?? '') == 'envios' ? 'activo' : ''; ?>">
             Envíos
         </a>
         <?php endif; ?>   
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('DEVOLUCIONES_VER')): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/devoluciones.php" class="<?php echo ($paginaActual ?? '') == 'devoluciones' ? 'activo' : ''; ?>">
+        <a href="devoluciones.php" class="<?php echo ($paginaActual ?? '') == 'devoluciones' ? 'activo' : ''; ?>">
             Devoluciones
         </a>
         <?php endif; ?>
@@ -278,21 +280,21 @@ require_once __DIR__ . '/../../../config/Auth.php';
         </div>
         <?php if (Auth::esAdministrador() || 
                   Auth::tieneAlgunaFuncionalidad(['PRODUCTOS_VER', 'PRODUCTOS_CREAR', 'PRODUCTOS_EDITAR'])): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/productos.php" class="<?php echo ($paginaActual ?? '') == 'productos' ? 'activo' : ''; ?>">
+        <a href="productos.php" class="<?php echo ($paginaActual ?? '') == 'productos' ? 'activo' : ''; ?>">
            Productos
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || 
                   Auth::tieneAlgunaFuncionalidad(['INVENTARIO_VER', 'INVENTARIO_AJUSTAR'])): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/inventario.php" class="<?php echo ($paginaActual ?? '') == 'inventario' ? 'activo' : ''; ?>">
+        <a href="inventario.php" class="<?php echo ($paginaActual ?? '') == 'inventario' ? 'activo' : ''; ?>">
             Inventario
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('PRODUCTOS_EDITAR')): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/categorias.php" class="<?php echo ($paginaActual ?? '') == 'categorias' ? 'activo' : ''; ?>">
+        <a href="categorias.php" class="<?php echo ($paginaActual ?? '') == 'categorias' ? 'activo' : ''; ?>">
              Categorías
         </a>
-        <a href="<?php echo BASE_URL; ?>view/admin/marcas.php" class="<?php echo ($paginaActual ?? '') == 'marcas' ? 'activo' : ''; ?>">
+        <a href="marcas.php" class="<?php echo ($paginaActual ?? '') == 'marcas' ? 'activo' : ''; ?>">
             Marcas
         </a>
         <?php endif; ?>
@@ -317,13 +319,13 @@ require_once __DIR__ . '/../../../config/Auth.php';
         </div>
         <?php if (Auth::esAdministrador() || 
                   Auth::tieneAlgunaFuncionalidad(['CLIENTES_VER', 'CLIENTES_EDITAR'])): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/clientes.php" class="<?php echo ($paginaActual ?? '') == 'clientes' ? 'activo' : ''; ?>">
+        <a href="clientes.php" class="<?php echo ($paginaActual ?? '') == 'clientes' ? 'activo' : ''; ?>">
              Clientes
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || 
                   Auth::tieneAlgunaFuncionalidad(['PROVEEDORES_VER', 'PROVEEDORES_GESTIONAR'])): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/proveedores.php" class="<?php echo ($paginaActual ?? '') == 'proveedores' ? 'activo' : ''; ?>">
+        <a href="proveedores.php" class="<?php echo ($paginaActual ?? '') == 'proveedores' ? 'activo' : ''; ?>">
             Proveedores
         </a>
         <?php endif; ?>
@@ -335,18 +337,18 @@ require_once __DIR__ . '/../../../config/Auth.php';
             <h3>ADMINISTRACIÓN</h3>
         </div>
         <?php if (Auth::esAdministrador()): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/empleados.php" class="<?php echo ($paginaActual ?? '') == 'empleados' ? 'activo' : ''; ?>">
+        <a href="empleados.php" class="<?php echo ($paginaActual ?? '') == 'empleados' ? 'activo' : ''; ?>">
             Empleados
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || 
                   Auth::tieneAlgunaFuncionalidad(['CONFIGURACION_VER', 'CONFIGURACION_EDITAR'])): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/configuracion.php" class="<?php echo ($paginaActual ?? '') == 'configuracion' ? 'activo' : ''; ?>">
+        <a href="configuracion.php" class="<?php echo ($paginaActual ?? '') == 'configuracion' ? 'activo' : ''; ?>">
             Configuración
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('REPORTES_VER')): ?>
-        <a href="<?php echo BASE_URL; ?>view/admin/reporte.php" class="<?php echo ($paginaActual ?? '') == 'reportes' ? 'activo' : ''; ?>">
+        <a href="reporte.php" class="<?php echo ($paginaActual ?? '') == 'reportes' ? 'activo' : ''; ?>">
             Reportes
         </a>
         <?php endif; ?>
@@ -375,7 +377,7 @@ require_once __DIR__ . '/../../../config/Auth.php';
             <?php echo htmlspecialchars($_SESSION['rol_usuario'] ?? 'Empleado'); ?>
         </span>
     </div>
-    <a href="<?php echo BASE_URL; ?>controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
+    <a href="../../controllers/AuthController.php?action=logout" class="btn-cerrar-sesion">
         Cerrar Sesión
     </a>
 </div>

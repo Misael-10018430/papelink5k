@@ -1,15 +1,16 @@
 <?php
-/**
- * Vista: Gestión de Devoluciones
- * Panel administrativo para gestionar devoluciones de clientes
- */
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
 
 // ✅ VERIFICAR PERMISOS PARA DEVOLUCIONES
 Auth::requiereFuncionalidad('DEVOLUCIONES_VER');
 
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/DevolucionAdminController.php';
 
 // ✅ NO CREAR INSTANCIA AQUÍ - Se hará por AJAX
@@ -346,7 +347,7 @@ document.getElementById('form-filtros').addEventListener('submit', function(e) {
 });
 
 function cargarEstadisticas() {
-    fetch('<?php echo BASE_URL; ?>controllers/DevolucionAdminController.php?action=obtenerEstadisticas')
+    fetch('../../controllers/DevolucionAdminController.php?action=obtenerEstadisticas')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -366,7 +367,7 @@ function cargarDevoluciones() {
     const fechaInicio = document.getElementById('fecha_inicio').value;
     const fechaFin = document.getElementById('fecha_fin').value;
     
-    let url = '<?php echo BASE_URL; ?>controllers/DevolucionAdminController.php?action=listarDevoluciones';
+    let url = '../../controllers/DevolucionAdminController.php?action=listarDevoluciones';
     url += '&estado=' + encodeURIComponent(estado);
     if (fechaInicio) url += '&fecha_inicio=' + fechaInicio;
     if (fechaFin) url += '&fecha_fin=' + fechaFin;
@@ -445,7 +446,7 @@ function limpiarFiltros() {
 }
 
 function verDetalle(id) {
-    window.location.href = '<?php echo BASE_URL; ?>view/admin/devolucion_detalle.php?id=' + id;
+    window.location.href = 'devolucion_detalle.php?id=' + id;
 }
 </script>
 

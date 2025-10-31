@@ -1,83 +1,46 @@
 <?php
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
 require_once __DIR__ . '/../../controllers/MarcaController.php';
 
- $productoController = new ProductoController();
- $categoriaController = new CategoriaController();
- $marcaController = new MarcaController();
+$productoController = new ProductoController();
+$categoriaController = new CategoriaController();
+$marcaController = new MarcaController();
 
-// Intentar obtener productos de la BD
+// Obtener productos destacados de la BD
+$productosDestacados = [];
+$categorias = [];
+
 try {
+    // Obtener productos reales de la base de datos
     $productosDestacados = $productoController->listarCliente();
     
-    // Asegurar que siempre tengamos 5 productos para mostrar
-    if (empty($productosDestacados) || count($productosDestacados) < 5) {
-        // Si hay menos de 5 productos reales, completar con ejemplos
-        $productosReales = $productosDestacados ?? [];
-        $cantidadFaltante = 5 - count($productosReales);
-        
-        $productosEjemplo = [
-            ['IdProducto' => 'ej1', 'NombreProducto' => 'Cuaderno Profesional', 'PrecioUnitario' => 45.00, 'Disponible' => true, 'CantidadDisponible' => 20, 'Descuento' => 10],
-            ['IdProducto' => 'ej2', 'NombreProducto' => 'Bolígrafos Gel (Pack 10)', 'PrecioUnitario' => 85.00, 'Disponible' => true, 'CantidadDisponible' => 15, 'Nuevo' => true],
-            ['IdProducto' => 'ej3', 'NombreProducto' => 'Carpeta con Broche', 'PrecioUnitario' => 28.00, 'Disponible' => true, 'CantidadDisponible' => 30],
-            ['IdProducto' => 'ej4', 'NombreProducto' => 'Juego de Geometría', 'PrecioUnitario' => 65.00, 'Disponible' => true, 'CantidadDisponible' => 12, 'Descuento' => 15],
-            ['IdProducto' => 'ej5', 'NombreProducto' => 'Tijeras Escolares', 'PrecioUnitario' => 35.00, 'Disponible' => false, 'CantidadDisponible' => 0]
-        ];
-        
-        // Combinar productos reales con ejemplos
-        $productosDestacados = array_merge(
-            $productosReales,
-            array_slice($productosEjemplo, 0, $cantidadFaltante)
-        );
-    } else {
-        // Si hay más de 5, solo tomar los primeros 5
-         $productosDestacados = $productosDestacados;
+    // Limitar a máximo 10 productos para las 2 filas
+    if (count($productosDestacados) > 10) {
+        $productosDestacados = array_slice($productosDestacados, 0, 10);
     }
+    
 } catch (Exception $e) {
-    // En caso de error, usar solo productos de ejemplo
-    $productosDestacados = [
-        ['IdProducto' => 'ej1', 'NombreProducto' => 'Cuaderno Profesional', 'PrecioUnitario' => 45.00, 'Disponible' => true, 'CantidadDisponible' => 20, 'Descuento' => 10],
-        ['IdProducto' => 'ej2', 'NombreProducto' => 'Bolígrafos Gel (Pack 10)', 'PrecioUnitario' => 85.00, 'Disponible' => true, 'CantidadDisponible' => 15, 'Nuevo' => true],
-        ['IdProducto' => 'ej3', 'NombreProducto' => 'Carpeta con Broche', 'PrecioUnitario' => 28.00, 'Disponible' => true, 'CantidadDisponible' => 30],
-        ['IdProducto' => 'ej4', 'NombreProducto' => 'Juego de Geometría', 'PrecioUnitario' => 65.00, 'Disponible' => true, 'CantidadDisponible' => 12, 'Descuento' => 15],
-        ['IdProducto' => 'ej5', 'NombreProducto' => 'Tijeras Escolares', 'PrecioUnitario' => 35.00, 'Disponible' => false, 'CantidadDisponible' => 0]
-    ];
+    error_log("Error al cargar productos: " . $e->getMessage());
+    $productosDestacados = [];
 }
 
-// Intentar obtener categorías de la BD
 try {
+    // Obtener categorías activas de la BD
     $categorias = $categoriaController->listarActivas();
     
-    // Asegurar que siempre tengamos exactamente 3 categorías para mostrar
-    if (empty($categorias) || count($categorias) < 3) {
-        // Categorías predefinidas del negocio
-        $categoriasBase = [
-            ['IdCategoria' => 1, 'NombreCategoria' => 'Escolar'],
-            ['IdCategoria' => 2, 'NombreCategoria' => 'Oficina'],
-            ['IdCategoria' => 3, 'NombreCategoria' => 'Arte']
-        ];
-        
-        // Si hay algunas categorías reales, combinarlas
-        if (!empty($categorias)) {
-            $categorias = array_merge($categorias, $categoriasBase);
-        } else {
-            $categorias = $categoriasBase;
-        }
+    // Limitar a las primeras 3 categorías
+    if (count($categorias) > 3) {
+        $categorias = array_slice($categorias, 0, 3);
     }
     
-    // Siempre mostrar solo las primeras 3
-    $categorias = array_slice($categorias, 0, 3);
-    
 } catch (Exception $e) {
-    // En caso de error, usar categorías predefinidas
-    $categorias = [
-        ['IdCategoria' => 1, 'NombreCategoria' => 'Escolar'],
-        ['IdCategoria' => 2, 'NombreCategoria' => 'Oficina'],
-        ['IdCategoria' => 3, 'NombreCategoria' => 'Arte']
-    ];
+    error_log("Error al cargar categorías: " . $e->getMessage());
+    $categorias = [];
 }
 
+$titulo = "Papelink - Papelería y Oficina";
 include 'includes/header.php';
 ?>
 
@@ -95,9 +58,6 @@ include 'includes/header.php';
     margin: 0 !important;
 }
 
-/* ========================================== */
-/* BANNER HERO */
-/* ========================================== */
 .hero-banner {
     width: 100%;
     margin: 0;
@@ -112,24 +72,17 @@ include 'includes/header.php';
     object-fit: cover;
 }
 
-.seccion-categorias,
 .seccion-productos-destacados {
-    min-height: 500px;
-}
-
-/* ========================================== */
-/* SECCIÓN PRODUCTOS DESTACADOS - DISEÑO PROFESIONAL */
-/* ========================================== */
-.seccion-productos-destacados {
-    background-color: #ffffff; /* Cambiado a blanco puro */
+    background-color: #ffffff;
     padding: 60px 20px;
     width: 100%;
     position: relative;
     overflow: hidden;
+    min-height: 400px;
 }
 
 .contenedor-interno {
-    max-width: 1600px; /* Aumentado para ocupar más ancho */
+    max-width: 1600px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
@@ -137,7 +90,7 @@ include 'includes/header.php';
 
 .titulo-seccion {
     text-align: center;
-    color: #2c3e50; /* Mantenido oscuro para contraste con fondo blanco */
+    color: #2c3e50;
     font-size: 36px;
     margin-bottom: 50px;
     font-weight: 700;
@@ -146,7 +99,6 @@ include 'includes/header.php';
     width: 100%;
 }
 
-/* Subrayado decorativo del título */
 .titulo-seccion::after {
     content: '';
     position: absolute;
@@ -159,38 +111,55 @@ include 'includes/header.php';
     border-radius: 2px;
 }
 
-/* Contenedor principal de filas */
+.mensaje-sin-productos {
+    text-align: center;
+    padding: 80px 20px;
+    color: #7f8c8d;
+}
+
+.mensaje-sin-productos i {
+    font-size: 80px;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.mensaje-sin-productos h3 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.mensaje-sin-productos p {
+    font-size: 16px;
+    color: #95a5a6;
+}
+
 .grid-productos-horizontal {
     display: flex;
     flex-direction: column;
     gap: 40px;
 }
 
-/* Contenedor para cada fila con flechas */
 .fila-container {
     position: relative;
     width: 100%;
 }
 
-/* Cada fila con scroll oculto */
 .fila-productos {
     display: flex;
-    gap: 25px; /* Reducido para aprovechar mejor el espacio */
-    overflow-x: hidden; /* Cambiado de auto a hidden */
+    gap: 25px;
+    overflow-x: hidden;
     overflow-y: hidden;
-    padding: 20px 60px 40px; /* Aumentado el padding lateral para espacio para flechas */
+    padding: 20px 60px 40px;
     scroll-behavior: smooth;
-    cursor: default; /* Cambiado de grab a default */
-    scrollbar-width: none; /* Ocultar scrollbar en Firefox */
-    -ms-overflow-style: none; /* Ocultar scrollbar en IE y Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Ocultar scrollbar en Chrome, Safari, Opera */
 .fila-productos::-webkit-scrollbar {
-    display: none; /* Ocultar scrollbar completamente */
+    display: none;
 }
 
-/* Flechas de navegación */
 .flecha-navegacion {
     position: absolute;
     top: 50%;
@@ -224,12 +193,11 @@ include 'includes/header.php';
     right: -100px;
 }
 
-/* Card de producto - Diseño Profesional */
 .card-producto {
-    background-color: #e9ecef; /* Cambiado a un gris más marcado */
+    background-color: #e9ecef;
     border-radius: 16px;
-    min-width: 320px; /* Aumentado de 280px */
-    max-width: 320px; /* Aumentado de 280px */
+    min-width: 320px;
+    max-width: 320px;
     flex-shrink: 0;
     text-align: center;
     text-decoration: none;
@@ -247,11 +215,10 @@ include 'includes/header.php';
     box-shadow: 0 20px 40px rgba(255, 99, 71, 0.15);
 }
 
-/* Contenedor de imagen del producto */
 .producto-imagen-container {
     position: relative;
     overflow: hidden;
-    height: 240px; /* Aumentado ligeramente para mantener proporción */
+    height: 240px;
     border-radius: 16px 16px 0 0;
     background-color: #f8f9fa;
 }
@@ -268,7 +235,6 @@ include 'includes/header.php';
     transform: scale(1.05);
 }
 
-/* Etiquetas de producto (Nuevo, Descuento) */
 .producto-etiqueta {
     position: absolute;
     top: 15px;
@@ -291,7 +257,6 @@ include 'includes/header.php';
     color: white;
 }
 
-/* Contenido de la tarjeta */
 .card-producto-content {
     padding: 20px;
     flex-grow: 1;
@@ -311,7 +276,6 @@ include 'includes/header.php';
     font-weight: 600;
 }
 
-/* Contenedor de precio */
 .precio-container {
     margin: 10px 0 15px;
 }
@@ -336,7 +300,6 @@ include 'includes/header.php';
     font-weight: 600;
 }
 
-/* Indicador de stock */
 .stock-indicator {
     display: flex;
     align-items: center;
@@ -357,7 +320,6 @@ include 'includes/header.php';
     margin-right: 5px;
 }
 
-/* Botones de acción */
 .card-producto .btn-agregar {
     background: linear-gradient(135deg, #FF6347 0%, #ff7a5c 100%);
     color: white;
@@ -397,20 +359,18 @@ include 'includes/header.php';
     transform: none;
 }
 
-/* ========================================== */
-/* SECCIÓN CATEGORÍAS - DISEÑO PROFESIONAL */
-/* ========================================== */
 .seccion-categorias {
-    background-color: #ffffff; /* Cambiado a blanco puro */
+    background-color: #ffffff;
     padding: 70px 20px;
     width: 100%;
     position: relative;
     overflow: hidden;
+    min-height: 400px;
 }
 
 .titulo-seccion-blanco {
     text-align: center;
-    color: #2c3e50; /* Cambiado a oscuro para contraste con fondo blanco */
+    color: #2c3e50;
     font-size: 36px;
     margin-bottom: 50px;
     font-weight: 700;
@@ -419,7 +379,6 @@ include 'includes/header.php';
     width: 100%;
 }
 
-/* Subrayado decorativo del título */
 .titulo-seccion-blanco::after {
     content: '';
     position: absolute;
@@ -432,11 +391,34 @@ include 'includes/header.php';
     border-radius: 2px;
 }
 
+.mensaje-sin-categorias {
+    text-align: center;
+    padding: 80px 20px;
+    color: #7f8c8d;
+}
+
+.mensaje-sin-categorias i {
+    font-size: 80px;
+    color: #bdc3c7;
+    margin-bottom: 20px;
+}
+
+.mensaje-sin-categorias h3 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+.mensaje-sin-categorias p {
+    font-size: 16px;
+    color: #95a5a6;
+}
+
 .grid-categorias {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;
-    max-width: 1600px; /* Aumentado para coincidir con productos */
+    max-width: 1600px;
     margin: 0 auto;
     position: relative;
     z-index: 1;
@@ -457,7 +439,6 @@ include 'includes/header.php';
     transform: translateY(-10px);
 }
 
-/* Efecto de superposición al hacer hover */
 .card-categoria::before {
     content: '';
     position: absolute;
@@ -516,7 +497,6 @@ include 'includes/header.php';
     box-shadow: 0 6px 20px rgba(255, 99, 71, 0.5);
 }
 
-/* Nombre de la categoría */
 .categoria-nombre {
     position: absolute;
     top: 30px;
@@ -536,20 +516,15 @@ include 'includes/header.php';
     transform: translateX(-50%) translateY(0);
 }
 
-/* ========================================== */
-/* RESPONSIVE */
-/* ========================================== */
 @media (max-width: 992px) {
     .grid-categorias {
         grid-template-columns: repeat(2, 1fr);
         gap: 25px;
     }
-    
     .card-producto {
-        min-width: 280px; /* Ajustado para pantallas medianas */
+        min-width: 280px;
         max-width: 280px;
     }
-    
     .titulo-seccion,
     .titulo-seccion-blanco {
         font-size: 32px;
@@ -560,255 +535,232 @@ include 'includes/header.php';
     .grid-categorias {
         grid-template-columns: 1fr;
     }
-    
     .card-producto {
-        min-width: 240px; /* Ajustado para pantallas pequeñas */
+        min-width: 240px;
         max-width: 240px;
     }
-    
     .titulo-seccion,
     .titulo-seccion-blanco {
         font-size: 28px;
     }
-    
     .seccion-productos-destacados {
         padding: 40px 15px;
     }
-    
     .seccion-categorias {
         padding: 50px 15px;
     }
-    
     .flecha-navegacion {
         width: 40px;
         height: 40px;
         font-size: 16px;
     }
-    
     .flecha-izquierda {
         left: -50px;
     }
-    
     .flecha-derecha {
         right: -50px;
     }
 }
 </style>
 
-<!-- ============================================ -->
-<!-- 2. PRODUCTOS DESTACADOS -->
-<!-- ============================================ -->
+<!-- SECCIÓN PRODUCTOS DESTACADOS -->
 <section class="seccion-productos-destacados">
     <div class="contenedor-interno">
         <h2 class="titulo-seccion">Productos Destacados</h2>
-        
-        <div class="grid-productos-horizontal">
-            <?php 
-            // Dividir productos en 2 filas
-            $totalProductos = count($productosDestacados);
-            $mitad = ceil($totalProductos / 2);
-            
-            $fila1 = array_slice($productosDestacados, 0, $mitad);
-            $fila2 = array_slice($productosDestacados, $mitad);
-            ?>
-            
-            <!-- FILA 1 -->
-            <div class="fila-container">
-                <div class="flecha-navegacion flecha-izquierda" onclick="moverFila('fila1', -1)">
-                    <i class="fas fa-chevron-left"></i>
-                </div>
-                <div class="flecha-navegacion flecha-derecha" onclick="moverFila('fila1', 1)">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                
-                <div class="fila-productos" id="fila1">
-                    <?php foreach ($fila1 as $producto): ?>
-                        <a href="<?php echo isset($producto['IdProducto']) && is_numeric($producto['IdProducto']) ? 'producto_detalle.php?id=' . $producto['IdProducto'] : '#'; ?>" 
-                           class="card-producto"
-                           <?php echo !is_numeric($producto['IdProducto']) ? 'onclick="event.preventDefault(); alert(\'⚠️ Producto de ejemplo. Agrega productos reales desde el panel de administración.\');"' : ''; ?>>
-                            
-                            <div class="producto-imagen-container">
-                                <?php
-                                // Determinar la ruta de la imagen
-                                if (!empty($producto['ImagenPrincipal'])) {
-                                    $rutaImagen = '../../assets/img/productos/' . $producto['ImagenPrincipal'];
-                                } else {
-                                    $rutaImagen = 'https://picsum.photos/seed/' . urlencode($producto['NombreProducto']) . '/300x200.jpg';
-                                }
-                                ?>
-                                <img src="<?php echo $rutaImagen; ?>" 
-                                     alt="<?php echo htmlspecialchars($producto['NombreProducto']); ?>"
-                                     onerror="this.src='https://picsum.photos/seed/producto/300x200.jpg'">
-                                
-                                <!-- Etiquetas de producto -->
-                                <?php if (isset($producto['Nuevo']) && $producto['Nuevo']): ?>
-                                    <span class="producto-etiqueta etiqueta-nuevo">Nuevo</span>
-                                <?php endif; ?>
-                                
-                                <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
-                                    <span class="producto-etiqueta etiqueta-descuento">-<?php echo $producto['Descuento']; ?>%</span>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="card-producto-content">
-                                <h3><?php echo htmlspecialchars($producto['NombreProducto']); ?></h3>
-                                
-                                <div class="precio-container">
+
+        <?php if (empty($productosDestacados)): ?>
+            <div class="mensaje-sin-productos">
+                <i class="fas fa-box-open"></i>
+                <h3>No hay productos disponibles</h3>
+                <p>Actualmente no tenemos productos en inventario. Por favor, vuelve más tarde.</p>
+            </div>
+        <?php else: ?>
+            <div class="grid-productos-horizontal">
+                <?php
+                // Dividir productos en 2 filas
+                $totalProductos = count($productosDestacados);
+                $mitad = ceil($totalProductos / 2);
+
+                $fila1 = array_slice($productosDestacados, 0, $mitad);
+                $fila2 = array_slice($productosDestacados, $mitad);
+                ?>
+
+                <!-- FILA 1 -->
+                <div class="fila-container">
+                    <div class="flecha-navegacion flecha-izquierda" onclick="moverFila('fila1', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </div>
+                    <div class="flecha-navegacion flecha-derecha" onclick="moverFila('fila1', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </div>
+
+                    <div class="fila-productos" id="fila1">
+                        <?php foreach ($fila1 as $producto): ?>
+                            <a href="producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="card-producto">
+                                <div class="producto-imagen-container">
+                                    <?php
+                                    if (!empty($producto['ImagenPrincipal'])) {
+                                        $rutaImagen = asset('assets/img/productos/' . $producto['ImagenPrincipal']);
+                                    } else {
+                                        $rutaImagen = 'https://via.placeholder.com/300x200?text=' . urlencode($producto['NombreProducto']);
+                                    }
+                                    ?>
+                                    <img src="<?php echo $rutaImagen; ?>"
+                                         alt="<?php echo htmlspecialchars($producto['NombreProducto']); ?>"
+                                         onerror="this.src='https://via.placeholder.com/300x200?text=Producto'">
+
+                                    <?php if (isset($producto['Nuevo']) && $producto['Nuevo']): ?>
+                                        <span class="producto-etiqueta etiqueta-nuevo">Nuevo</span>
+                                    <?php endif; ?>
+
                                     <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
-                                        <span class="precio-regular">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
-                                        <span class="precio">$<?php echo number_format($producto['PrecioUnitario'] * (1 - $producto['Descuento']/100), 2); ?></span>
-                                        <span class="precio-descuento">Ahorra <?php echo $producto['Descuento']; ?>%</span>
-                                    <?php else: ?>
-                                        <span class="precio">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
+                                        <span class="producto-etiqueta etiqueta-descuento">-<?php echo $producto['Descuento']; ?>%</span>
                                     <?php endif; ?>
                                 </div>
-                                
-                                <div class="stock-indicator <?php echo $producto['Disponible'] ? 'stock-disponible' : 'stock-agotado'; ?>">
-                                    <i class="fas fa-<?php echo $producto['Disponible'] ? 'check-circle' : 'times-circle'; ?>"></i>
-                                    <?php echo $producto['Disponible'] ? 'Disponible (' . $producto['CantidadDisponible'] . ' unidades)' : 'Agotado'; ?>
+
+                                <div class="card-producto-content">
+                                    <h3><?php echo htmlspecialchars($producto['NombreProducto']); ?></h3>
+
+                                    <div class="precio-container">
+                                        <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
+                                            <span class="precio-regular">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
+                                            <span class="precio">$<?php echo number_format($producto['PrecioUnitario'] * (1 - $producto['Descuento']/100), 2); ?></span>
+                                            <span class="precio-descuento">Ahorra <?php echo $producto['Descuento']; ?>%</span>
+                                        <?php else: ?>
+                                            <span class="precio">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="stock-indicator <?php echo $producto['Disponible'] ? 'stock-disponible' : 'stock-agotado'; ?>">
+                                        <i class="fas fa-<?php echo $producto['Disponible'] ? 'check-circle' : 'times-circle'; ?>"></i>
+                                        <?php echo $producto['Disponible'] ? 'Disponible (' . $producto['CantidadDisponible'] . ' unidades)' : 'Agotado'; ?>
+                                    </div>
+
+                                    <button class="btn-agregar <?php echo !$producto['Disponible'] ? 'btn-agotado' : ''; ?>"
+                                            <?php echo $producto['Disponible'] ? 'onclick="event.preventDefault(); agregarAlCarrito(' . $producto['IdProducto'] . ', \'' . addslashes($producto['NombreProducto']) . '\')"' : 'disabled'; ?>>
+                                        <i class="fas fa-shopping-cart"></i> 
+                                        <?php echo $producto['Disponible'] ? 'Agregar al carrito' : 'Agotado'; ?>
+                                    </button>
                                 </div>
-                                
-                                <?php if (is_numeric($producto['IdProducto'])): ?>
-                                    <button class="btn-agregar" 
-                                            onclick="agregarAlCarrito(<?php echo $producto['IdProducto']; ?>, '<?php echo addslashes($producto['NombreProducto']); ?>')">
-                                        <i class="fas fa-shopping-cart"></i> Agregar al carrito
-                                    </button>
-                                <?php else: ?>
-                                    <button class="btn-agregar btn-agotado" 
-                                            onclick="alert('⚠️ Producto de ejemplo. Agrega productos reales desde el panel de administración.')">
-                                        <i class="fas fa-shopping-cart"></i> Agregar al carrito
-                                    </button>
-                                <?php endif; ?>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
+                            </a>
+                        <?php endforeach; ?>
+                    </div>
                 </div>
+
+                <!-- FILA 2 -->
+                <?php if (!empty($fila2)): ?>
+                    <div class="fila-container">
+                        <div class="flecha-navegacion flecha-izquierda" onclick="moverFila('fila2', -1)">
+                            <i class="fas fa-chevron-left"></i>
+                        </div>
+                        <div class="flecha-navegacion flecha-derecha" onclick="moverFila('fila2', 1)">
+                            <i class="fas fa-chevron-right"></i>
+                        </div>
+
+                        <div class="fila-productos" id="fila2">
+                            <?php foreach ($fila2 as $producto): ?>
+                                <a href="producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="card-producto">
+                                    <div class="producto-imagen-container">
+                                        <?php
+                                        if (!empty($producto['ImagenPrincipal'])) {
+                                            $rutaImagen = asset('assets/img/productos/' . $producto['ImagenPrincipal']);
+                                        } else {
+                                            $rutaImagen = 'https://via.placeholder.com/300x200?text=' . urlencode($producto['NombreProducto']);
+                                        }
+                                        ?>
+                                        <img src="<?php echo $rutaImagen; ?>"
+                                             alt="<?php echo htmlspecialchars($producto['NombreProducto']); ?>"
+                                             onerror="this.src='https://via.placeholder.com/300x200?text=Producto'">
+
+                                        <?php if (isset($producto['Nuevo']) && $producto['Nuevo']): ?>
+                                            <span class="producto-etiqueta etiqueta-nuevo">Nuevo</span>
+                                        <?php endif; ?>
+
+                                        <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
+                                            <span class="producto-etiqueta etiqueta-descuento">-<?php echo $producto['Descuento']; ?>%</span>
+                                        <?php endif; ?>
+                                    </div>
+
+                                    <div class="card-producto-content">
+                                        <h3><?php echo htmlspecialchars($producto['NombreProducto']); ?></h3>
+
+                                        <div class="precio-container">
+                                            <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
+                                                <span class="precio-regular">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
+                                                <span class="precio">$<?php echo number_format($producto['PrecioUnitario'] * (1 - $producto['Descuento']/100), 2); ?></span>
+                                                <span class="precio-descuento">Ahorra <?php echo $producto['Descuento']; ?>%</span>
+                                            <?php else: ?>
+                                                <span class="precio">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
+                                            <?php endif; ?>
+                                        </div>
+
+                                        <div class="stock-indicator <?php echo $producto['Disponible'] ? 'stock-disponible' : 'stock-agotado'; ?>">
+                                            <i class="fas fa-<?php echo $producto['Disponible'] ? 'check-circle' : 'times-circle'; ?>"></i>
+                                            <?php echo $producto['Disponible'] ? 'Disponible (' . $producto['CantidadDisponible'] . ' unidades)' : 'Agotado'; ?>
+                                        </div>
+
+                                        <button class="btn-agregar <?php echo !$producto['Disponible'] ? 'btn-agotado' : ''; ?>"
+                                                <?php echo $producto['Disponible'] ? 'onclick="event.preventDefault(); agregarAlCarrito(' . $producto['IdProducto'] . ', \'' . addslashes($producto['NombreProducto']) . '\')"' : 'disabled'; ?>>
+                                            <i class="fas fa-shopping-cart"></i> 
+                                            <?php echo $producto['Disponible'] ? 'Agregar al carrito' : 'Agotado'; ?>
+                                        </button>
+                                    </div>
+                                </a>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
-            
-            <!-- FILA 2 -->
-            <?php if (!empty($fila2)): ?>
-            <div class="fila-container">
-                <div class="flecha-navegacion flecha-izquierda" onclick="moverFila('fila2', -1)">
-                    <i class="fas fa-chevron-left"></i>
-                </div>
-                <div class="flecha-navegacion flecha-derecha" onclick="moverFila('fila2', 1)">
-                    <i class="fas fa-chevron-right"></i>
-                </div>
-                
-                <div class="fila-productos" id="fila2">
-                    <?php foreach ($fila2 as $producto): ?>
-                        <a href="<?php echo isset($producto['IdProducto']) && is_numeric($producto['IdProducto']) ? 'producto_detalle.php?id=' . $producto['IdProducto'] : '#'; ?>" 
-                           class="card-producto"
-                           <?php echo !is_numeric($producto['IdProducto']) ? 'onclick="event.preventDefault(); alert(\'⚠️ Producto de ejemplo. Agrega productos reales desde el panel de administración.\');"' : ''; ?>>
-                            
-                            <div class="producto-imagen-container">
-                                <?php
-                                // Determinar la ruta de la imagen
-                                if (!empty($producto['ImagenPrincipal'])) {
-                                    $rutaImagen = '../../assets/img/productos/' . $producto['ImagenPrincipal'];
-                                } else {
-                                    $rutaImagen = 'https://picsum.photos/seed/' . urlencode($producto['NombreProducto']) . '/300x200.jpg';
-                                }
-                                ?>
-                                <img src="<?php echo $rutaImagen; ?>" 
-                                     alt="<?php echo htmlspecialchars($producto['NombreProducto']); ?>"
-                                     onerror="this.src='https://picsum.photos/seed/producto/300x200.jpg'">
-                                
-                                <!-- Etiquetas de producto -->
-                                <?php if (isset($producto['Nuevo']) && $producto['Nuevo']): ?>
-                                    <span class="producto-etiqueta etiqueta-nuevo">Nuevo</span>
-                                <?php endif; ?>
-                                
-                                <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
-                                    <span class="producto-etiqueta etiqueta-descuento">-<?php echo $producto['Descuento']; ?>%</span>
-                                <?php endif; ?>
-                            </div>
-                            
-                            <div class="card-producto-content">
-                                <h3><?php echo htmlspecialchars($producto['NombreProducto']); ?></h3>
-                                
-                                <div class="precio-container">
-                                    <?php if (isset($producto['Descuento']) && $producto['Descuento'] > 0): ?>
-                                        <span class="precio-regular">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
-                                        <span class="precio">$<?php echo number_format($producto['PrecioUnitario'] * (1 - $producto['Descuento']/100), 2); ?></span>
-                                        <span class="precio-descuento">Ahorra <?php echo $producto['Descuento']; ?>%</span>
-                                    <?php else: ?>
-                                        <span class="precio">$<?php echo number_format($producto['PrecioUnitario'], 2); ?></span>
-                                    <?php endif; ?>
-                                </div>
-                                
-                                <div class="stock-indicator <?php echo $producto['Disponible'] ? 'stock-disponible' : 'stock-agotado'; ?>">
-                                    <i class="fas fa-<?php echo $producto['Disponible'] ? 'check-circle' : 'times-circle'; ?>"></i>
-                                    <?php echo $producto['Disponible'] ? 'Disponible (' . $producto['CantidadDisponible'] . ' unidades)' : 'Agotado'; ?>
-                                </div>
-                                
-                                <?php if (is_numeric($producto['IdProducto'])): ?>
-                                    <button class="btn-agregar" 
-                                            onclick="agregarAlCarrito(<?php echo $producto['IdProducto']; ?>, '<?php echo addslashes($producto['NombreProducto']); ?>')">
-                                        <i class="fas fa-shopping-cart"></i> Agregar al carrito
-                                    </button>
-                                <?php else: ?>
-                                    <button class="btn-agregar btn-agotado" 
-                                            onclick="alert('⚠️ Producto de ejemplo. Agrega productos reales desde el panel de administración.')">
-                                        <i class="fas fa-shopping-cart"></i> Agregar al carrito
-                                    </button>
-                                <?php endif; ?>
-                            </div>
-                        </a>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-            <?php endif; ?>
-        </div>
+        <?php endif; ?>
     </div>
 </section>
 
-<!-- ============================================ -->
-<!-- 3. CATEGORÍAS PRINCIPALES -->
-<!-- ============================================ -->
+<!-- SECCIÓN CATEGORÍAS PRINCIPALES -->
 <section class="seccion-categorias">
     <div class="contenedor-interno">
         <h2 class="titulo-seccion-blanco">Compra por Categoría</h2>
-        
-        <div class="grid-categorias">
-            <?php 
-            // Imágenes específicas para cada categoría
-            $imagenesCategoria = [
-                'Escolar' => 'https://as1.ftcdn.net/v2/jpg/03/61/04/32/1000_F_361043232_teu7Amyr5GsxKS1HsbSh3WRY6ExBKyQ3.jpg',
-                'Oficina' => 'https://tse3.mm.bing.net/th/id/OIP.r42540i1ISVnP2kt8Wf8-wHaE-?rs=1&pid=ImgDetMain&o=7&rm=3',
-                'Arte' => 'https://img.freepik.com/foto-gratis/conjunto-materiales-arte-pintura-abstracta_23-2147895411.jpg?size=626&ext=jpg'
-            ];
-            
-            foreach ($categorias as $categoria): 
-                $nombreCat = $categoria['NombreCategoria'];
-                $imagenUrl = $imagenesCategoria[$nombreCat] ?? 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80';
-            ?>
-                <div class="card-categoria">
-                    <a href=" productos.php?categoria=<?php echo $categoria['IdCategoria']; ?>">
-                        <img src="<?php echo $imagenUrl; ?>" 
-                             alt="<?php echo htmlspecialchars($nombreCat); ?>">
-                        
-                        <div class="categoria-nombre"><?php echo htmlspecialchars($nombreCat); ?></div>
-                        <span class="btn-categoria">
-                            Ver productos
-                        </span>
-                    </a>
-                </div>
-            <?php endforeach; ?>
-        </div>
+
+        <?php if (empty($categorias)): ?>
+            <div class="mensaje-sin-categorias">
+                <i class="fas fa-folder-open"></i>
+                <h3>No hay categorías disponibles</h3>
+                <p>Actualmente no tenemos categorías configuradas. Por favor, vuelve más tarde.</p>
+            </div>
+        <?php else: ?>
+            <div class="grid-categorias">
+                <?php
+                $imagenesCategoria = [
+                    'Escolar' => 'https://as1.ftcdn.net/v2/jpg/03/61/04/32/1000_F_361043232_teu7Amyr5GsxKS1HsbSh3WRY6ExBKyQ3.jpg',
+                    'Oficina' => 'https://tse3.mm.bing.net/th/id/OIP.r42540i1ISVnP2kt8Wf8-wHaE-?rs=1&pid=ImgDetMain',
+                    'Arte' => 'https://img.freepik.com/foto-gratis/conjunto-materiales-arte-pintura-abstracta_23-2147895411.jpg'
+                ];
+
+                foreach ($categorias as $categoria):
+                    $nombreCat = $categoria['NombreCategoria'];
+                    $imagenUrl = $imagenesCategoria[$nombreCat] ?? 'https://via.placeholder.com/400x280?text=' . urlencode($nombreCat);
+                ?>
+                    <div class="card-categoria">
+                        <a href="productos.php?categoria=<?php echo $categoria['IdCategoria']; ?>">
+                            <img src="<?php echo $imagenUrl; ?>"
+                                 alt="<?php echo htmlspecialchars($nombreCat); ?>">
+
+                            <div class="categoria-nombre"><?php echo htmlspecialchars($nombreCat); ?></div>
+                            <span class="btn-categoria">Ver productos</span>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </section>
-
 <script>
 // Función para mover las filas de productos
 function moverFila(filaId, direccion) {
     const fila = document.getElementById(filaId);
     const scrollAmount = 345; // Ancho de la tarjeta + gap
-    
-    // Calcular la nueva posición
+
     const nuevaPosicion = fila.scrollLeft + (scrollAmount * direccion);
-    
-    // Aplicar scroll suave
+
     fila.scrollTo({
         left: nuevaPosicion,
         behavior: 'smooth'
@@ -823,9 +775,9 @@ function agregarAlCarrito(idProducto, nombreProducto) {
         window.location.href = 'login.php';
         return;
     <?php endif; ?>
-    
+
     // Enviar petición al servidor
-    fetch(BASE_URL + 'controllers/CarritoController.php?action=agregar', {
+    fetch('../../controllers/CarritoController.php?action=agregar', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -845,7 +797,7 @@ function agregarAlCarrito(idProducto, nombreProducto) {
 
 // Función para actualizar el contador del carrito
 function actualizarContadorCarrito() {
-    fetch(BASE_URL + 'controllers/CarritoController.php?action=contar')
+    fetch('../../controllers/CarritoController.php?action=contar')
         .then(response => response.json())
         .then(data => {
             const badge = document.getElementById('carritoBadge');
@@ -857,7 +809,7 @@ function actualizarContadorCarrito() {
         .catch(error => console.log('Error al actualizar contador:', error));
 }
 
-// Inicializar las filas para asegurar que estén en la posición correcta
+// Inicializar las filas
 document.addEventListener('DOMContentLoaded', function() {
     const filas = document.querySelectorAll('.fila-productos');
     filas.forEach(fila => {
@@ -865,4 +817,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 <?php include 'includes/footer.php'; ?>

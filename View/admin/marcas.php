@@ -1,5 +1,8 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereFuncionalidad('PRODUCTOS_EDITAR');
 
@@ -361,7 +364,7 @@ include 'includes/header.php';
         <div class="tarjeta">
             <h2><?php echo $accionForm === 'editar' ? 'Editar Marca' : 'Nueva Marca'; ?></h2>
             
-            <form method="POST" action="<?php echo BASE_URL; ?>view/admin/marcas.php">
+            <form method="POST" action="marcas.php">
                 <input type="hidden" name="accion" value="<?php echo $accionForm === 'editar' ? 'actualizar' : 'crear'; ?>">
                 <?php if ($accionForm === 'editar' && $marcaEditar): ?>
                     <input type="hidden" name="id_marca" value="<?php echo $marcaEditar['IdMarca']; ?>">
@@ -410,7 +413,7 @@ include 'includes/header.php';
                     </button>
                     
                     <?php if ($accionForm === 'editar'): ?>
-                        <a href="<?php echo BASE_URL; ?>view/admin/marcas.php" class="btn btn-secundario">Cancelar</a>
+                        <a href="marcas.php" class="btn btn-secundario">Cancelar</a>
                     <?php endif; ?>
                 </div>
             </form>
@@ -442,7 +445,7 @@ include 'includes/header.php';
     <div>
         <!-- FILTROS -->
         <div class="filtros">
-            <form method="GET" action="<?php echo BASE_URL; ?>view/admin/marcas.php">
+            <form method="GET" action="marcas.php">
                 <div class="form-group">
                     <label>Estado:</label>
                     <select name="estado">
@@ -459,7 +462,7 @@ include 'includes/header.php';
                 
                 <div class="form-group">
                     <label>&nbsp;</label>
-                    <a href="<?php echo BASE_URL; ?>view/admin/marcas.php" class="btn btn-secundario">Limpiar</a>
+                    <a href="marcas.php" class="btn btn-secundario">Limpiar</a>
                 </div>
             </form>
         </div>
@@ -530,18 +533,18 @@ include 'includes/header.php';
                             </td>
                             <td>
                                 <div class="acciones">
-                                    <a href="<?php echo BASE_URL; ?>view/admin/marcas.php?accion=editar&id=<?php echo $marca['IdMarca']; ?>" 
+                                    <a href="marcas.php?accion=editar&id=<?php echo $marca['IdMarca']; ?>" 
                                        class="btn btn-secundario">
                                         Editar
                                     </a>
                                     
                                     <?php if ($marca['Estado'] == 1): ?>
-                                        <a href="<?php echo BASE_URL; ?>view/admin/marcas.php?accion=cambiar_estado&id=<?php echo $marca['IdMarca']; ?>&estado=0" 
+                                        <a href="marcas.php?accion=cambiar_estado&id=<?php echo $marca['IdMarca']; ?>&estado=0" 
                                            class="btn btn-peligro"
                                            onclick="return confirmarAccion('¿Desactivar esta marca?')">
                                         </a>
                                     <?php else: ?>
-                                        <a href="<?php echo BASE_URL; ?>view/admin/marcas.php?accion=cambiar_estado&id=<?php echo $marca['IdMarca']; ?>&estado=1" 
+                                        <a href="marcas.php?accion=cambiar_estado&id=<?php echo $marca['IdMarca']; ?>&estado=1" 
                                            class="btn btn-exito"
                                            onclick="return confirmarAccion('¿Activar esta marca?')">
                                         </a>

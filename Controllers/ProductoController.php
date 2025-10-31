@@ -2,14 +2,11 @@
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../models/Producto.php';
 require_once __DIR__ . '/../config/Auth.php';
-
 class ProductoController {
     private $productoModel;   
-    
     public function __construct() {
         $this->productoModel = new Producto();
     }    
-    
     /**
      * Listar productos (ADMIN)
      */
@@ -17,20 +14,17 @@ class ProductoController {
         //  VERIFICAR PERMISO PARA VER PRODUCTOS
         if (!Auth::esAdministrador() && !Auth::tieneFuncionalidad('PRODUCTOS_VER')) {
             $_SESSION['error'] = 'No tiene permisos para ver productos';
-            redirect('view/admin/dashboard.php');
+            header('Location: dashboard.php');
             exit();
         }
-        
         $idCategoria = $_GET['categoria'] ?? null;
         $idMarca = $_GET['marca'] ?? null;
         $estado = isset($_GET['estado']) ? (int)$_GET['estado'] : null;
         $busqueda = $_GET['busqueda'] ?? null;
         $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
-        
         $productos = $this->productoModel->obtenerTodos($idCategoria, $idMarca, $estado, $busqueda, $pagina, 20);
         return $productos;
     }
-    
     /**
      * Listar productos (CLIENTE - catálogo público)
      */
@@ -41,7 +35,6 @@ class ProductoController {
         $precioMin = isset($_GET['precio_min']) && $_GET['precio_min'] !== '' ? (float)$_GET['precio_min'] : null;
         $precioMax = isset($_GET['precio_max']) && $_GET['precio_max'] !== '' ? (float)$_GET['precio_max'] : null;
         $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
-        
         $productos = $this->productoModel->obtenerParaCliente(
             $idCategoria, 
             $idMarca, 
@@ -53,7 +46,6 @@ class ProductoController {
         );
         return $productos;
     }
-    
     /**
      * Ver detalle de un producto
      */
@@ -61,26 +53,22 @@ class ProductoController {
         //  VERIFICAR PERMISO PARA VER PRODUCTOS
         if (!Auth::esAdministrador() && !Auth::tieneFuncionalidad('PRODUCTOS_VER')) {
             $_SESSION['error'] = 'No tiene permisos para ver detalles de productos';
-            redirect('view/admin/dashboard.php');
+            header('Location: dashboard.php');
             exit();
         }
-        
         if (!isset($_GET['id'])) {
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
             exit();
         }
-        
         $idProducto = (int)$_GET['id'];
         $producto = $this->productoModel->obtenerPorId($idProducto);
         
         if (!$producto) {
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
             exit();
         }
-        
         return $producto;
     }
-    
     /**
      * Crear producto
      */
@@ -89,20 +77,18 @@ class ProductoController {
         Auth::requiereFuncionalidad('PRODUCTOS_CREAR');
         
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
             exit();
         }
-        
         // Validar datos
         $errores = $this->validarDatos($_POST);
         
         if (!empty($errores)) {
             $_SESSION['errores'] = $errores;
             $_SESSION['datos_form'] = $_POST;
-            redirect("view/admin/productos.php?accion=nuevo");
+            header("Location: productos.php?accion=nuevo");
             exit();
         }
-        
         // Manejar subida de imagen
         $nombreImagen = null;
         if (isset($_FILES['imagen_producto']) && $_FILES['imagen_producto']['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -110,12 +96,11 @@ class ProductoController {
             if (isset($resultadoImagen['error'])) {
                 $_SESSION['error'] = $resultadoImagen['error'];
                 $_SESSION['datos_form'] = $_POST;
-                redirect("view/admin/productos.php?accion=nuevo");
+                header("Location: productos.php?accion=nuevo");
                 exit();
             }
             $nombreImagen = $resultadoImagen['nombre'];
         }
-        
         // Preparar datos
         $datos = [
             'idCategoria' => (int)$_POST['id_categoria'],
@@ -131,7 +116,6 @@ class ProductoController {
             'cantidadInicial' => isset($_POST['cantidad_inicial']) ? (int)$_POST['cantidad_inicial'] : 0,
             'imagenPrincipal' => $nombreImagen
         ];
-        
         // Crear producto
         $resultado = $this->productoModel->crear($datos);
         
@@ -142,42 +126,37 @@ class ProductoController {
             }
             $_SESSION['error'] = 'Error al crear el producto: ' . $resultado['error'];
             $_SESSION['datos_form'] = $_POST;
-            redirect("view/admin/productos.php?accion=nuevo");
+            header("Location: productos.php?accion=nuevo");
         } else {
             $_SESSION['exito'] = 'Producto creado exitosamente';
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
         }
         exit();
     }
-    
     /**
      * Actualizar producto
      */
     public function actualizar() {
         //  VERIFICAR PERMISO
         Auth::requiereFuncionalidad('PRODUCTOS_EDITAR');
-        
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
             exit();
         }
-        
         if (!isset($_POST['id_producto'])) {
             $_SESSION['error'] = 'ID de producto no proporcionado';
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
             exit();
         }
-        
         // Validar datos
         $errores = $this->validarDatos($_POST, true);
         
         if (!empty($errores)) {
             $_SESSION['errores'] = $errores;
             $_SESSION['datos_form'] = $_POST;
-            redirect("view/admin/productos.php?accion=editar&id=" . $_POST['id_producto']);
+            header("Location: productos.php?accion=editar&id=" . $_POST['id_producto']);
             exit();
         }
-        
         // Manejar subida de nueva imagen
         $nombreImagen = null;
         if (isset($_FILES['imagen_producto']) && $_FILES['imagen_producto']['error'] !== UPLOAD_ERR_NO_FILE) {
@@ -185,7 +164,7 @@ class ProductoController {
             if (isset($resultadoImagen['error'])) {
                 $_SESSION['error'] = $resultadoImagen['error'];
                 $_SESSION['datos_form'] = $_POST;
-                redirect("view/admin/productos.php?accion=editar&id=" . $_POST['id_producto']);
+                header("Location: productos.php?accion=editar&id=" . $_POST['id_producto']);
                 exit();
             }
             $nombreImagen = $resultadoImagen['nombre'];
@@ -196,7 +175,6 @@ class ProductoController {
                 $this->eliminarImagen($productoActual['ImagenPrincipal']);
             }
         }
-        
         // Preparar datos
         $datos = [
             'idProducto' => (int)$_POST['id_producto'],
@@ -210,21 +188,19 @@ class ProductoController {
             'stockMinimo' => (int)$_POST['stock_minimo'],
             'imagenPrincipal' => $nombreImagen
         ];
-        
         // Actualizar producto
         $resultado = $this->productoModel->actualizar($datos);
         
         if (isset($resultado['error'])) {
             $_SESSION['error'] = 'Error al actualizar el producto: ' . $resultado['error'];
             $_SESSION['datos_form'] = $_POST;
-            redirect("view/admin/productos.php?accion=editar&id=" . $_POST['id_producto']);
+            header("Location: productos.php?accion=editar&id=" . $_POST['id_producto']);
         } else {
             $_SESSION['exito'] = 'Producto actualizado exitosamente';
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
         }
         exit();
     }
-    
     /**
      * Cambiar estado (activar/desactivar)
      */
@@ -234,39 +210,32 @@ class ProductoController {
             !Auth::tieneFuncionalidad('PRODUCTOS_EDITAR') && 
             !Auth::tieneFuncionalidad('PRODUCTOS_ELIMINAR')) {
             $_SESSION['error'] = 'No tiene permisos para cambiar el estado de productos';
-            redirect('view/admin/productos.php');
+            header('Location: productos.php');
             exit();
         }
-        
         if (!isset($_GET['id']) || !isset($_GET['estado'])) {
             $_SESSION['error'] = 'Parámetros incompletos';
-            redirect("view/admin/productos.php");
+            header("Location: productos.php");
             exit();
         }
-        
         $idProducto = (int)$_GET['id'];
         $estado = (int)$_GET['estado'];
-        
         $resultado = $this->productoModel->cambiarEstado($idProducto, $estado);
-        
         if (isset($resultado['error'])) {
             $_SESSION['error'] = 'Error al cambiar estado: ' . $resultado['error'];
         } else {
             $mensaje = $estado == 1 ? 'activado' : 'desactivado';
             $_SESSION['exito'] = "Producto $mensaje exitosamente";
         }
-        
-        redirect("view/admin/productos.php");
+        header("Location: productos.php");
         exit();
     }
-    
     /**
      * Obtener productos relacionados
      */
     public function obtenerRelacionados($idProducto) {
         return $this->productoModel->obtenerRelacionados($idProducto);
     }
-    
     /**
      * Obtener producto por ID
      */
@@ -277,7 +246,6 @@ class ProductoController {
         }
         return $this->productoModel->obtenerPorId($idProducto);
     }
-    
     /**
      * Subir imagen de producto
      */
@@ -286,45 +254,36 @@ class ProductoController {
         if ($archivo['error'] !== UPLOAD_ERR_OK) {
             return ['error' => 'Error al subir el archivo'];
         }
-        
         // Validar tamaño (máximo 2MB)
         if ($archivo['size'] > 2 * 1024 * 1024) {
             return ['error' => 'La imagen no debe superar 2MB'];
         }
-        
         // Validar tipo de archivo por extensión
         $extension = strtolower(pathinfo($archivo['name'], PATHINFO_EXTENSION));
         $extensionesPermitidas = ['jpg', 'jpeg', 'png', 'webp'];
         if (!in_array($extension, $extensionesPermitidas)) {
             return ['error' => 'Formato de imagen no permitido. Use JPG, PNG o WEBP'];
         }
-        
         // Validar el MIME type del archivo subido
         $tiposPermitidos = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
         if (!in_array($archivo['type'], $tiposPermitidos)) {
             return ['error' => 'Tipo de archivo no válido'];
         }
-        
         // Generar nombre único
         $nombreArchivo = 'producto_' . uniqid() . '.' . $extension;
-        
         // Crear carpeta si no existe
         $carpetaDestino = __DIR__ . '/../assets/img/productos/';
         if (!file_exists($carpetaDestino)) {
             mkdir($carpetaDestino, 0755, true);
         }
-        
         // Ruta completa
         $rutaDestino = $carpetaDestino . $nombreArchivo;
-        
         // Mover archivo
         if (!move_uploaded_file($archivo['tmp_name'], $rutaDestino)) {
             return ['error' => 'No se pudo guardar la imagen'];
         }
-        
         return ['nombre' => $nombreArchivo];
     }
-    
     /**
      * Eliminar imagen de producto
      */
@@ -334,55 +293,45 @@ class ProductoController {
             unlink($rutaArchivo);
         }
     }
-    
     /**
      * Validar datos del formulario
      */
     private function validarDatos($datos, $esActualizacion = false) {
         $errores = [];  
-        
         // Código de producto (solo en creación)
         if (!$esActualizacion) {
             if (empty($datos['codigo_producto'])) {
                 $errores[] = 'El código de producto es obligatorio';
             }
         }
-        
         // Nombre de producto
         if (empty($datos['nombre_producto'])) {
             $errores[] = 'El nombre del producto es obligatorio';
         }
-        
         // Categoría
         if (empty($datos['id_categoria']) || !is_numeric($datos['id_categoria'])) {
             $errores[] = 'Debe seleccionar una categoría válida';
         }
-        
         // Marca
         if (empty($datos['id_marca']) || !is_numeric($datos['id_marca'])) {
             $errores[] = 'Debe seleccionar una marca válida';
         }
-        
         // Unidad de medida
         if (empty($datos['id_unidad']) || !is_numeric($datos['id_unidad'])) {
             $errores[] = 'Debe seleccionar una unidad de medida válida';
         }
-        
         // Precio unitario
         if (empty($datos['precio_unitario']) || !is_numeric($datos['precio_unitario']) || $datos['precio_unitario'] <= 0) {
             $errores[] = 'El precio unitario debe ser mayor a cero';
         }
-        
         // Costo unitario (solo en creación)
         if (!$esActualizacion) {
             if (empty($datos['costo_unitario']) || !is_numeric($datos['costo_unitario']) || $datos['costo_unitario'] < 0) {
                 $errores[] = 'El costo unitario debe ser mayor o igual a cero';
             }
         }
-        
         return $errores;
     }
-    
     /**
      * Verificar si el usuario tiene permiso para una acción específica
      */

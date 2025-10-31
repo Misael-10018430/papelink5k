@@ -1,36 +1,41 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereFuncionalidad('PEDIDOS_VER');
 
- $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EnvioController.php';
 
 // Verificar que sea admin
 if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
     $_SESSION['error'] = 'Acceso denegado';
-    redirect('view/admin/login.php');
+    header('Location: login.php');
     exit;
 }
 
 if (!isset($_GET['id'])) {
     $_SESSION['error'] = 'ID de envío no especificado';
-    redirect('view/admin/envios.php');
+    header('Location: envios.php');
     exit;
 }
 
- $envioController = new EnvioController();
- $envio = $envioController->verDetalle();
- $estados = $envioController->obtenerEstados();
+$envioController = new EnvioController();
+$envio = $envioController->verDetalle();
+$estados = $envioController->obtenerEstados();
 
 if (!$envio) {
     $_SESSION['error'] = 'Envío no encontrado';
-    redirect('view/admin/envios.php');
+    header('Location: envios.php');
     exit;
 }
 
- $titulo = "Detalle del Envío";
+$titulo = "Detalle del Envío";
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -157,7 +162,7 @@ include __DIR__ . '/includes/header.php';
             <h1 style="color: #2C3E50; margin-bottom: 5px;">Envío #<?php echo $envio['IdEnvio']; ?></h1>
             <p style="color: #666;">Pedido: <?php echo htmlspecialchars($envio['NumeroPedido']); ?></p>
         </div>
-        <a href="<?php echo BASE_URL; ?>view/admin/envios.php" class="btn-ver" style="background: #2C3E50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px;">
+        <a href="envios.php" class="btn-ver" style="background: #2C3E50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px;">
             ← Volver a Envíos
         </a>
     </div>
@@ -259,7 +264,7 @@ include __DIR__ . '/includes/header.php';
                     $badgeClass = '';
                     switch ($envio['EstadoEnvio']) {
                         case 'Pendiente': $badgeClass = 'badge-pendiente'; break;
-                        case 'En Tráito': $badgeClass = 'badge-transito'; break;
+                        case 'En Tránsito': $badgeClass = 'badge-transito'; break;
                         case 'Entregado': $badgeClass = 'badge-entregado'; break;
                         case 'Cancelado': $badgeClass = 'badge-cancelado'; break;
                     }
@@ -272,8 +277,8 @@ include __DIR__ . '/includes/header.php';
 
             <!-- Actualizar Envío -->
             <div class="card" style="margin-top: 25px;">
-                <h2>✏️️ Actualizar Envío</h2>
-                <form method="POST" action="<?php echo BASE_URL; ?>controllers/EnvioController.php?action=actualizar" class="form-actualizar">
+                <h2>✏️ Actualizar Envío</h2>
+                <form method="POST" action="../../controllers/EnvioController.php?action=actualizar" class="form-actualizar">
                     <input type="hidden" name="id_envio" value="<?php echo $envio['IdEnvio']; ?>">
                     
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estado:</label>
@@ -281,7 +286,7 @@ include __DIR__ . '/includes/header.php';
                         <option value="">No cambiar</option>
                         <?php foreach ($estados as $estado): ?>
                             <option value="<?php echo $estado['IdEstadoEnvio']; ?>"
-                                <?php echo $estado['IdEstadoEnvio'] == $envio['IdEstadoEnvio'] ? 'selected' : ''; ?>
+                                <?php echo $estado['IdEstadoEnvio'] == $envio['IdEstadoEnvio'] ? 'selected' : ''; ?>>
                                 <?php echo htmlspecialchars($estado['NombreEstado']); ?>
                             </option>
                         <?php endforeach; ?>
@@ -305,12 +310,13 @@ include __DIR__ . '/includes/header.php';
             <!-- Acciones Rápidas -->
             <div class="card" style="margin-top: 25px;">
                 <h2>⚡ Acciones Rápidas</h2>
-                <a href="<?php echo BASE_URL; ?>view/admin/pedido_detalle.php?id=<?php echo $envio['IdPedido']; ?>" 
+                <a href="pedido_detalle.php?id=<?php echo $envio['IdPedido']; ?>" 
                    style="display: block; background: #2C3E50; color: white; padding: 12px; text-align: center; border-radius: 6px; text-decoration: none; margin-bottom: 10px;">
                     Ver Pedido Completo
                 </a>
             </div>
         </div>
     </div>
+</div>
 
 <?php include __DIR__ . '/includes/footer.php'; ?>

@@ -1,5 +1,4 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 
@@ -435,7 +434,7 @@ include 'includes/header.php';
                         }
                     }
                 ?>
-                    <a href="<?php echo BASE_URL; ?>view/cliente/categorias.php?id=<?php echo $categoria['IdCategoria']; ?>" class="categoria-card">
+                    <a href="categorias.php?id=<?php echo $categoria['IdCategoria']; ?>" class="categoria-card">
                         <div class="categoria-imagen-container">
                             <img src="<?php echo $imagenCategoria; ?>" 
                                  alt="<?php echo htmlspecialchars($categoria['NombreCategoria']); ?>"
@@ -462,12 +461,12 @@ include 'includes/header.php';
     <?php else: ?>
         <!-- VISTA DE PRODUCTOS DE UNA CATEGORÍA -->
         <div class="breadcrumbs">
-            <a href="<?php echo BASE_URL; ?>view/cliente/index.php">Inicio</a> / 
-            <a href="<?php echo BASE_URL; ?>view/cliente/categorias.php">Categorías</a> / 
+            <a href="index.php">Inicio</a> / 
+            <a href="categorias.php">Categorías</a> / 
             <span><?php echo htmlspecialchars($nombreCategoriaSeleccionada); ?></span>
         </div>
         
-        <a href="<?php echo BASE_URL; ?>view/cliente/categorias.php" class="btn-volver">
+        <a href="categorias.php" class="btn-volver">
             ← Volver a Categorías
         </a>
         
@@ -484,7 +483,7 @@ include 'includes/header.php';
                     <div class="sin-productos-icono">🔍</div>
                     <h3>No hay productos en esta categoría</h3>
                     <p>Explora otras categorías para encontrar lo que buscas</p>
-                    <a href="<?php echo BASE_URL; ?>view/cliente/categorias.php" style="display: inline-block; margin-top: 20px; padding: 12px 30px; background: linear-gradient(135deg, #FF6347 0%, #ff7a5c 100%); color: white; text-decoration: none; border-radius: 30px; font-weight: 600; box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);">
+                    <a href="categorias.php" style="display: inline-block; margin-top: 20px; padding: 12px 30px; background: linear-gradient(135deg, #FF6347 0%, #ff7a5c 100%); color: white; text-decoration: none; border-radius: 30px; font-weight: 600; box-shadow: 0 4px 15px rgba(255, 99, 71, 0.3);">
                         Ver Todas las Categorías
                     </a>
                 </div>
@@ -495,7 +494,7 @@ include 'includes/header.php';
                             <?php
                             // Determinar la ruta de la imagen
                             $rutaImagen = !empty($producto['ImagenPrincipal']) 
-                                ? BASE_URL . 'assets/img/productos/' . $producto['ImagenPrincipal']
+                                ? '../../assets/img/productos/' . $producto['ImagenPrincipal']
                                 : 'https://via.placeholder.com/250x200/f8f9fa/666666?text=' . urlencode(substr($producto['NombreProducto'], 0, 15));
                             ?>
                             <img src="<?php echo $rutaImagen; ?>" 
@@ -512,7 +511,7 @@ include 'includes/header.php';
                             </div>
                             
                             <?php if ($producto['Disponible']): ?>
-                                <a href="<?php echo BASE_URL; ?>view/cliente/producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="btn-ver-producto">
+                                <a href="producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="btn-ver-producto">
                                     Ver Detalles
                                 </a>
                             <?php else: ?>

@@ -3,7 +3,6 @@ require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/Auth.php';
 require_once __DIR__ . '/../config/Database.php';
 require_once __DIR__ . '/../models/Usuario.php';
-
 class AuthController {
     private $usuarioModel;    
     public function __construct() {
@@ -14,14 +13,14 @@ class AuthController {
      */
     public function loginUnificado() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             exit();
         }        
         $email = trim($_POST['email']);
         $password = $_POST['password'];        
         if (empty($email) || empty($password)) {
             $_SESSION['error'] = 'Todos los campos son obligatorios';
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             exit();
         }       
         // Primero intentar login como CLIENTE
@@ -36,7 +35,7 @@ class AuthController {
             $_SESSION['logueado'] = true;
             $_SESSION['exito'] = '¡Bienvenido de nuevo, ' . $resultadoCliente['usuario']['nombre'] . '!';
             
-            redirect('view/cliente/index.php');
+            header("Location: ../view/cliente/index.php");
             exit();
         }        
         // Si no es cliente, intentar como EMPLEADO
@@ -64,7 +63,7 @@ class AuthController {
                 $_SESSION['nivel_acceso'] = 50;
             }            
             $_SESSION['exito'] = '¡Bienvenido, ' . $resultadoEmpleado['usuario']['nombre'] . '!';
-            redirect('view/admin/dashboard.php');
+            header("Location: ../view/admin/dashboard.php");
             exit();
     }
     }    
@@ -73,14 +72,14 @@ class AuthController {
      */
    public function loginAdmin() {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-        redirect('view/admin/login.php');
+        header("Location: ../view/admin/login.php");
         exit();
     }   
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';    
     if (empty($email) || empty($password)) {
         $_SESSION['error'] = 'Todos los campos son obligatorios';
-        redirect('view/admin/login.php');
+        header("Location: ../view/admin/login.php");
         exit();
     }   
     $resultado = $this->usuarioModel->loginEmpleado($email, $password);   
@@ -109,12 +108,12 @@ class AuthController {
             $_SESSION['nivel_acceso'] = 50;
         }       
         $_SESSION['exito'] = '¡Bienvenido, ' . $resultado['usuario']['nombre'] . '!';
-        redirect('view/admin/dashboard.php');
+        header("Location: ../view/admin/dashboard.php");
         exit();
     } else {
         $_SESSION['error'] = $resultado['error'] ?? 'Error desconocido';
         $_SESSION['email_anterior'] = $email;
-        redirect('view/admin/login.php');
+        header("Location: ../view/admin/login.php");
         exit();
     }
 }    
@@ -123,14 +122,14 @@ class AuthController {
      */
     public function loginCliente() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             exit();
         }       
         $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';       
         if (empty($email) || empty($password)) {
             $_SESSION['error'] = 'Todos los campos son obligatorios';
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             exit();
         }       
         $resultado = $this->usuarioModel->loginCliente($email, $password);        
@@ -144,12 +143,12 @@ class AuthController {
             $_SESSION['logueado'] = true;
             $_SESSION['exito'] = '¡Bienvenido de nuevo, ' . $resultado['usuario']['nombre'] . '!';
             
-            redirect('view/cliente/index.php');
+            header("Location: ../view/cliente/index.php");
             exit();
         } else {
             $_SESSION['error'] = $resultado['error'] ?? 'Error desconocido';
             $_SESSION['email_anterior'] = $email;
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             exit();
         }
     }   
@@ -158,7 +157,7 @@ class AuthController {
      */
     public function registrarCliente() {
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('view/cliente/registro.php');
+            header("Location: ../view/cliente/registro.php");
             exit();
         }       
         // Validar datos
@@ -195,7 +194,7 @@ class AuthController {
         if (!empty($errores)) {
             $_SESSION['errores'] = $errores;
             $_SESSION['datos_form'] = $_POST;
-            redirect('view/cliente/registro.php');
+            header("Location: ../view/cliente/registro.php");
             exit();
         }        
         // Registrar cliente
@@ -212,12 +211,12 @@ class AuthController {
             $_SESSION['registro_exitoso'] = true;
             $_SESSION['nombre_registrado'] = $nombre;
             $_SESSION['email_registrado'] = $email;
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
         } else {
             // Error al crear la cuenta
             $_SESSION['error'] = $resultado['error'] ?? 'Error desconocido';
             $_SESSION['datos_form'] = $_POST;
-            redirect('view/cliente/registro.php');
+            header("Location: ../view/cliente/registro.php");
         }
         exit();
     }    
@@ -242,9 +241,9 @@ class AuthController {
         
         // Redirigir según tipo de usuario
         if ($tipoUsuario === 'empleado') {
-            redirect('view/admin/login.php');
+            header("Location: ../view/admin/login.php");
         } else {
-            redirect('view/cliente/index.php');
+            header("Location: ../view/cliente/index.php");
         }
         exit();
     }    
@@ -255,10 +254,10 @@ class AuthController {
         if (!isset($_SESSION['logueado']) || $_SESSION['logueado'] !== true) {
             if ($tipoRequerido === 'empleado') {
                 $_SESSION['error'] = 'Debes iniciar sesión como empleado para acceder';
-                redirect('view/admin/login.php');
+                header("Location: ../admin/login.php");
             } else {
                 $_SESSION['error'] = 'Debes iniciar sesión para continuar';
-                redirect('view/cliente/login.php');
+                header("Location: ../cliente/login.php");
             }
             exit();
         }        
@@ -266,7 +265,7 @@ class AuthController {
         if ($tipoRequerido && $_SESSION['tipo_usuario'] !== $tipoRequerido) {
             session_destroy();
             $_SESSION['error'] = 'Acceso no autorizado para este tipo de cuenta';
-            redirect('view/cliente/login.php');
+            header("Location: ../cliente/login.php");
             exit();
         }
     }   
@@ -276,12 +275,12 @@ class AuthController {
     public static function verificarAdmin() {
         if (!isset($_SESSION['logueado']) || $_SESSION['logueado'] !== true) {
             $_SESSION['error'] = 'Debes iniciar sesión como administrador';
-            redirect('view/admin/login.php');
+            header("Location: ../admin/login.php");
             exit();
         }       
         if ($_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso no autorizado. Solo para empleados';
-            redirect('view/admin/dashboard.php');
+            header("Location: ../cliente/index.php");
             exit();
         }
     }    
@@ -291,17 +290,16 @@ class AuthController {
     public static function verificarCliente() {
         if (!isset($_SESSION['logueado']) || $_SESSION['logueado'] !== true) {
             $_SESSION['error'] = 'Debes iniciar sesión para continuar';
-            redirect('view/cliente/login.php');
+            header("Location: ../cliente/login.php");
             exit();
         }       
         if ($_SESSION['tipo_usuario'] !== 'cliente') {
             $_SESSION['error'] = 'Acceso restringido para clientes';
-            redirect('view/admin/dashboard.php');
+            header("Location: ../admin/dashboard.php");
             exit();
         }
     }
 }
-
 // =====================================================
 // ENRUTADOR: Procesar las acciones de autenticación
 // =====================================================
@@ -322,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             $controller->registrarCliente();
             break;        
         default:
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             break;
     }
 } elseif (isset($_GET['action'])) {
@@ -333,11 +331,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['accion'])) {
             $controller->logout();
             break;        
         default:
-            redirect('view/cliente/login.php');
+            header("Location: ../view/cliente/login.php");
             break;
     }
 } else {
     // Si no hay acción, redirigir al login
-    redirect('view/cliente/login.php');
+    header("Location: ../view/cliente/login.php");
 }
 ?>

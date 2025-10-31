@@ -8,7 +8,6 @@ class PedidoController {
     public function __construct() {
         $this->pedidoModel = new Pedido();
     }
-    
     // ==========================================
     // MÉTODOS PARA CLIENTE
     // ==========================================
@@ -19,18 +18,15 @@ class PedidoController {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debe iniciar sesión para realizar un pedido';
-            redirect('view/cliente/login.php');
+            header('Location: ' . BASE_URL . '/views/cliente/login.php');
             exit;
         }
-        
         // Verificar que sea POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('view/cliente/carrito.php');
+            header('Location: ' . BASE_URL . '/views/cliente/carrito.php');
             exit;
         }
-        
         $idCliente = $_SESSION['cliente_id'];
-        
         // Validar campos requeridos
         $errores = [];
         if (empty($_POST['tipo_envio'])) {
@@ -45,28 +41,24 @@ class PedidoController {
         if (empty($_POST['codigo_postal_envio'])) {
             $errores[] = 'El código postal es requerido';
         }
-        
         if (!empty($errores)) {
             $_SESSION['errores'] = $errores;
             $_SESSION['datos_form'] = $_POST;
-            redirect('view/cliente/checkout.php');
+            header('Location: ' . BASE_URL . '/views/cliente/checkout.php');
             exit;
         }
-        
         // Sanitizar datos
         $tipoEnvio = trim($_POST['tipo_envio']);
         $direccionEnvio = trim($_POST['direccion_envio']);
         $ciudadEnvio = trim($_POST['ciudad_envio']);
         $codigoPostalEnvio = trim($_POST['codigo_postal_envio']);
         $referenciasAdicionales = isset($_POST['referencias_adicionales']) ? trim($_POST['referencias_adicionales']) : '';
-        
         // Validar tipo de envío
         if (!in_array($tipoEnvio, ['Domicilio', 'Sucursal'])) {
             $_SESSION['error'] = 'Tipo de envío inválido';
-            redirect('view/cliente/checkout.php');
+            header('Location: ' . BASE_URL . '/views/cliente/checkout.php');
             exit;
         }
-        
         // Crear pedido
         $resultado = $this->pedidoModel->crearDesdeCarrito(
             $idCliente,
@@ -76,17 +68,15 @@ class PedidoController {
             $codigoPostalEnvio,
             $referenciasAdicionales
         );
-        
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = 'Pedido creado exitosamente. Número de pedido: ' . $resultado['numero_pedido'];
-            redirect('view/cliente/confirmacion.php?pedido=' . $resultado['id_pedido']);
+            header('Location: ' . BASE_URL . '/views/cliente/confirmacion.php?pedido=' . $resultado['id_pedido']);
         } else {
             $_SESSION['error'] = $resultado['error'];
-            redirect('view/cliente/checkout.php');
+            header('Location: ' . BASE_URL . '/views/cliente/checkout.php');
         }
         exit;
     }
-    
     /**
      * Ver pedidos del cliente (CLIENTE)
      */
@@ -94,18 +84,15 @@ class PedidoController {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debe iniciar sesión';
-            redirect('view/cliente/login.php');
+            header('Location: ' . BASE_URL . '/views/cliente/login.php');
             exit;
         }
-        
         $idCliente = $_SESSION['cliente_id'];
         $limite = isset($_GET['limite']) ? (int)$_GET['limite'] : 10;
         $pedidos = $this->pedidoModel->obtenerPorCliente($idCliente, $limite);
-        
         // La vista mostrará los pedidos
         return $pedidos;
     }
-    
     /**
      * Ver detalle de un pedido (CLIENTE)
      */
@@ -113,30 +100,25 @@ class PedidoController {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debe iniciar sesión';
-            redirect('view/cliente/login.php');
+            header('Location: ' . BASE_URL . '/views/cliente/login.php');
             exit;
         }
-        
         if (!isset($_GET['id'])) {
             $_SESSION['error'] = 'ID de pedido no especificado';
-            redirect('view/cliente/mis_pedidos.php');
+            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
             exit;
         }
-        
         $idPedido = (int)$_GET['id'];
         $idCliente = $_SESSION['cliente_id'];
         $detalle = $this->pedidoModel->obtenerDetalle($idPedido, $idCliente);
-        
         if (empty($detalle)) {
             $_SESSION['error'] = 'Pedido no encontrado';
-            redirect('view/cliente/mis_pedidos.php');
+            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
             exit;
         }
-        
         // La vista mostrará el detalle
         return $detalle;
     }
-    
     /**
      * Cancelar pedido (CLIENTE)
      */
@@ -144,42 +126,35 @@ class PedidoController {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debe iniciar sesión';
-            redirect('view/cliente/login.php');
+            header('Location: ' . BASE_URL . '/views/cliente/login.php');
             exit;
         }
-        
         if (!isset($_GET['id'])) {
             $_SESSION['error'] = 'ID de pedido no especificado';
-            redirect('view/cliente/mis_pedidos.php');
+            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
             exit;
         }
-        
         $idPedido = (int)$_GET['id'];
         $idCliente = $_SESSION['cliente_id'];
-        
         // Confirmar cancelación (prevenir cancelación accidental)
         if (!isset($_GET['confirmar'])) {
             $_SESSION['confirmacion'] = [
                 'mensaje' => '¿Está seguro que desea cancelar este pedido?',
-                'url_confirmar' => BASE_URL . 'controllers/PedidoController.php?action=cancelar&id=' . $idPedido . '&confirmar=si',
-                'url_cancelar' => BASE_URL . 'view/cliente/mis_pedidos.php'
+                'url_confirmar' => BASE_URL . '/controllers/PedidoController.php?action=cancelar&id=' . $idPedido . '&confirmar=si',
+                'url_cancelar' => BASE_URL . '/views/cliente/mis_pedidos.php'
             ];
-            redirect('view/cliente/mis_pedidos.php');
+            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
             exit;
         }
-        
         $resultado = $this->pedidoModel->cancelar($idPedido, $idCliente);
-        
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = 'Pedido cancelado exitosamente';
         } else {
             $_SESSION['error'] = $resultado['error'];
         }
-        
-        redirect('view/cliente/mis_pedidos.php');
+        header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
         exit;
     }
-    
     // ==========================================
     // MÉTODOS PARA ADMIN
     // ==========================================
@@ -190,17 +165,15 @@ class PedidoController {
         // Verificar que sea admin
         if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso denegado';
-            redirect('view/admin/login.php');
+            header('Location: ' . BASE_URL . '/views/admin/login.php');
             exit;
         }
-        
         // Obtener filtros
         $estado = isset($_GET['estado']) ? trim($_GET['estado']) : '';
         $fechaDesde = isset($_GET['fecha_desde']) ? trim($_GET['fecha_desde']) : '';
         $fechaHasta = isset($_GET['fecha_hasta']) ? trim($_GET['fecha_hasta']) : '';
         $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
         $limite = 20;
-        
         $pedidos = $this->pedidoModel->obtenerTodos(
             $estado,
             $fechaDesde,
@@ -208,11 +181,9 @@ class PedidoController {
             $pagina,
             $limite
         );
-        
         // La vista mostrará los pedidos
         return $pedidos;
     }
-    
     /**
      * Ver detalle de pedido (ADMIN)
      */
@@ -220,31 +191,25 @@ class PedidoController {
         // Verificar que sea admin
         if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso denegado';
-            redirect('view/admin/login.php');
+            header('Location: ' . BASE_URL . '/views/admin/login.php');
             exit;
         }
-        
         if (!isset($_GET['id'])) {
             $_SESSION['error'] = 'ID de pedido no especificado';
-            redirect('view/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
             exit;
         }
-        
         $idPedido = (int)$_GET['id'];
-        
         // Admin puede ver cualquier pedido (sin filtro de cliente)
         $detalle = $this->pedidoModel->obtenerDetalle($idPedido);
-        
         if (empty($detalle)) {
             $_SESSION['error'] = 'Pedido no encontrado';
-            redirect('view/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
             exit;
         }
-        
         // La vista mostrará el detalle
         return $detalle;
     }
-    
     /**
      * Cambiar estado de pedido (ADMIN)
      */
@@ -252,51 +217,43 @@ class PedidoController {
         // Verificar que sea admin
         if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso denegado';
-            redirect('view/admin/login.php');
+            header('Location: ' . BASE_URL . '/views/admin/login.php');
             exit;
         }
-        
         // Verificar que sea POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            redirect('view/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
             exit;
         }
-        
         if (!isset($_POST['id_pedido']) || !isset($_POST['estado'])) {
             $_SESSION['error'] = 'Datos incompletos';
-            redirect('view/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
             exit;
         }
-        
         $idPedido = (int)$_POST['id_pedido'];
         $estado = trim($_POST['estado']);
-        
         // Validar estado
         $estadosValidos = ['Pendiente', 'En Proceso', 'Enviado', 'Completado', 'Cancelado'];
         if (!in_array($estado, $estadosValidos)) {
             $_SESSION['error'] = 'Estado inválido';
-            redirect('view/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
             exit;
         }
-        
         $resultado = $this->pedidoModel->cambiarEstado($idPedido, $estado);
-        
         if (isset($resultado['success'])) {
             $_SESSION['exito'] = 'Estado del pedido actualizado a: ' . $estado;
         } else {
             $_SESSION['error'] = $resultado['error'];
         }
-        
         // Redirigir al detalle del pedido o al listado
         if (isset($_POST['redirigir']) && $_POST['redirigir'] === 'detalle') {
-            redirect('view/admin/pedido_detalle.php?id=' . $idPedido);
+            header('Location: ' . BASE_URL . '/views/admin/pedido_detalle.php?id=' . $idPedido);
         } else {
-            redirect('view/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
         }
         exit;
     }
 }
-
 // ==========================================
 // MANEJO DE ACCIONES
 // ==========================================
@@ -304,7 +261,6 @@ class PedidoController {
 if (basename($_SERVER['PHP_SELF']) === 'PedidoController.php') {
     $controller = new PedidoController();
     $action = isset($_GET['action']) ? $_GET['action'] : '';
-    
     switch ($action) {
         case 'crear':
             $controller->crear();
@@ -319,12 +275,12 @@ if (basename($_SERVER['PHP_SELF']) === 'PedidoController.php') {
             // Redirigir según tipo de usuario
             if (isset($_SESSION['tipo_usuario'])) {
                 if ($_SESSION['tipo_usuario'] === 'cliente') {
-                    redirect('view/cliente/mis_pedidos.php');
+                    header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
                 } else {
-                    redirect('view/admin/pedidos.php');
+                    header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
                 }
             } else {
-                redirect('index.php');
+                header('Location: ' . BASE_URL . '/index.php');
             }
             exit;
     }

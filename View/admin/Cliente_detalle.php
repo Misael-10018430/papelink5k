@@ -5,14 +5,12 @@
  */
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ClienteController.php';
-
  $idCliente = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 if (!$idCliente) {
     $_SESSION['error'] = 'ID de cliente inválido';
-    redirect('view/admin/clientes.php');
+    header('Location: clientes.php');
     exit;
 }
-
  $controller = new ClienteController();
  $datos = $controller->verDetalle($idCliente);
  $titulo = "Detalle del Cliente - Papelink";
@@ -304,9 +302,9 @@ include __DIR__ . '/includes/header.php';
 <div class="contenedor">
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-        <a href="<?php echo BASE_URL; ?>view/admin/dashboard.php">Dashboard</a>
+        <a href="dashboard.php">Dashboard</a>
         <span class="breadcrumb-separador">/</span>
-        <a href="<?php echo BASE_URL; ?>view/admin/clientes.php">Clientes</a>
+        <a href="clientes.php">Clientes</a>
         <span class="breadcrumb-separador">/</span>
         <span>Detalle del Cliente</span>
     </div>
@@ -436,7 +434,7 @@ include __DIR__ . '/includes/header.php';
                                     </span>
                                 </td>
                                 <td>
-                                    <a href="<?php echo BASE_URL; ?>view/admin/pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-enlace">
+                                    <a href="pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-enlace">
                                         Ver
                                     </a>
                                 </td>
@@ -485,8 +483,8 @@ include __DIR__ . '/includes/header.php';
             <!-- Acciones Rápidas -->
             <div class="tarjeta">
                 <h3 class="tarjeta-titulo">Acciones Rápidas</h3>
-                <a href="<?php echo BASE_URL; ?>view/admin/clientes.php" class="btn btn-secundario">Volver a Clientes</a>
-                <a href="<?php echo BASE_URL; ?>view/admin/pedidos.php?cliente=<?php echo $idCliente; ?>" class="btn btn-secundario">Ver Todos sus Pedidos</a>
+                <a href="clientes.php" class="btn btn-secundario">Volver a Clientes</a>
+                <a href="pedidos.php?cliente=<?php echo $idCliente; ?>" class="btn btn-secundario">Ver Todos sus Pedidos</a>
             </div>
         </div>
     </div>
@@ -497,7 +495,7 @@ include __DIR__ . '/includes/header.php';
 document.getElementById('formTipoCliente').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this); 
-    fetch('<?php echo BASE_URL; ?>controllers/ClienteController.php?action=cambiarTipo', {
+    fetch('../../controllers/ClienteController.php?action=cambiarTipo', {
         method: 'POST',
         body: formData
     })
@@ -521,7 +519,7 @@ document.getElementById('formSegmento').addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     
-    fetch('<?php echo BASE_URL; ?>controllers/ClienteController.php?action=cambiarSegmento', {
+    fetch('../../controllers/ClienteController.php?action=cambiarSegmento', {
         method: 'POST',
         body: formData
     })

@@ -1,35 +1,40 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereFuncionalidad('PEDIDOS_VER');
 
- $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 
+
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/PedidoController.php';
 
 // Verificar que sea admin
 if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
     $_SESSION['error'] = 'Acceso denegado';
-    redirect('view/admin/login.php');
+    header('Location: login.php');
     exit;
 }
 
 if (!isset($_GET['id'])) {
     $_SESSION['error'] = 'ID de pedido no especificado';
-    redirect('view/admin/pedidos.php');
+    header('Location: pedidos.php');
     exit;
 }
 
- $pedidoController = new PedidoController();
- $detalle = $pedidoController->verDetalleAdmin();
+$pedidoController = new PedidoController();
+$detalle = $pedidoController->verDetalleAdmin();
 
 if (!$detalle) {
     $_SESSION['error'] = 'Pedido no encontrado';
-    redirect('view/admin/pedidos.php');
+    header('Location: pedidos.php');
     exit;
 }
 
- $titulo = "Detalle del Pedido";
+$titulo = "Detalle del Pedido";
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -157,7 +162,7 @@ include __DIR__ . '/includes/header.php';
             <h1 style="color: #2C3E50; margin-bottom: 5px;">Pedido #<?php echo htmlspecialchars($detalle['NumeroPedido']); ?></h1>
             <p style="color: #666;">Fecha: <?php echo date('d/m/Y H:i', strtotime($detalle['FechaPedido'])); ?></p>
         </div>
-        <a href="<?php echo BASE_URL; ?>view/admin/pedidos.php" class="btn-ver" style="background: #2C3E50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px;">
+        <a href="pedidos.php" class="btn-ver" style="background: #2C3E50; color: white; padding: 12px 25px; text-decoration: none; border-radius: 6px;">
             ← Volver a Pedidos
         </a>
     </div>
@@ -248,7 +253,7 @@ include __DIR__ . '/includes/header.php';
             <!-- Estado del Pedido -->
             <div class="detalle-card">
                 <h2>Gestionar Estado</h2>
-                <form method="POST" action="<?php echo BASE_URL; ?>controllers/PedidoController.php?action=cambiar_estado" class="form-estado">
+                <form method="POST" action="../../controllers/PedidoController.php?action=cambiar_estado" class="form-estado">
                     <input type="hidden" name="id_pedido" value="<?php echo $detalle['IdPedido']; ?>">
                     
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estado Actual:</label>

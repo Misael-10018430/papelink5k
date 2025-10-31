@@ -5,18 +5,18 @@ require_once __DIR__ . '/../../controllers/CarritoController.php';
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
     $_SESSION['error'] = 'Debe iniciar sesión para ver su carrito';
-    redirect('view/cliente/login.php');
+    header('Location: login.php');
     exit;
 }
 
 // Obtener carrito directamente desde el modelo
 require_once __DIR__ . '/../../models/Carrito.php';
- $carritoModel = new Carrito();
+$carritoModel = new Carrito();
 
- $itemsCarrito = $carritoModel->obtenerPorCliente($_SESSION['cliente_id']);
- $totales = $carritoModel->obtenerTotales($_SESSION['cliente_id']);
+$itemsCarrito = $carritoModel->obtenerPorCliente($_SESSION['cliente_id']);
+$totales = $carritoModel->obtenerTotales($_SESSION['cliente_id']);
 
- $titulo = "Mi Carrito - Papelink";
+$titulo = "Mi Carrito - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
@@ -25,7 +25,7 @@ include __DIR__ . '/includes/header.php';
 <div class="carrito-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs">
-        <a href="<?php echo BASE_URL; ?>view/cliente/index.php">Inicio</a> / <span>Carrito de Compras</span>
+        <a href="index.php">Inicio</a> / <span>Carrito de Compras</span>
     </div>
 
     <h1 class="titulo-pagina">Mi Carrito de Compras</h1>
@@ -53,7 +53,7 @@ include __DIR__ . '/includes/header.php';
         <div class="carrito-vacio">
             <h2>Tu carrito está vacío</h2>
             <p>¡Agrega productos para comenzar tu compra!</p>
-            <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="btn btn-primary">Ver Productos</a>
+            <a href="productos.php" class="btn btn-primary">Ver Productos</a>
         </div>
     <?php else: ?>
         <!-- Carrito con productos -->
@@ -77,7 +77,7 @@ include __DIR__ . '/includes/header.php';
                                         <?php
                                         // Determinar la ruta de la imagen del producto
                                         if (!empty($item['ImagenProducto'])) {
-                                            $rutaImagenCarrito = BASE_URL . 'assets/img/productos/' . $item['ImagenProducto'];
+                                            $rutaImagenCarrito = '../../assets/img/productos/' . $item['ImagenProducto'];
                                         } else {
                                             $rutaImagenCarrito = 'https://via.placeholder.com/80x80/f5f5f5/666666?text=Sin+Imagen';
                                         }
@@ -128,7 +128,7 @@ include __DIR__ . '/includes/header.php';
                     <button class="btn-vaciar" onclick="confirmarVaciarCarrito()">
                         Vaciar Carrito
                     </button>
-                    <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="btn-continuar">
+                    <a href="productos.php" class="btn-continuar">
                         ← Continuar Comprando
                     </a>
                 </div>
@@ -167,7 +167,7 @@ include __DIR__ . '/includes/header.php';
                         </ul>
                     </div>
 
-                    <a href="<?php echo BASE_URL; ?>view/cliente/checkout.php" class="btn-checkout">
+                    <a href="checkout.php" class="btn-checkout">
                         Proceder al Pago →
                     </a>
 
@@ -638,7 +638,7 @@ function actualizarCantidad(idCarrito, cantidad, stockDisponible) {
     
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '<?php echo BASE_URL; ?>controllers/CarritoController.php?action=actualizar';
+    form.action = '../../controllers/CarritoController.php?action=actualizar';
     
     const inputId = document.createElement('input');
     inputId.type = 'hidden';
@@ -659,14 +659,14 @@ function actualizarCantidad(idCarrito, cantidad, stockDisponible) {
 // Confirmar eliminación
 function confirmarEliminacion(idCarrito, nombreProducto) {
     if (confirm('¿Eliminar "' + nombreProducto + '" del carrito?')) {
-        window.location.href = '<?php echo BASE_URL; ?>controllers/CarritoController.php?action=eliminar&id=' + idCarrito;
+        window.location.href = '../../controllers/CarritoController.php?action=eliminar&id=' + idCarrito;
     }
 }
 
 // Confirmar vaciar carrito
 function confirmarVaciarCarrito() {
     if (confirm('¿Está seguro que desea vaciar todo el carrito?')) {
-        window.location.href = '<?php echo BASE_URL; ?>controllers/CarritoController.php?action=vaciar';
+        window.location.href = '../../controllers/CarritoController.php?action=vaciar';
     }
 }
 </script>

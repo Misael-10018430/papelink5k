@@ -5,29 +5,29 @@ require_once __DIR__ . '/../../controllers/CarritoController.php';
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
     $_SESSION['error'] = 'Debe iniciar sesión para continuar';
-    redirect('view/cliente/login.php');
+    header('Location: login.php');
     exit;
 }
 
 // Obtener carrito directamente desde el modelo
 require_once __DIR__ . '/../../models/Carrito.php';
- $carritoModel = new Carrito();
+$carritoModel = new Carrito();
 
- $itemsCarrito = $carritoModel->obtenerPorCliente($_SESSION['cliente_id']);
- $totales = $carritoModel->obtenerTotales($_SESSION['cliente_id']);
+$itemsCarrito = $carritoModel->obtenerPorCliente($_SESSION['cliente_id']);
+$totales = $carritoModel->obtenerTotales($_SESSION['cliente_id']);
 
 // Si el carrito está vacío, redirigir
 if (empty($itemsCarrito)) {
     $_SESSION['error'] = 'Tu carrito está vacío';
-    redirect('view/cliente/carrito.php');
+    header('Location: carrito.php');
     exit;
 }
 
 // Obtener datos del formulario si hay errores
- $datosForm = isset($_SESSION['datos_form']) ? $_SESSION['datos_form'] : [];
+$datosForm = isset($_SESSION['datos_form']) ? $_SESSION['datos_form'] : [];
 unset($_SESSION['datos_form']);
 
- $titulo = "Checkout - Papelink";
+$titulo = "Checkout - Papelink";
 include __DIR__ . '/includes/header.php';
 
 ?>
@@ -35,8 +35,8 @@ include __DIR__ . '/includes/header.php';
 <div class="checkout-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs">
-        <a href="<?php echo BASE_URL; ?>view/cliente/index.php">Inicio</a> / 
-        <a href="<?php echo BASE_URL; ?>view/cliente/carrito.php">Carrito</a> / 
+        <a href="index.php">Inicio</a> / 
+        <a href="carrito.php">Carrito</a> / 
         <span>Checkout</span>
     </div>
 
@@ -82,7 +82,7 @@ include __DIR__ . '/includes/header.php';
                 </div>
             </div>
 
-            <form action="<?php echo BASE_URL; ?>controllers/PedidoController.php?action=crear" method="POST" id="formCheckout">
+            <form action="../../controllers/PedidoController.php?action=crear" method="POST" id="formCheckout">
                 <!-- Sección 1: Información de Envío -->
                 <div class="seccion-form">
                     <h2>Información de Envío</h2>
@@ -210,7 +210,7 @@ include __DIR__ . '/includes/header.php';
 
                 <!-- Botones de acción -->
                 <div class="acciones-checkout">
-                    <a href="<?php echo BASE_URL; ?>view/cliente/carrito.php" class="btn-secundario">
+                    <a href="carrito.php" class="btn-secundario">
                         ← Volver al Carrito
                     </a>
                     <button type="submit" class="btn-finalizar">
@@ -230,7 +230,7 @@ include __DIR__ . '/includes/header.php';
                     <h3>Productos (<?php echo count($itemsCarrito); ?>)</h3>
                     <?php foreach ($itemsCarrito as $item): ?>
                         <div class="producto-resumen-item">
-                            <img src="<?php echo !empty($item['ImagenProducto']) ? BASE_URL . 'assets/img/productos/' . htmlspecialchars($item['ImagenProducto']) : 'https://via.placeholder.com/50x50?text=Producto'; ?>"
+                            <img src="<?php echo !empty($item['ImagenProducto']) ? '../../assets/img/productos/' . htmlspecialchars($item['ImagenProducto']) : 'https://via.placeholder.com/50x50?text=Producto'; ?>"
                                  alt="<?php echo htmlspecialchars($item['NombreProducto']); ?>">
                             <div class="producto-info-resumen">
                                 <p class="nombre"><?php echo htmlspecialchars($item['NombreProducto']); ?></p>

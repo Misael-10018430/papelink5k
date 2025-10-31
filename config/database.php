@@ -20,22 +20,14 @@ if (!class_exists('Database')) {
             $this->username = getenv('DB_USER') ?: 'sqladmin';
             $this->password = getenv('DB_PASSWORD') ?: 'dmmisa1257Vv$#/90Q';
         }
-        /*
-             public function __construct() {
-            // Usar variables de entorno en producción (Azure)
-            // o valores por defecto para desarrollo local
-            $this->host = getenv('DB_HOST') ?: 'localhost';
-            $this->db_name = getenv('DB_NAME') ?: 'papelink_local';
-            $this->username = getenv('DB_USER') ?: 'root';
-            $this->password = getenv('DB_PASSWORD') ?: '';
-        }
-        */
+        
         /**
          * Obtener conexión a la base de datos
          * @return PDO|null
          */
         public function getConnection() {
-            $this->conn = null;           
+            $this->conn = null;
+            
             try {
                 // Conexión con PDO para SQL Server (Formato correcto para Azure)
                 $dsn = "sqlsrv:Server={$this->host};Database={$this->db_name}";
@@ -54,15 +46,16 @@ if (!class_exists('Database')) {
             } catch(PDOException $exception) {
                 error_log("Database Connection Error: " . $exception->getMessage());
                 
-                // CAMBIO CLAVE: Lógica para mostrar errores solo en desarrollo local
-                // Si la variable de entorno DB_HOST existe, asumimos que estamos en producción (Azure) y no mostramos errores.
+                // CAMBIO CLAVE: Mostrar errores solo en desarrollo local
+                // Si DB_HOST existe como variable de entorno, estamos en Azure (producción)
                 if (!getenv('DB_HOST')) {
                     echo "Error de conexión: " . $exception->getMessage();
                 }
-            }            
+            }
+            
             return $this->conn;
         }
-                
+        
         /**
          * Cerrar conexión
          */

@@ -3,11 +3,15 @@
  * Vista: Gestión de Proveedores
  * Listado de proveedores con filtros y acciones
  */
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAlgunaFuncionalidad(['PROVEEDORES_VER', 'PROVEEDORES_GESTIONAR']);
 
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ProveedorController.php';
 
  $controller = new ProveedorController();
@@ -327,7 +331,7 @@ include __DIR__ . '/includes/header.php';
 
     <!-- Filtros y Botón Nuevo -->
     <div class="tarjeta">
-        <form method="GET" action="<?php echo BASE_URL; ?>view/admin/proveedores.php" class="filtros-form">
+        <form method="GET" action="proveedores.php" class="filtros-form">
             <div class="campo" style="max-width: 200px;">
                 <label>Estado</label>
                 <select name="estado">
@@ -340,11 +344,11 @@ include __DIR__ . '/includes/header.php';
             <button type="submit" class="btn btn-primario">Filtrar</button>
             
             <?php if (isset($_GET['estado'])): ?>
-                <a href="<?php echo BASE_URL; ?>view/admin/proveedores.php" class="btn btn-secundario">Limpiar</a>
+                <a href="proveedores.php" class="btn btn-secundario">Limpiar</a>
             <?php endif; ?>
             
             <div style="margin-left: auto;">
-                <a href="<?php echo BASE_URL; ?>view/admin/proveedor_form.php" class="btn btn-exito">Nuevo Proveedor</a>
+                <a href="proveedor_form.php" class="btn btn-exito">Nuevo Proveedor</a>
             </div>
         </form>
     </div>
@@ -383,9 +387,9 @@ include __DIR__ . '/includes/header.php';
                     <th>Proveedor</th>
                     <th>Contacto</th>
                     <th>Dirección</th>
-                    <th class="texto-centro">Compras</th>
-                    <th class="texto-centro">Estado</th>
-                    <th class="texto-centro">Acciones</th>
+                    <th class="texto-centrado">Compras</th>
+                    <th class="texto-centrado">Estado</th>
+                    <th class="texto-centrado">Acciones</th>
                 </tr>
             </thead>
             <tbody>
@@ -415,10 +419,10 @@ include __DIR__ . '/includes/header.php';
                             <td class="texto-small">
                                 <?php echo htmlspecialchars($proveedor['Direccion'] ?? 'Sin dirección'); ?>
                             </td>
-                            <td class="texto-centro">
+                            <td class="texto-centrado">
                                 <strong><?php echo $proveedor['TotalCompras']; ?></strong>
                             </td>
-                            <td class="texto-centro">
+                            <td class="texto-centrado">
                                 <label class="toggle">
                                     <input type="checkbox" class="estado-toggle"
                                            <?php echo $proveedor['Estado'] ? 'checked' : ''; ?>
@@ -426,9 +430,9 @@ include __DIR__ . '/includes/header.php';
                                     <span class="toggle-slider"></span>
                                 </label>
                             </td>
-                            <td class="texto-centro">
+                            <td class="texto-centrado">
                                 <div class="acciones-grupo">
-                                    <a href="<?php echo BASE_URL; ?>view/admin/proveedor_form.php?id=<?php echo $proveedor['IdProveedor']; ?>" 
+                                    <a href="proveedor_form.php?id=<?php echo $proveedor['IdProveedor']; ?>" 
                                        class="btn btn-secundario btn-chico">
                                         Editar
                                     </a>
@@ -448,7 +452,7 @@ document.querySelectorAll('.estado-toggle').forEach(toggle => {
         const idProveedor = this.getAttribute('data-id');
         const nuevoEstado = this.checked ? 1 : 0;
         
-        fetch('<?php echo BASE_URL; ?>controllers/ProveedorController.php?action=cambiarEstado', {
+        fetch('../../controllers/ProveedorController.php?action=cambiarEstado', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

@@ -3,22 +3,28 @@
  * Vista: Configuración del Sistema
  * Gestión de configuraciones generales, roles y estados
  */
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ConfiguracionController.php';
 
 // ✅ VERIFICAR PERMISOS
 Auth::requiereAlgunaFuncionalidad(['CONFIGURACION_VER', 'CONFIGURACION_EDITAR']);
 
- $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
- $puede_editar = Auth::esAdministrador() || Auth::tieneFuncionalidad('CONFIGURACION_EDITAR');
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$puede_editar = Auth::esAdministrador() || Auth::tieneFuncionalidad('CONFIGURACION_EDITAR');
 
- $controller = new ConfiguracionController();
- $datos = $controller->index();
+$controller = new ConfiguracionController();
+$datos = $controller->index();
 
- $titulo = "Configuración del Sistema - Papelink";
+
+
+
+$titulo = "Configuración del Sistema - Papelink";
 include __DIR__ . '/includes/header.php';
-
 // Función helper para obtener valor de configuración
 function getConfig($configuraciones, $clave, $default = '') {
     return isset($configuraciones[$clave]) ? $configuraciones[$clave]['Valor'] : $default;
@@ -476,7 +482,7 @@ document.getElementById('formConfiguracion').addEventListener('submit', function
     submitBtn.disabled = true;
     submitBtn.textContent = 'Guardando...';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ConfiguracionController.php?action=guardar', {
+    fetch('../../controllers/ConfiguracionController.php?action=guardar', {
         method: 'POST',
         body: formData
     })

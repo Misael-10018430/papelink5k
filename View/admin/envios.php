@@ -1,8 +1,11 @@
 <?php
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereFuncionalidad('PEDIDOS_VER');
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EnvioController.php';
  $envioController = new EnvioController();
  $envios = $envioController->listar();
@@ -119,7 +122,7 @@ include __DIR__ . '/includes/header.php';
         border-color: #f5c6cb;
     }
 
-    /* ============================================
+    /* ===================================
        COMPONENTES: TABLA
        =================================== */
     .tabla {
@@ -291,7 +294,7 @@ include __DIR__ . '/includes/header.php';
                         </span>
                     </td>
                     <td>
-                        <a href="<?php echo BASE_URL; ?>view/admin/envio_detalle.php?id=<?php echo $envio['IdEnvio']; ?>" class="btn btn-blanco">
+                        <a href="envio_detalle.php?id=<?php echo $envio['IdEnvio']; ?>" class="btn btn-blanco">
                             Gestionar
                         </a>
                     </td>

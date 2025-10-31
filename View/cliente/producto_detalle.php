@@ -1,32 +1,30 @@
 <?php
-// Incluir el archivo de configuración principal.
-require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 
 // Verificar que se proporcionó un ID
 if (!isset($_GET['id']) || empty($_GET['id'])) {
     $_SESSION['error'] = 'No se especificó un producto';
-    header('Location: ' . BASE_URL . 'view/cliente/productos.php');
+    header('Location: productos.php');
     exit;
 }
 
- $idProducto = (int)$_GET['id'];
+$idProducto = (int)$_GET['id'];
 
 // Obtener el producto
- $productoController = new ProductoController();
- $producto = $productoController->obtenerPorId($idProducto);
+$productoController = new ProductoController();
+$producto = $productoController->obtenerPorId($idProducto);
 
 // Si no se encuentra el producto, redirigir
 if (!$producto) {
     $_SESSION['error'] = 'Producto no encontrado';
-    header('Location: ' . BASE_URL . 'view/cliente/productos.php');
+    header('Location: productos.php');
     exit;
 }
 
 // Obtener productos relacionados
- $productosRelacionados = $productoController->obtenerRelacionados($idProducto);
+$productosRelacionados = $productoController->obtenerRelacionados($idProducto);
 
-include __DIR__ . '/includes/header.php';
+include 'includes/header.php';
 ?>
 
 <style>
@@ -206,6 +204,7 @@ include __DIR__ . '/includes/header.php';
     .btn-agregar-carrito:disabled {
         background-color: #ccc;
         cursor: not-allowed;
+        transform: none;
     }
     
     .btn-comprar-ahora {
@@ -435,8 +434,8 @@ include __DIR__ . '/includes/header.php';
 
 <div class="detalle-container">
     <div class="breadcrumbs">
-        <a href="<?php echo BASE_URL; ?>">Inicio</a> / 
-        <a href="<?php echo BASE_URL; ?>view/cliente/productos.php">Productos</a> / 
+        <a href="index.php">Inicio</a> / 
+        <a href="productos.php">Productos</a> / 
         <span><?php echo htmlspecialchars($producto['NombreProducto']); ?></span>
     </div>
 
@@ -455,9 +454,9 @@ include __DIR__ . '/includes/header.php';
     <div class="detalle-producto">
         <div class="galeria-producto">
             <?php
-            // Determinar la ruta de la imagen principal usando la función asset()
+            // Determinar la ruta de la imagen principal
             $rutaImagenDetalle = !empty($producto['ImagenPrincipal']) 
-                ? asset('assets/img/productos/' . $producto['ImagenPrincipal'])
+                ? '../../assets/img/productos/' . $producto['ImagenPrincipal']
                 : 'https://via.placeholder.com/600x500/f5f5f5/666666?text=' . urlencode(substr($producto['NombreProducto'], 0, 20));
             ?>
             <img src="<?php echo $rutaImagenDetalle; ?>" 
@@ -488,7 +487,7 @@ include __DIR__ . '/includes/header.php';
             </div>
 
             <?php if ($producto['Disponible']): ?>
-                <form method="POST" action="<?php echo BASE_URL; ?>controllers/CarritoController.php?action=agregar" id="formAgregarCarrito">
+                <form method="POST" action="../../controllers/CarritoController.php?action=agregar" id="formAgregarCarrito">
                     <input type="hidden" name="id_producto" value="<?php echo $producto['IdProducto']; ?>">
                     
                     <div class="selector-cantidad">
@@ -597,11 +596,11 @@ include __DIR__ . '/includes/header.php';
         <h2>🔗 Productos Relacionados</h2>
         <div class="grid-relacionados">
             <?php foreach ($productosRelacionados as $relacionado): ?>
-                <a href="<?php echo BASE_URL; ?>view/cliente/producto_detalle.php?id=<?php echo $relacionado['IdProducto']; ?>" class="producto-relacionado">
+                <a href="producto_detalle.php?id=<?php echo $relacionado['IdProducto']; ?>" class="producto-relacionado">
                     <?php
-                    // Determinar la ruta de imagen para productos relacionados usando la función asset()
+                    // Determinar la ruta de imagen para productos relacionados
                     $rutaImagenRelacionado = !empty($relacionado['ImagenPrincipal']) 
-                        ? asset('assets/img/productos/' . $relacionado['ImagenPrincipal'])
+                        ? '../../assets/img/productos/' . $relacionado['ImagenPrincipal']
                         : 'https://via.placeholder.com/200x150/f5f5f5/666666?text=' . urlencode(substr($relacionado['NombreProducto'], 0, 10));
                     ?>
                     <img src="<?php echo $rutaImagenRelacionado; ?>" 
@@ -612,6 +611,7 @@ include __DIR__ . '/includes/header.php';
                 </a>
             <?php endforeach; ?>
         </div>
+    </div>
     <?php endif; ?>
 </div>
 <script>
@@ -645,21 +645,21 @@ function comprarAhora() {
     const form = document.getElementById('formAgregarCarrito');
     const formData = new FormData(form);
     
-    fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=agregar', {
+    fetch('../../controllers/CarritoController.php?action=agregar', {
         method: 'POST',
         body: formData
     })
     .then(() => {
-        window.location.href = '<?php echo BASE_URL; ?>view/cliente/checkout.php';
+        window.location.href = 'checkout.php';
     })
     .catch(error => {
         console.error('Error:', error);
         form.submit();
         setTimeout(() => {
-            window.location.href = '<?php echo BASE_URL; ?>view/cliente/checkout.php';
+            window.location.href = 'checkout.php';
         }, 500);
     });
 }
 </script>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php include 'includes/footer.php'; ?>

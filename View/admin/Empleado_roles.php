@@ -1,13 +1,18 @@
+
 <?php
 /**
  * Vista: Gestión de Roles del Empleado
  * Asignar y remover roles
  */
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAdministrador();
 
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
  $idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -272,9 +277,9 @@ include __DIR__ . '/includes/header.php';
 <div class="contenedor">
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-        <a href="<?php echo BASE_URL; ?>view/admin/dashboard.php">Dashboard</a>
+        <a href="dashboard.php">Dashboard</a>
         <span class="breadcrumb-separador">/</span>
-        <a href="<?php echo BASE_URL; ?>view/admin/empleados.php">Empleados</a>
+        <a href="empleados.php">Empleados</a>
         <span class="breadcrumb-separador">/</span>
         <span>Gestión de Roles</span>
     </div>
@@ -287,7 +292,7 @@ include __DIR__ . '/includes/header.php';
     </p>
 
     <div>
-        <a href="<?php echo BASE_URL; ?>view/admin/empleados.php" class="btn btn-secundario btn-volver">← Volver a Empleados</a>
+        <a href="empleados.php" class="btn btn-secundario btn-volver">← Volver a Empleados</a>
     </div>
 
     <div id="mensaje-alerta"></div>
@@ -377,7 +382,7 @@ document.getElementById('formAsignarRol')?.addEventListener('submit', function(e
         return;
     }
     
-    fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=asignarRol', {
+    fetch('../../controllers/EmpleadoController.php?action=asignarRol', {
         method: 'POST',
         body: new URLSearchParams(formData)
     })
@@ -407,7 +412,7 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
             return;
         }
         
-        fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol', {
+        fetch('../../controllers/EmpleadoController.php?action=removerRol', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',

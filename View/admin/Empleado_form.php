@@ -3,13 +3,14 @@
  * Vista: Formulario de Empleado
  * Crear o editar empleados
  */
-require_once __DIR__ . '/../../config/config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAdministrador();
-
  $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
-
  $idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : null;
  $controller = new EmpleadoController();
  $datos = $controller->mostrarFormulario($idEmpleado);
@@ -221,9 +222,9 @@ include __DIR__ . '/includes/header.php';
 <div class="contenedor">
     <!-- Breadcrumb -->
     <div class="breadcrumb">
-        <a href="<?php echo BASE_URL; ?>view/admin/dashboard.php">Dashboard</a>
+        <a href="dashboard.php">Dashboard</a>
         <span class="breadcrumb-separador">/</span>
-        <a href="<?php echo BASE_URL; ?>view/admin/empleados.php">Empleados</a>
+        <a href="empleados.php">Empleados</a>
         <span class="breadcrumb-separador">/</span>
         <span><?php echo $datos['modo'] === 'editar' ? 'Editar' : 'Nuevo'; ?></span>
     </div>
@@ -253,7 +254,7 @@ include __DIR__ . '/includes/header.php';
         </div>
     <?php endif; ?>
     <div class="tarjeta">
-        <form method="POST" action="<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=guardar">
+        <form method="POST" action="../../controllers/EmpleadoController.php?action=guardar">
             <?php if ($datos['modo'] === 'editar'): ?>
                 <input type="hidden" name="id_empleado" value="<?php echo $datos['empleado']['IdEmpleado']; ?>">
             <?php endif; ?>
@@ -314,7 +315,7 @@ include __DIR__ . '/includes/header.php';
                 <button type="submit" class="btn btn-primario">
                     <?php echo $datos['modo'] === 'editar' ? 'Actualizar Empleado' : 'Crear Empleado'; ?>
                 </button>
-                <a href="<?php echo BASE_URL; ?>view/admin/empleados.php" class="btn btn-secundario">Cancelar</a>
+                <a href="empleados.php" class="btn btn-secundario">Cancelar</a>
             </div>
         </form>
     </div>
