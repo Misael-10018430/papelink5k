@@ -432,12 +432,33 @@ include 'includes/header.php';
     }
 </style>
 
+
+
+
+
+
+
+
+
+
+
 <div class="detalle-container">
     <div class="breadcrumbs">
         <a href="<?php echo BASE_URL; ?>">Inicio</a> / 
-        <a href="productos.php">Productos</a> / 
+        <a href="producto_detalle.php">Detalle del producto</a> / 
         <span><?php echo htmlspecialchars($producto['NombreProducto']); ?></span>
     </div>
+
+
+
+
+
+
+
+
+
+
+
 
     <?php if (isset($_SESSION['exito'])): ?>
         <div class="alert alert-success">
