@@ -615,49 +615,68 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
     </div>
     
     <!-- MENÚ LATERAL (MEJORADO) -->
-    <div class="menu-overlay" id="menuOverlay"></div>
-    <nav class="side-menu" id="sideMenu">
-        <div class="menu-header">
-            <h3>MENÚ</h3>
-            <span class="close-menu" id="closeMenu">✕</span>
+  <!-- MENÚ LATERAL (MEJORADO) -->
+<div class="menu-overlay" id="menuOverlay"></div>
+<nav class="side-menu" id="sideMenu">
+    <div class="menu-header">
+        <h3>MENÚ</h3>
+        <span class="close-menu" id="closeMenu">✕</span>
+    </div>
+    
+    <?php if ($clienteLogueado): ?>
+    <!-- USUARIO LOGUEADO -->
+    <div class="user-info">
+        <div class="user-avatar">
+            <?php echo strtoupper(substr($nombreCliente, 0, 1)); ?>
         </div>
-        
-        <?php if ($clienteLogueado): ?>
-        <div class="user-info">
-            <div class="user-avatar">
-                <?php echo strtoupper(substr($nombreCliente, 0, 1)); ?>
-            </div>
-            <div class="user-details">
-                <h4><?php echo htmlspecialchars($nombreCliente); ?></h4>
-                <p>Cliente</p>
-            </div>
+        <div class="user-details">
+            <h4><?php echo htmlspecialchars($nombreCliente); ?></h4>
+            <p>Cliente</p>
         </div>
-        <?php endif; ?>
-        
-        <div class="menu-section">
-            <div class="menu-section-title">Navegación</div>
-            <ul>
-                <li><a href="mis_pedidos.php"><i class="fas fa-clipboard-list"></i> Mis Pedidos</a></li>
-                <li><a href="mi_cuenta.php"><i class="fas fa-user-circle"></i> Mi Cuenta</a></li>
-                <li><a href="devoluciones.php"><i class="fas fa-undo"></i> Mis Devoluciones</a></li>
-            </ul>
-        </div>
-        
-        <div class="menu-section">
-            <div class="menu-section-title">Mi Cuenta</div>
-            <ul>
-                <li><a href="<?php echo BASE_URL; ?>view/cliente/carrito.php"><i class="fas fa-shopping-cart"></i> Mi Carrito</a></li>
-                <?php if ($clienteLogueado): ?>
-                    <li><a href="<?php echo BASE_URL; ?>view/cliente/mis_pedidos.php"><i class="fas fa-clipboard-list"></i> Mis Pedidos</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>view/cliente/mi_cuenta.php"><i class="fas fa-user-circle"></i> Mi Cuenta</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>view/cliente/devoluciones.php"><i class="fas fa-undo"></i> Mis Devoluciones</a></li>
-                    <li><a href="<?php echo BASE_URL; ?>controllers/AuthController.php?action=logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
-                <?php else: ?>
-                    <li><a href="<?php echo BASE_URL; ?>view/cliente/login.php"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
-                <?php endif; ?>
-            </ul>
-        </div>
-    </nav>
+    </div>
+    
+    <div class="menu-section">
+        <div class="menu-section-title">Navegación</div>
+        <ul>
+            <li><a href="<?php echo BASE_URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="productos.php"><i class="fas fa-box"></i> Productos</a></li>
+            <li><a href="categorias.php"><i class="fas fa-folder"></i> Categorías</a></li>
+            <li><a href="marcas.php"><i class="fas fa-tag"></i> Marcas</a></li>
+        </ul>
+    </div>
+    
+    <div class="menu-section">
+        <div class="menu-section-title">Mi Cuenta</div>
+        <ul>
+            <li><a href="mis_pedidos.php"><i class="fas fa-clipboard-list"></i> Mis Pedidos</a></li>
+            <li><a href="devoluciones.php"><i class="fas fa-undo"></i> Mis Devoluciones</a></li>
+            <li><a href="carrito.php"><i class="fas fa-shopping-cart"></i> Mi Carrito</a></li>
+            <li><a href="mi_cuenta.php"><i class="fas fa-user-circle"></i> Mi Cuenta</a></li>
+            <li><a href="<?php echo BASE_URL; ?>controllers/AuthController.php?action=logout"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</a></li>
+        </ul>
+    </div>
+    
+    <?php else: ?>
+    <!-- USUARIO NO LOGUEADO -->
+    <div class="menu-section">
+        <div class="menu-section-title">Navegación</div>
+        <ul>
+            <li><a href="<?php echo BASE_URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
+            <li><a href="<?php echo BASE_URL; ?>view/cliente/productos.php"><i class="fas fa-box"></i> Productos</a></li>
+            <li><a href="<?php echo BASE_URL; ?>view/cliente/categorias.php"><i class="fas fa-folder"></i> Categorías</a></li>
+            <li><a href="<?php echo BASE_URL; ?>view/cliente/marcas.php"><i class="fas fa-tag"></i> Marcas</a></li>
+        </ul>
+    </div>
+    
+    <div class="menu-section">
+        <div class="menu-section-title">Sesión</div>
+        <ul>
+            <li><a href="<?php echo BASE_URL; ?>view/cliente/login.php"><i class="fas fa-sign-in-alt"></i> Iniciar Sesión</a></li>
+            <li><a href="<?php echo BASE_URL; ?>view/cliente/registro.php"><i class="fas fa-user-plus"></i> Crear Cuenta</a></li>
+        </ul>
+    </div>
+    <?php endif; ?>
+</nav>
     
     <script>
         // Menú lateral
