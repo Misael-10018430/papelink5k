@@ -1,21 +1,21 @@
-
 <?php
 /**
  * Vista: Gestión de Empleados
  * Listado de empleados con filtros y acciones
  */
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
-require_once __DIR__ . '/../../config/Auth.php';
-Auth::requiereAdministrador();
- $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-require_once __DIR__ . '/../../config/config.php';
+// ORDEN CORRECTO:
+require_once __DIR__ . '/../../config/config.php';  //  Config (incluye session_start)
+require_once __DIR__ . '/../../config/Auth.php';     //  Auth
+Auth::requiereAdministrador();                        // Verificar permisos
+
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
- $controller = new EmpleadoController();
- $datos = $controller->listar();
- $titulo = "Gestión de Empleados - Papelink";
+
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$controller = new EmpleadoController();
+$datos = $controller->listar();
+$titulo = "Gestión de Empleados - Papelink";
+
 include __DIR__ . '/includes/header.php';
 ?>
 

@@ -4,12 +4,15 @@
  * Vista: Reportes del Sistema
  * Generación de reportes de ventas, inventario y finanzas
  */
-require_once __DIR__ . '/../../config/Auth.php';
-//VERIFICAR PERMISO PARA REPORTES
-Auth::requiereFuncionalidad('REPORTES_VER');
- $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-require_once __DIR__ . '/../../config/config.php';
- $titulo = "Reportes del Sistema - Papelink";
+
+// ORDEN CORRECTO:
+require_once __DIR__ . '/../../config/config.php';  //  PRIMERO
+require_once __DIR__ . '/../../config/Auth.php';     //  SEGUNDO
+Auth::requiereFuncionalidad('REPORTES_VER');         //  TERCERO
+
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$titulo = "Reportes del Sistema - Papelink";
+
 include __DIR__ . '/includes/header.php';
 ?>
 
