@@ -414,7 +414,7 @@ require_once __DIR__ . '/../../config/config.php';
                 </a>
                 
                 <div class="volver">
-                    a href="<?php echo BASE_URL; ?>">← Continuar sin cuenta</a>
+                    <a href="<?php echo BASE_URL; ?>">← Continuar sin cuenta</a>
                 </div>
                 
                 <!-- Sección para empleados -->
