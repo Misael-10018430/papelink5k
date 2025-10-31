@@ -738,7 +738,7 @@ include 'includes/header.php';
                     $imagenUrl = $imagenesCategoria[$nombreCat] ?? 'https://via.placeholder.com/400x280?text=' . urlencode($nombreCat);
                 ?>
                     <div class="card-categoria">
-                        <a href="<?php echo BASE_URL; ?>view/cliente/productos.php?categoria=<?php echo $categoria['IdCategoria']; ?>">
+                        <a href="<?php echo BASE_URL; ?>view/cliente/categorias.php?categoria=<?php echo $categoria['IdCategoria']; ?>">
                             <img src="<?php echo $imagenUrl; ?>"
                                  alt="<?php echo htmlspecialchars($nombreCat); ?>">
 
