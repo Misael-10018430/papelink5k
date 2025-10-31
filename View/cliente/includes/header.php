@@ -685,7 +685,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         // Actualizar contador del carrito
         <?php if ($clienteLogueado): ?>
         function actualizarContadorCarrito() {
-            fetch('../../controllers/CarritoController.php?action=contar')
+            fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=contar')
                 .then(response => response.json())
                 .then(data => {
                     const badge = document.getElementById('carritoBadge');
