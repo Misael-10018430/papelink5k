@@ -5,6 +5,10 @@ require_once __DIR__ . '/../../../config/config.php';
 // Variables del cliente
 $clienteLogueado = $_SESSION['cliente_id'] ?? null;
 $nombreCliente = $_SESSION['nombre_cliente'] ?? null;
+// DEBUG (eliminar después)
+echo "<!-- DEBUG: clienteLogueado = " . ($clienteLogueado ? 'SÍ' : 'NO') . " -->";
+echo "<!-- DEBUG: SESSION = " . print_r($_SESSION, true) . " -->";
+
 
 // Obtener la página actual
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');

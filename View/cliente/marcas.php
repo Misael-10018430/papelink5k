@@ -34,6 +34,7 @@ if (isset($_GET['id'])) {
     }
 }
 
+$titulo = $marcaSeleccionada ? "Productos de " . $nombreMarcaSeleccionada . " - Papelink" : "Marcas - Papelink";
 include 'includes/header.php';
 ?>
 
