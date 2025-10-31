@@ -532,10 +532,10 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
             </div>
             
             <div class="header-icons">
-                <a href="<?php echo $clienteLogueado ? BASE_URL . 'view/cliente/mi_cuenta.php' : BASE_URL . 'view/cliente/login.php'; ?>" class="user-icon">
+                <a href="<?php echo $clienteLogueado ? 'mi_cuenta.php' : 'login.php'; ?>" class="user-icon">
                     <i class="fas fa-user"></i>
                 </a>
-                <a href="<?php echo BASE_URL; ?>view/cliente/carrito.php" class="cart-icon">
+                <a href="carrito.php" class="cart-icon">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="cart-count" id="carritoBadge" style="display: none;">0</span>
                 </a>
@@ -637,10 +637,9 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         <div class="menu-section">
             <div class="menu-section-title">Navegación</div>
             <ul>
-                <li><a href="<?php echo BASE_URL; ?>"><i class="fas fa-home"></i> Inicio</a></li>
-                <li><a href="<?php echo BASE_URL; ?>view/cliente/productos.php"><i class="fas fa-box"></i> Productos</a></li>
-                <li><a href="<?php echo BASE_URL; ?>view/cliente/categorias.php"><i class="fas fa-folder"></i> Categorías</a></li>
-                <li><a href="<?php echo BASE_URL; ?>view/cliente/marcas.php"><i class="fas fa-tag"></i> Marcas</a></li>
+                <li><a href="mis_pedidos.php"><i class="fas fa-clipboard-list"></i> Mis Pedidos</a></li>
+                <li><a href="mi_cuenta.php"><i class="fas fa-user-circle"></i> Mi Cuenta</a></li>
+                <li><a href="devoluciones.php"><i class="fas fa-undo"></i> Mis Devoluciones</a></li>
             </ul>
         </div>
         

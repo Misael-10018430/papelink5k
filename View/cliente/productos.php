@@ -1,50 +1,55 @@
 <?php
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
-require_once __DIR__ . '/../../controllers/MarcaController.php';
+/*require_once __DIR__ . '/../../controllers/MarcaController.php';*/
 
 $productoController = new ProductoController();
 $categoriaController = new CategoriaController();
-$marcaController = new MarcaController();
-
-// DEBUG: Ver qué filtros se están recibiendo
-echo "<!-- DEBUG: Filtros recibidos -->";
-echo "<!-- Categoría GET: " . ($_GET['categoria'] ?? 'NO ENVIADO') . " -->";
-echo "<!-- Marca GET: " . ($_GET['marca'] ?? 'NO ENVIADO') . " -->";
-echo "<!-- Precio Min: " . ($_GET['precio_min'] ?? 'NO ENVIADO') . " -->";
-echo "<!-- Precio Max: " . ($_GET['precio_max'] ?? 'NO ENVIADO') . " -->";
-echo "<!-- Búsqueda: " . ($_GET['busqueda'] ?? 'NO ENVIADO') . " -->";
+/*$marcaController = new MarcaController();*/
 
 // Obtener productos con filtros
 $productos = $productoController->listarCliente();
 
-echo "<!-- Total productos obtenidos: " . count($productos) . " -->";
-
-// Obtener categorías y marcas para los filtros
+// Obtener categorías para los filtros
 $categorias = $categoriaController->listarActivas();
-$marcas = $marcaController->listarActivas();
 
 // Variables de filtros actuales
 $categoriaSeleccionada = $_GET['categoria'] ?? '';
-$marcaSeleccionada = $_GET['marca'] ?? '';
 $precioMin = $_GET['precio_min'] ?? '';
 $precioMax = $_GET['precio_max'] ?? '';
 $busqueda = $_GET['busqueda'] ?? '';
 
-// Obtener nombre de categoría o marca seleccionada
+// APLICAR FILTROS
+if ($categoriaSeleccionada) {
+    $productos = array_filter($productos, function($p) use ($categoriaSeleccionada) {
+        return $p['IdCategoria'] == $categoriaSeleccionada;
+    });
+}
+
+if ($busqueda) {
+    $productos = array_filter($productos, function($p) use ($busqueda) {
+        return stripos($p['NombreProducto'], $busqueda) !== false;
+    });
+}
+
+if ($precioMin !== '') {
+    $productos = array_filter($productos, function($p) use ($precioMin) {
+        return $p['PrecioUnitario'] >= $precioMin;
+    });
+}
+
+if ($precioMax !== '') {
+    $productos = array_filter($productos, function($p) use ($precioMax) {
+        return $p['PrecioUnitario'] <= $precioMax;
+    });
+}
+
+// Obtener nombre de categoría seleccionada
 $tituloFiltro = 'Todos los Productos';
 if ($categoriaSeleccionada) {
     foreach ($categorias as $cat) {
         if ($cat['IdCategoria'] == $categoriaSeleccionada) {
             $tituloFiltro = 'Productos de ' . $cat['NombreCategoria'];
-            break;
-        }
-    }
-}
-if ($marcaSeleccionada) {
-    foreach ($marcas as $marca) {
-        if ($marca['IdMarca'] == $marcaSeleccionada) {
-            $tituloFiltro = 'Productos de ' . $marca['NombreMarca'];
             break;
         }
     }
@@ -55,7 +60,6 @@ if ($busqueda) {
 
 include 'includes/header.php';
 ?>
-
 <!-- ESTILOS ESPECÍFICOS PARA PRODUCTOS -->
 <style>
     /* CONTENEDOR CON FILTROS */
