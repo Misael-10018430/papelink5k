@@ -27,23 +27,6 @@ try {
 try {
     // Obtener categorías activas de la BD
     $categorias = $categoriaController->listarActivas();
-
-     // ⭐ DEBUG - AGREGAR ESTAS LÍNEAS
-    echo "<!-- DEBUG CATEGORIAS -->";
-    echo "<!-- Total categorías: " . count($categorias) . " -->";
-    echo "<!-- Contenido: " . print_r($categorias, true) . " -->";
-    echo "<div style='position: fixed; top: 0; left: 0; right: 0; background: red; color: white; padding: 20px; z-index: 9999;'>";
-    echo "<h2>🔍 DEBUG PRODUCTOS</h2>";
-    echo "<p><strong>Total productos:</strong> " . count($productosDestacados) . "</p>";
-    echo "<p><strong>Contenido:</strong></p>";
-    echo "<pre>" . print_r($productosDestacados, true) . "</pre>";
-    echo "</div>";
-    
-
-
-
-
-
     // Limitar a las primeras 3 categorías
     if (count($categorias) > 3) {
         $categorias = array_slice($categorias, 0, 3);

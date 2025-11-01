@@ -33,28 +33,6 @@ class Producto {
     public function obtenerParaCliente($idCategoria = null, $idMarca = null, $busqueda = null, $precioMin = null, $precioMax = null, $pagina = 1, $porPagina = 12) {
     try {
 
-        error_log("=== DEBUG Producto->obtenerParaCliente() ===");
-        error_log("Parametros recibidos:");
-        error_log("  idCategoria: " . ($idCategoria ?? 'NULL'));
-        error_log("  idMarca: " . ($idMarca ?? 'NULL'));
-        error_log("  busqueda: " . ($busqueda ?? 'NULL'));
-        error_log("  precioMin: " . ($precioMin ?? 'NULL'));
-        error_log("  precioMax: " . ($precioMax ?? 'NULL'));
-        error_log("  pagina: " . $pagina);
-        error_log("  porPagina: " . $porPagina);
-
-
-
-
-
-
-
-
-
-
-
-
-
         $sql = "EXEC sp_ObtenerProductos 
                 @IdCategoria = ?, 
                 @IdMarca = ?, 
