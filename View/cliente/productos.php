@@ -20,31 +20,6 @@ $precioMin = $_GET['precio_min'] ?? '';
 $precioMax = $_GET['precio_max'] ?? '';
 $busqueda = $_GET['busqueda'] ?? '';
 
-// APLICAR FILTROS
-if ($categoriaSeleccionada) {
-    $productos = array_filter($productos, function($p) use ($categoriaSeleccionada) {
-        return $p['IdCategoria'] == $categoriaSeleccionada;
-    });
-}
-
-if ($busqueda) {
-    $productos = array_filter($productos, function($p) use ($busqueda) {
-        return stripos($p['NombreProducto'], $busqueda) !== false;
-    });
-}
-
-if ($precioMin !== '') {
-    $productos = array_filter($productos, function($p) use ($precioMin) {
-        return $p['PrecioUnitario'] >= $precioMin;
-    });
-}
-
-if ($precioMax !== '') {
-    $productos = array_filter($productos, function($p) use ($precioMax) {
-        return $p['PrecioUnitario'] <= $precioMax;
-    });
-}
-
 // Obtener nombre de categoría seleccionada
 $tituloFiltro = 'Todos los Productos';
 if ($categoriaSeleccionada) {
