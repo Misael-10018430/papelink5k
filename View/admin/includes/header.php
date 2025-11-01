@@ -14,7 +14,6 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo $titulo ?? 'Panel Administrativo - Papelink'; ?></title>
-    <link rel="stylesheet" href="../../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -348,7 +347,7 @@ $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
         </a>
         <?php endif; ?>
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('REPORTES_VER')): ?>
-        <a href="reporte.php" class="<?php echo ($paginaActual ?? '') == 'reportes' ? 'activo' : ''; ?>">
+        <a href="reporte.php" class="<?php echo ($paginaActual ?? '') == 'reporte' ? 'activo' : ''; ?>">
             Reportes
         </a>
         <?php endif; ?>
