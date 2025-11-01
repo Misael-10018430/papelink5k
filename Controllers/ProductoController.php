@@ -35,6 +35,35 @@ class ProductoController {
         $precioMin = isset($_GET['precio_min']) && $_GET['precio_min'] !== '' ? (float)$_GET['precio_min'] : null;
         $precioMax = isset($_GET['precio_max']) && $_GET['precio_max'] !== '' ? (float)$_GET['precio_max'] : null;
         $pagina = isset($_GET['pagina']) ? (int)$_GET['pagina'] : 1;
+
+        error_log("=== DEBUG ProductoController->listarCliente() ===");
+        error_log("idCategoria: " . ($idCategoria ?? 'NULL'));
+        error_log("idMarca: " . ($idMarca ?? 'NULL'));
+        error_log("busqueda: " . ($busqueda ?? 'NULL'));
+        error_log("precioMin: " . ($precioMin ?? 'NULL'));
+        error_log("precioMax: " . ($precioMax ?? 'NULL'));
+        error_log("pagina: " . $pagina);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         $productos = $this->productoModel->obtenerParaCliente(
             $idCategoria, 
             $idMarca, 
