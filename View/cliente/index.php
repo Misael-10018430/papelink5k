@@ -27,7 +27,18 @@ try {
 try {
     // Obtener categorías activas de la BD
     $categorias = $categoriaController->listarActivas();
+
+     // ⭐ DEBUG - AGREGAR ESTAS LÍNEAS
+    echo "<!-- DEBUG CATEGORIAS -->";
+    echo "<!-- Total categorías: " . count($categorias) . " -->";
+    echo "<!-- Contenido: " . print_r($categorias, true) . " -->";
     
+    
+
+
+
+
+
     // Limitar a las primeras 3 categorías
     if (count($categorias) > 3) {
         $categorias = array_slice($categorias, 0, 3);
