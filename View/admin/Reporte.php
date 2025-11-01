@@ -1,14 +1,22 @@
 
 <?php
-/**
- * Vista: Reportes del Sistema
- * Generación de reportes de ventas, inventario y finanzas
- */
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+echo "<!-- DEBUG: Iniciando carga de reportes.php -->\n";
 
 // ORDEN CORRECTO:
 require_once __DIR__ . '/../../config/config.php';  //  PRIMERO
+echo "<!-- DEBUG: config.php cargado -->\n";
+
 require_once __DIR__ . '/../../config/Auth.php';     //  SEGUNDO
+echo "<!-- DEBUG: Auth.php cargado -->\n";
+
+echo "<!-- DEBUG: SESSION DATA: " . print_r($_SESSION, true) . " -->\n";
+
 Auth::requiereFuncionalidad('REPORTES_VER');         //  TERCERO
+echo "<!-- DEBUG: Auth verificado -->\n";
+// ===== FIN DEBUG =====      //  TERCERO
 
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 $titulo = "Reportes del Sistema - Papelink";
