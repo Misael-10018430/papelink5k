@@ -1,36 +1,52 @@
-
 <?php
+// ⭐ ACTIVAR ERRORES PARA VER QUÉ PASA
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+
 /**
  * Vista: Gestión de Roles del Empleado
  * Asignar y remover roles
  */
 
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-
-
+// ORDEN CORRECTO:
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAdministrador();
-require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
+require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 $idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
+// ⭐ VERIFICAR ID
+if ($idEmpleado === 0) {
+    die("<h1 style='color: red; padding: 50px; text-align: center;'>❌ ERROR: No se proporcionó ID de empleado</h1>");
+}
+
+// ⭐ VERIFICAR CONTROLLER
 $controller = new EmpleadoController();
-$datos = $controller->gestionarRoles($idEmpleado);
 
-echo "<pre style='background: black; color: lime; padding: 20px; margin: 20px;'>";
-echo "DEBUG empleado_roles.php\n";
-echo "idEmpleado: " . $idEmpleado . "\n";
-echo "Datos recibidos:\n";
-print_r($datos);
-echo "</pre>";
+if (!method_exists($controller, 'gestionarRoles')) {
+    die("<h1 style='color: red; padding: 50px; text-align: center;'>❌ ERROR: El método gestionarRoles() no existe</h1>");
+}
 
+// ⭐ OBTENER DATOS
+try {
+    $datos = $controller->gestionarRoles($idEmpleado);
+} catch (Exception $e) {
+    die("<h1 style='color: red; padding: 50px; text-align: center;'>❌ ERROR: " . $e->getMessage() . "</h1>");
+}
 
- $titulo = "Gestión de Roles - Papelink";
+// ⭐ DEBUG TEMPORAL (eliminar después)
+echo "<div style='position: fixed; top: 10px; right: 10px; background: #000; color: lime; padding: 20px; max-width: 400px; max-height: 80vh; overflow: auto; z-index: 99999; border-radius: 8px; font-family: monospace; font-size: 12px;'>";
+echo "<h3 style='margin: 0 0 15px 0; color: #0f0;'>🔍 DEBUG</h3>";
+echo "<p><strong>ID Empleado:</strong> " . $idEmpleado . "</p>";
+echo "<p><strong>Datos:</strong></p>";
+echo "<pre style='margin: 0; white-space: pre-wrap;'>" . print_r($datos, true) . "</pre>";
+echo "</div>";
+
+$titulo = "Gestión de Roles - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 

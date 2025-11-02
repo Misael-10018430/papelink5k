@@ -311,12 +311,37 @@ include __DIR__ . '/includes/header.php';
                 </div>
                 <?php endif; ?>
             </div>
+
+
+
+
+
+
+
+
+
+
             <div class="botones-grupo">
                 <button type="submit" class="btn btn-primario">
                     <?php echo $datos['modo'] === 'editar' ? 'Actualizar Empleado' : 'Crear Empleado'; ?>
                 </button>
                 <a href="empleados.php" class="btn btn-secundario">Cancelar</a>
             </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
         </form>
     </div>
 </div>
