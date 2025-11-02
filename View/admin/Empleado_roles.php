@@ -421,10 +421,16 @@ document.getElementById('formAsignarRol')?.addEventListener('submit', function(e
     if (!confirm(`¿Deseas asignar el rol "${nombreRol}"?`)) {
         return;
     }
-    
+    const datos = new URLSearchParams();
+    datos.append('id_empleado', idEmpleado);
+    datos.append('id_rol', idRol);
+
     fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=asignarRol', {
         method: 'POST',
-        body: new URLSearchParams(formData)
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',  // ✅ Header explícito
+        },
+        body: datos.toString()  // ✅ Convertir a string
     })
     .then(response => response.json())
     .then(data => {
