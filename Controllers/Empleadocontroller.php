@@ -214,44 +214,89 @@ class EmpleadoController {
 
 
     /**
-     * Asignar rol a empleado (AJAX)
-     */
-    public function asignarRol() {
-        header('Content-Type: application/json');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
-            exit;
-        }
-        $idEmpleado = isset($_POST['id_empleado']) ? (int)$_POST['id_empleado'] : 0;
-        $idRol = isset($_POST['id_rol']) ? (int)$_POST['id_rol'] : 0;
-        if (!$idEmpleado || !$idRol) {
-            echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
-            exit;
-        }
+ * Asignar rol a empleado (AJAX)
+ */
+public function asignarRol() {
+    header('Content-Type: application/json');
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
+        exit;
+    }
+    
+    $idEmpleado = isset($_POST['id_empleado']) ? (int)$_POST['id_empleado'] : 0;
+    $idRol = isset($_POST['id_rol']) ? (int)$_POST['id_rol'] : 0;
+    
+    if (!$idEmpleado || !$idRol) {
+        echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
+        exit;
+    }
+    
+    try {
         $resultado = $this->empleadoModel->asignarRol($idEmpleado, $idRol);
         echo json_encode($resultado);
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'mensaje' => 'Error al asignar el rol: ' . $e->getMessage()
+        ]);
+    }
+    exit;
+}
+/**
+ * Remover rol de empleado (AJAX)
+ */
+public function removerRol() {
+    header('Content-Type: application/json');
+    
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
         exit;
     }
-    /**
-     * Remover rol de empleado (AJAX)
-     */
-    public function removerRol() {
-        header('Content-Type: application/json');
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            echo json_encode(['success' => false, 'mensaje' => 'Método no permitido']);
-            exit;
-        }
-        $idEmpleado = isset($_POST['id_empleado']) ? (int)$_POST['id_empleado'] : 0;
-        $idRol = isset($_POST['id_rol']) ? (int)$_POST['id_rol'] : 0;
-        if (!$idEmpleado || !$idRol) {
-            echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
-            exit;
-        }
+    
+    $idEmpleado = isset($_POST['id_empleado']) ? (int)$_POST['id_empleado'] : 0;
+    $idRol = isset($_POST['id_rol']) ? (int)$_POST['id_rol'] : 0;
+    
+    if (!$idEmpleado || !$idRol) {
+        echo json_encode(['success' => false, 'mensaje' => 'Datos inválidos']);
+        exit;
+    }
+    
+    try {
         $resultado = $this->empleadoModel->removerRol($idEmpleado, $idRol);
         echo json_encode($resultado);
-        exit;
+    } catch (Exception $e) {
+        echo json_encode([
+            'success' => false, 
+            'mensaje' => 'Error al remover el rol: ' . $e->getMessage()
+        ]);
     }
+    exit;
 }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ========================================
 // MANEJO DE ACCIONES DIRECTAS (AJAX)
 // ========================================
