@@ -13,17 +13,58 @@ class Empleado {
     /**
      * Obtener todos los empleados
      */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     public function obtenerEmpleados($estado = null) {
-        try {
-            $sql = "EXEC sp_ObtenerEmpleados @Estado = ?";
-            $stmt = $this->conn->prepare($sql);
-            $stmt->execute([$estado]);           
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            error_log("Error en obtenerEmpleados: " . $e->getMessage());
-            return [];
-        }
+    try {
+        $sql = "EXEC sp_ObtenerEmpleados @Estado = ?";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute([$estado]);
+        
+        // ✅ IMPORTANTE: Usar fetchAll para obtener TODOS los resultados
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // ✅ Limpiar el buffer de resultados
+        $stmt->closeCursor();
+        
+        return $resultados;
+        
+    } catch (PDOException $e) {
+        error_log("Error en obtenerEmpleados: " . $e->getMessage());
+        return [];
     }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Obtener un empleado por ID
      */

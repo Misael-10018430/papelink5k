@@ -404,6 +404,32 @@ include __DIR__ . '/includes/header.php';
 </div>
 
 <script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Asignar rol
 document.getElementById('formAsignarRol')?.addEventListener('submit', function(e) {
     e.preventDefault();
@@ -446,8 +472,7 @@ document.getElementById('formAsignarRol')?.addEventListener('submit', function(e
         mostrarAlerta('Error al asignar el rol', 'error');
     });
 });
-
-// Remover rol
+//remover rol 
 document.querySelectorAll('.btn-remover').forEach(btn => {
     btn.addEventListener('click', function() {
         const idRol = this.getAttribute('data-id-rol');
@@ -458,12 +483,17 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
             return;
         }
         
+        // ✅ CORRECCIÓN: Crear URLSearchParams manualmente
+        const datos = new URLSearchParams();
+        datos.append('id_empleado', idEmpleado);
+        datos.append('id_rol', idRol);
+        
         fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `id_empleado=${idEmpleado}&id_rol=${idRol}`
+            body: datos.toString()
         })
         .then(response => response.json())
         .then(data => {
@@ -480,6 +510,18 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
         });
     });
 });
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Función para mostrar alertas
 function mostrarAlerta(mensaje, tipo) {
