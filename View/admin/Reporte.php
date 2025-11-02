@@ -1,20 +1,44 @@
-
 <?php
 /**
  * Vista: Reportes del Sistema
  * Generación de reportes de ventas, inventario y finanzas
  */
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// ORDEN CORRECTO:
-require_once __DIR__ . '/../../config/config.php';  //  PRIMERO
-require_once __DIR__ . '/../../config/Auth.php';     //  SEGUNDO
-Auth::requiereFuncionalidad('REPORTES_VER');         //  TERCERO
+require_once __DIR__ . '/../../config/Auth.php';
+require_once __DIR__ . '/../../config/config.php';
+
+// ✅ VERIFICAR PERMISOS
+Auth::requiereFuncionalidad('REPORTES_VER');
 
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 $titulo = "Reportes del Sistema - Papelink";
 
 include __DIR__ . '/includes/header.php';
 ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <!-- ===================================
      ESTILOS CSS PROFESIONAL INTEGRADOS

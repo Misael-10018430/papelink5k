@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../../config/Auth.php';
 // Obtener la página actual
 $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
