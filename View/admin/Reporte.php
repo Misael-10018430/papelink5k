@@ -538,7 +538,7 @@ document.getElementById('form-ventas-periodo').addEventListener('submit', functi
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarVentasPorPeriodo', {
+    fetch('../../controllers/ReporteController.php?action=generarVentasPorPeriodo', {
         method: 'POST',
         body: formData
     })
@@ -611,7 +611,7 @@ document.getElementById('form-ventas-metodo').addEventListener('submit', functio
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarVentasPorMetodoPago', {
+   fetch('../../controllers/ReporteController.php?action=generarVentasPorMetodoPago', {
         method: 'POST',
         body: formData
     })
@@ -650,7 +650,7 @@ document.getElementById('form-ventas-cliente').addEventListener('submit', functi
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarVentasPorCliente', {
+    fetch('../../controllers/ReporteController.php?action=generarVentasPorCliente', {
         method: 'POST',
         body: formData
     })
@@ -689,7 +689,7 @@ document.getElementById('form-financiero').addEventListener('submit', function(e
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarReporteFinanciero', {
+    fetch('../../controllers/ReporteController.php?action=generarReporteFinanciero', {
         method: 'POST',
         body: formData
     })
@@ -762,10 +762,11 @@ document.getElementById('form-productos').addEventListener('submit', function(e)
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarProductosMasVendidos', {
+    fetch('../../controllers/ReporteController.php?action=generarProductosMasVendidos', {
         method: 'POST',
         body: formData
     })
+
     .then(response => response.json())
     .then(data => {
         loading.style.display = 'none';
@@ -799,7 +800,7 @@ document.getElementById('btn-inventario').addEventListener('click', function() {
     loading.style.display = 'block';
     resultado.style.display = 'none';
     
-    fetch('<?php echo BASE_URL; ?>controllers/ReporteController.php?action=generarInventarioActual', {
+    fetch('../../controllers/ReporteController.php?action=generarInventarioActual', {
         method: 'POST'
     })
     .then(response => response.json())
