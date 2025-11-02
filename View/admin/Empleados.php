@@ -451,10 +451,10 @@ include __DIR__ . '/includes/header.php';
                             <td class="texto-centrado">
                                 <div class="acciones-grupo">
                                     <a href="<?php echo BASE_URL; ?>view/admin/empleado_form.php?id=<?php echo $empleado['IdEmpleado']; ?>" 
-                                        class="btn btn-secundario btn-chico">
-                                            Editar
-                                        </a>
-                                    <a href="empleado_roles.php?id=<?php echo $empleado['IdEmpleado']; ?>" 
+                                    class="btn btn-secundario btn-chico">
+                                        Editar
+                                    </a>
+                                    <a href="<?php echo BASE_URL; ?>view/admin/empleado_roles.php?id=<?php echo $empleado['IdEmpleado']; ?>" 
                                     class="btn btn-info btn-chico">
                                         Roles
                                     </a>
