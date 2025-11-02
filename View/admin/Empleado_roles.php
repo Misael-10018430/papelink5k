@@ -4,21 +4,17 @@
  * Vista: Gestión de Roles del Empleado
  * Asignar y remover roles
  */
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAdministrador();
-
-$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
- $idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
- $controller = new EmpleadoController();
- $datos = $controller->gestionarRoles($idEmpleado);
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+$controller = new EmpleadoController();
+$datos = $controller->gestionarRoles($idEmpleado);
 
  $titulo = "Gestión de Roles - Papelink";
 include __DIR__ . '/includes/header.php';
