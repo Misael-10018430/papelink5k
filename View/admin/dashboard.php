@@ -392,7 +392,7 @@ include 'includes/header.php';
         <?php endif; ?>
         
         <?php if (Auth::esAdministrador() || Auth::tieneFuncionalidad('REPORTES_VER')): ?>
-        <a href="reportes.php" class="btn btn-primario acceso-directo">
+        <a href="reporte.php" class="btn btn-primario acceso-directo">
             Ver Reportes
         </a>
         <?php endif; ?>
