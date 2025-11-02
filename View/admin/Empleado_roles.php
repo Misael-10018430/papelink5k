@@ -4,54 +4,35 @@
  * Vista: Gestión de Roles del Empleado
  * Asignar y remover roles
  */
+
+// ORDEN CORRECTO - NO TOCAR
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAdministrador();
+
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
-
-
-
-
-
+// Validar ID
 if ($idEmpleado === 0) {
     $_SESSION['error'] = 'ID de empleado no válido';
     header('Location: ' . BASE_URL . 'view/admin/empleados.php');
     exit;
 }
 
-
-
-
-
-
-$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
-$idEmpleado = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-
 $controller = new EmpleadoController();
 $datos = $controller->gestionarRoles($idEmpleado);
 
-
-
-
-
-
-
-
+// Validar datos
 if (empty($datos) || !isset($datos['empleado'])) {
     $_SESSION['error'] = 'No se pudieron obtener los datos del empleado';
     header('Location: ' . BASE_URL . 'view/admin/empleados.php');
     exit;
 }
 
-
-
-
-
-
-
- $titulo = "Gestión de Roles - Papelink";
+$titulo = "Gestión de Roles - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 
