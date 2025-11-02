@@ -140,34 +140,79 @@ class EmpleadoController {
         echo json_encode($resultado);
         exit;
     }
-    /**
-     * Ver gestión de roles del empleado
-     */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
     public function gestionarRoles($idEmpleado) {
-        if (!$idEmpleado || !is_numeric($idEmpleado)) {
-            $_SESSION['error'] = 'ID de empleado inválido';
-            header('Location: empleados.php');
-            exit;
-        }
-        $empleado = $this->empleadoModel->obtenerPorId($idEmpleado);
-        if (!$empleado) {
-            $_SESSION['error'] = 'Empleado no encontrado';
-            header('Location: empleados.php');
-            exit;
-        }
-        $rolesAsignados = $this->empleadoModel->obtenerRolesEmpleado($idEmpleado);
-        $todosRoles = $this->empleadoModel->obtenerRoles(1);
-        // Filtrar roles que no están asignados
-        $idsRolesAsignados = array_column($rolesAsignados, 'IdRol');
-        $rolesDisponibles = array_filter($todosRoles, function($rol) use ($idsRolesAsignados) {
-            return !in_array($rol['IdRol'], $idsRolesAsignados);
-        });
+    if (!$idEmpleado || !is_numeric($idEmpleado)) {
         return [
-            'empleado' => $empleado,
-            'roles_asignados' => $rolesAsignados,
-            'roles_disponibles' => $rolesDisponibles
+            'empleado' => null,
+            'roles_asignados' => [],
+            'roles_disponibles' => []
         ];
     }
+    
+    $empleado = $this->empleadoModel->obtenerPorId($idEmpleado);
+    
+    if (!$empleado) {
+        return [
+            'empleado' => null,
+            'roles_asignados' => [],
+            'roles_disponibles' => []
+        ];
+    }
+    
+    $rolesAsignados = $this->empleadoModel->obtenerRolesEmpleado($idEmpleado);
+    $todosRoles = $this->empleadoModel->obtenerRoles(1);
+    
+    // Filtrar roles que no están asignados
+    $idsRolesAsignados = array_column($rolesAsignados, 'IdRol');
+    $rolesDisponibles = array_filter($todosRoles, function($rol) use ($idsRolesAsignados) {
+        return !in_array($rol['IdRol'], $idsRolesAsignados);
+    });
+    
+    return [
+        'empleado' => $empleado,
+        'roles_asignados' => $rolesAsignados,
+        'roles_disponibles' => $rolesDisponibles
+    ];
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Asignar rol a empleado (AJAX)
      */
