@@ -11,7 +11,7 @@ if (session_status() === PHP_SESSION_NONE) {
 require_once __DIR__ . '/../../config/Auth.php';
 Auth::requiereAdministrador();
 
- $paginaActual = basename($_SERVER['PHP_SELF'], '.php');
+$paginaActual = basename($_SERVER['PHP_SELF'], '.php');
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/EmpleadoController.php';
 
