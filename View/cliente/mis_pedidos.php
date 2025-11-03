@@ -15,13 +15,6 @@ require_once __DIR__ . '/../../controllers/PedidoController.php';
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
-
-
-
-
-
-
-
 // Incluir header
 $titulo = "Mis Pedidos - Papelink";
 include_once __DIR__ . '/includes/header.php';
