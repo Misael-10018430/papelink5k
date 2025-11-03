@@ -472,21 +472,29 @@ document.getElementById('formAsignarRol')?.addEventListener('submit', function(e
         mostrarAlerta('Error al asignar el rol', 'error');
     });
 });
-//remover rol 
+// Remover rol
 document.querySelectorAll('.btn-remover').forEach(btn => {
     btn.addEventListener('click', function() {
         const idRol = this.getAttribute('data-id-rol');
         const nombreRol = this.getAttribute('data-nombre-rol');
         const idEmpleado = <?php echo $idEmpleado; ?>;
         
+        console.log('=== DEBUG REMOVER ROL ===');
+        console.log('ID Empleado:', idEmpleado);
+        console.log('ID Rol:', idRol);
+        console.log('Nombre Rol:', nombreRol);
+        
         if (!confirm(`¿Deseas remover el rol "${nombreRol}"?`)) {
             return;
         }
         
-        // ✅ CORRECCIÓN: Crear URLSearchParams manualmente
+        // Crear URLSearchParams manualmente
         const datos = new URLSearchParams();
         datos.append('id_empleado', idEmpleado);
         datos.append('id_rol', idRol);
+        
+        console.log('Datos a enviar:', datos.toString());
+        console.log('URL:', '<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol');
         
         fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol', {
             method: 'POST',
@@ -495,18 +503,30 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
             },
             body: datos.toString()
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarAlerta(data.mensaje, 'exito');
-                setTimeout(() => location.reload(), 1500);
-            } else {
-                mostrarAlerta(data.mensaje, 'error');
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            return response.text(); // Primero como texto para ver qué devuelve
+        })
+        .then(text => {
+            console.log('Respuesta RAW del servidor:', text);
+            try {
+                const data = JSON.parse(text);
+                console.log('Respuesta parseada:', data);
+                if (data.success) {
+                    mostrarAlerta(data.mensaje, 'exito');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    mostrarAlerta(data.mensaje || 'Error desconocido', 'error');
+                }
+            } catch (e) {
+                console.error('Error al parsear JSON:', e);
+                mostrarAlerta('Error: La respuesta del servidor no es JSON válido', 'error');
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            mostrarAlerta('Error al remover el rol', 'error');
+            console.error('Error completo:', error);
+            mostrarAlerta('Error al remover el rol: ' + error.message, 'error');
         });
     });
 });
