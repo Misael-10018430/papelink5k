@@ -112,9 +112,12 @@ public function obtenerEnvio($idPedido) {
 
 
 
+/**
+ * Obtener pedidos del cliente (VERSIÓN FINAL - GARANTIZADA)
+ */
 public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
     try {
-        // ✅ Query simple y directa
+        // ✅ Query base simple
         $query = "SELECT 
                     p.IdPedido,
                     p.NumeroPedido,
@@ -122,73 +125,127 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
                     p.Total,
                     p.IdEstadoPedido,
                     p.IdMetodoPago,
-                    p.IdTipoEntrega,
-                    p.IdCliente
+                    p.IdTipoEntrega
                   FROM Pedidos p
                   WHERE p.IdCliente = ?
                   ORDER BY p.FechaPedido DESC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->execute([(int)$idCliente]);
+        
+        if (!$stmt) {
+            return [];
+        }
+        
+        $ejecutado = $stmt->execute([(int)$idCliente]);
+        
+        if (!$ejecutado) {
+            return [];
+        }
         
         $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        // ✅ Si no hay pedidos, retornar array vacío
+        // Si no hay pedidos, retornar vacío
         if (empty($pedidos)) {
             return [];
         }
         
-        // ✅ Agregar información adicional a cada pedido
-        foreach ($pedidos as &$pedido) {
+        // ✅ Enriquecer cada pedido con información adicional
+        $resultado = [];
+        
+        foreach ($pedidos as $pedido) {
+            // Crear array con los datos básicos
+            $pedidoCompleto = [
+                'IdPedido' => $pedido['IdPedido'],
+                'NumeroPedido' => $pedido['NumeroPedido'],
+                'FechaPedido' => $pedido['FechaPedido'],
+                'Total' => $pedido['Total'],
+                'IdEstadoPedido' => $pedido['IdEstadoPedido'],
+                'IdMetodoPago' => $pedido['IdMetodoPago'],
+                'IdTipoEntrega' => $pedido['IdTipoEntrega']
+            ];
+            
             // Obtener nombre del estado
-            $stmtEstado = $this->conn->prepare("SELECT NombreEstado FROM EstadosPedido WHERE IdEstadoPedido = ?");
-            $stmtEstado->execute([$pedido['IdEstadoPedido']]);
-            $estado = $stmtEstado->fetch(PDO::FETCH_ASSOC);
-            $pedido['EstadoPedido'] = $estado ? $estado['NombreEstado'] : 'Desconocido';
+            try {
+                $stmtEstado = $this->conn->prepare("SELECT NombreEstado FROM EstadosPedido WHERE IdEstadoPedido = ?");
+                if ($stmtEstado && $stmtEstado->execute([$pedido['IdEstadoPedido']])) {
+                    $estado = $stmtEstado->fetch(PDO::FETCH_ASSOC);
+                    $pedidoCompleto['EstadoPedido'] = $estado ? $estado['NombreEstado'] : 'Pendiente';
+                } else {
+                    $pedidoCompleto['EstadoPedido'] = 'Pendiente';
+                }
+            } catch (Exception $e) {
+                $pedidoCompleto['EstadoPedido'] = 'Pendiente';
+            }
             
             // Obtener método de pago
-            if (!empty($pedido['IdMetodoPago'])) {
-                $stmtMetodo = $this->conn->prepare("SELECT NombreMetodo FROM MetodosPago WHERE IdMetodo = ?");
-                $stmtMetodo->execute([$pedido['IdMetodoPago']]);
-                $metodo = $stmtMetodo->fetch(PDO::FETCH_ASSOC);
-                $pedido['MetodoPago'] = $metodo ? $metodo['NombreMetodo'] : 'N/A';
-            } else {
-                $pedido['MetodoPago'] = 'N/A';
+            try {
+                if ($pedido['IdMetodoPago']) {
+                    $stmtMetodo = $this->conn->prepare("SELECT NombreMetodo FROM MetodosPago WHERE IdMetodo = ?");
+                    if ($stmtMetodo && $stmtMetodo->execute([$pedido['IdMetodoPago']])) {
+                        $metodo = $stmtMetodo->fetch(PDO::FETCH_ASSOC);
+                        $pedidoCompleto['MetodoPago'] = $metodo ? $metodo['NombreMetodo'] : 'N/A';
+                    } else {
+                        $pedidoCompleto['MetodoPago'] = 'N/A';
+                    }
+                } else {
+                    $pedidoCompleto['MetodoPago'] = 'N/A';
+                }
+            } catch (Exception $e) {
+                $pedidoCompleto['MetodoPago'] = 'N/A';
             }
             
             // Contar productos
-            $stmtCount = $this->conn->prepare("SELECT COUNT(*) as total FROM DetallePedidos WHERE IdPedido = ?");
-            $stmtCount->execute([$pedido['IdPedido']]);
-            $count = $stmtCount->fetch(PDO::FETCH_ASSOC);
-            $pedido['TotalProductos'] = $count ? (int)$count['total'] : 0;
+            try {
+                $stmtCount = $this->conn->prepare("SELECT COUNT(*) as total FROM DetallePedidos WHERE IdPedido = ?");
+                if ($stmtCount && $stmtCount->execute([$pedido['IdPedido']])) {
+                    $count = $stmtCount->fetch(PDO::FETCH_ASSOC);
+                    $pedidoCompleto['TotalProductos'] = $count ? (int)$count['total'] : 0;
+                } else {
+                    $pedidoCompleto['TotalProductos'] = 0;
+                }
+            } catch (Exception $e) {
+                $pedidoCompleto['TotalProductos'] = 0;
+            }
             
-            // Obtener info de envío (si existe)
-            $stmtEnvio = $this->conn->prepare("SELECT e.FechaEntregaEstimada, ee.NombreEstado as EstadoEnvio 
-                                               FROM Envios e 
-                                               LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio 
-                                               WHERE e.IdPedido = ?");
-            $stmtEnvio->execute([$pedido['IdPedido']]);
-            $envio = $stmtEnvio->fetch(PDO::FETCH_ASSOC);
+            // Obtener info de envío
+            try {
+                $stmtEnvio = $this->conn->prepare("SELECT e.FechaEntregaEstimada, ee.NombreEstado 
+                                                   FROM Envios e 
+                                                   LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio 
+                                                   WHERE e.IdPedido = ?");
+                if ($stmtEnvio && $stmtEnvio->execute([$pedido['IdPedido']])) {
+                    $envio = $stmtEnvio->fetch(PDO::FETCH_ASSOC);
+                    $pedidoCompleto['FechaEntregaEstimada'] = $envio ? $envio['FechaEntregaEstimada'] : null;
+                    $pedidoCompleto['EstadoEnvio'] = $envio ? $envio['NombreEstado'] : null;
+                } else {
+                    $pedidoCompleto['FechaEntregaEstimada'] = null;
+                    $pedidoCompleto['EstadoEnvio'] = null;
+                }
+            } catch (Exception $e) {
+                $pedidoCompleto['FechaEntregaEstimada'] = null;
+                $pedidoCompleto['EstadoEnvio'] = null;
+            }
             
-            $pedido['FechaEntregaEstimada'] = $envio ? $envio['FechaEntregaEstimada'] : null;
-            $pedido['EstadoEnvio'] = $envio ? $envio['EstadoEnvio'] : null;
+            // Agregar al resultado
+            $resultado[] = $pedidoCompleto;
         }
         
-        // ✅ Aplicar filtro de estado (si existe)
+        // Aplicar filtro de estado si existe
         if ($estadoFiltro) {
-            $pedidos = array_filter($pedidos, function($p) use ($estadoFiltro) {
-                return $p['EstadoPedido'] === $estadoFiltro;
+            $resultado = array_filter($resultado, function($p) use ($estadoFiltro) {
+                return isset($p['EstadoPedido']) && $p['EstadoPedido'] === $estadoFiltro;
             });
-            $pedidos = array_values($pedidos); // Reindexar
+            $resultado = array_values($resultado);
         }
         
-        return $pedidos;
+        return $resultado;
         
     } catch (PDOException $e) {
         return [];
+    } catch (Exception $e) {
+        return [];
     }
 }
-
 
 
 
