@@ -1,4 +1,3 @@
-
 <?php
 /**
  * Vista: Mis Pedidos del Cliente
@@ -6,7 +5,6 @@
 
 // ORDEN CORRECTO
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../config/Auth.php';
 
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
@@ -21,6 +19,7 @@ require_once __DIR__ . '/../../controllers/PedidoController.php';
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
+// Incluir header
 $titulo = "Mis Pedidos - Papelink";
 include_once __DIR__ . '/includes/header.php';
 ?>
