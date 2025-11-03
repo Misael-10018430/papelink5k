@@ -2,32 +2,64 @@
 /**
  * Vista: Mis Pedidos del Cliente
  */
-
 // ORDEN CORRECTO
 require_once __DIR__ . '/../../config/config.php';
-
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
     $_SESSION['error'] = 'Debe iniciar sesión para ver sus pedidos';
     header('Location: ' . BASE_URL . 'view/cliente/login.php');
     exit;
 }
-
 require_once __DIR__ . '/../../controllers/PedidoController.php';
-
 // Obtener pedidos del cliente
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
-// DEBUG CRÍTICO - Revisar en logs de Azure
-error_log("=== MIS_PEDIDOS.PHP DEBUG ===");
-error_log("Cliente ID: " . $_SESSION['cliente_id']);
-error_log("Total pedidos retornados: " . count($pedidos));
+
+
+
+
+
+
+
+
+
+
+// ========== DEBUG TEMPORAL - ELIMINAR DESPUÉS ==========
+echo "<div style='background:#FFF3CD;border:3px solid #856404;padding:20px;margin:20px;border-radius:8px;'>";
+echo "<h2 style='color:#856404;margin:0 0 15px 0;'>DEBUG DE SESIÓN Y PEDIDOS</h2>";
+echo "<pre style='margin:0;'>";
+echo "Cliente ID en sesión: " . (isset($_SESSION['cliente_id']) ? $_SESSION['cliente_id'] : 'NO EXISTE') . "\n";
+echo "Tipo de dato: " . (isset($_SESSION['cliente_id']) ? gettype($_SESSION['cliente_id']) : 'N/A') . "\n";
+echo "Nombre en sesión: " . (isset($_SESSION['cliente_nombre']) ? $_SESSION['cliente_nombre'] : 'NO EXISTE') . "\n";
+echo "\nTotal de pedidos retornados: " . count($pedidos) . "\n";
+
 if (!empty($pedidos)) {
-    error_log("Primer pedido: IdPedido=" . $pedidos[0]['IdPedido']);
+    echo "\n✅ PRIMER PEDIDO:\n";
+    echo "  IdPedido: " . $pedidos[0]['IdPedido'] . "\n";
+    echo "  NumeroPedido: " . $pedidos[0]['NumeroPedido'] . "\n";
+    echo "  Total: $" . $pedidos[0]['Total'] . "\n";
+    echo "  EstadoPedido: " . $pedidos[0]['EstadoPedido'] . "\n";
 } else {
-    error_log("❌ Array de pedidos VACÍO");
+    echo "\n❌ Array de pedidos está VACÍO\n";
+    echo "\nPOSIBLES CAUSAS:\n";
+    echo "1. El cliente NO ha realizado ninguna compra\n";
+    echo "2. El IdCliente en la sesión es incorrecto\n";
+    echo "3. Error en la consulta SQL\n";
 }
+echo "</pre>";
+echo "</div>";
+// ========== FIN DEBUG TEMPORAL ==========
+
+
+
+
+
+
+
+
+
+
 
 // Incluir header
 $titulo = "Mis Pedidos - Papelink";

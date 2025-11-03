@@ -106,81 +106,100 @@ public function obtenerEnvio($idPedido) {
 
 
 
-    /**
-     * Obtener pedidos del cliente
-     */
-    /**
- * Obtener pedidos del cliente (VERSIÓN FINAL CORREGIDA)
- */
-/**
- * Obtener pedidos del cliente (VERSIÓN FINAL CON DEBUG)
- */
-/**
- * Obtener pedidos del cliente (VERSIÓN CORREGIDA FINAL)
- */
+
+
+
+
+
+
 public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
     try {
-        error_log("========================================");
-        error_log("=== obtenerPorCliente() DEBUG ===");
-        error_log("IdCliente: " . $idCliente);
-        
-        $query = "SELECT TOP (:limite)
+        // ✅ Query simple y directa
+        $query = "SELECT 
                     p.IdPedido,
                     p.NumeroPedido,
                     p.FechaPedido,
-                    ep.NombreEstado as EstadoPedido,
                     p.Total,
-                    mp.NombreMetodo as MetodoPago,
-                    (SELECT COUNT(*) FROM DetallePedidos WHERE IdPedido = p.IdPedido) as TotalProductos,
-                    ee.NombreEstado as EstadoEnvio,
-                    e.FechaEntregaEstimada,
-                    p.IdTipoEntrega
+                    p.IdEstadoPedido,
+                    p.IdMetodoPago,
+                    p.IdTipoEntrega,
+                    p.IdCliente
                   FROM Pedidos p
-                  LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
-                  LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodo
-                  LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
-                  LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
-                  WHERE p.IdCliente = :idCliente";
-        
-        if ($estadoFiltro) {
-            $query .= " AND ep.NombreEstado = :estadoFiltro";
-        }
-        
-        $query .= " ORDER BY p.FechaPedido DESC";
+                  WHERE p.IdCliente = ?
+                  ORDER BY p.FechaPedido DESC";
         
         $stmt = $this->conn->prepare($query);
+        $stmt->execute([(int)$idCliente]);
         
-        // ✅ Conversión explícita a INT
-        $stmt->bindValue(':idCliente', (int)$idCliente, PDO::PARAM_INT);
-        $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
+        $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        if ($estadoFiltro) {
-            $stmt->bindValue(':estadoFiltro', $estadoFiltro, PDO::PARAM_STR);
-        }
-        
-        error_log("Ejecutando query...");
-        $result = $stmt->execute();
-        
-        if (!$result) {
-            error_log("ERROR: " . print_r($stmt->errorInfo(), true));
+        // ✅ Si no hay pedidos, retornar array vacío
+        if (empty($pedidos)) {
             return [];
         }
         
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        error_log("Pedidos encontrados: " . count($resultados));
-        
-        if (count($resultados) > 0) {
-            error_log("Primer pedido: IdPedido=" . $resultados[0]['IdPedido']);
+        // ✅ Agregar información adicional a cada pedido
+        foreach ($pedidos as &$pedido) {
+            // Obtener nombre del estado
+            $stmtEstado = $this->conn->prepare("SELECT NombreEstado FROM EstadosPedido WHERE IdEstadoPedido = ?");
+            $stmtEstado->execute([$pedido['IdEstadoPedido']]);
+            $estado = $stmtEstado->fetch(PDO::FETCH_ASSOC);
+            $pedido['EstadoPedido'] = $estado ? $estado['NombreEstado'] : 'Desconocido';
+            
+            // Obtener método de pago
+            if (!empty($pedido['IdMetodoPago'])) {
+                $stmtMetodo = $this->conn->prepare("SELECT NombreMetodo FROM MetodosPago WHERE IdMetodo = ?");
+                $stmtMetodo->execute([$pedido['IdMetodoPago']]);
+                $metodo = $stmtMetodo->fetch(PDO::FETCH_ASSOC);
+                $pedido['MetodoPago'] = $metodo ? $metodo['NombreMetodo'] : 'N/A';
+            } else {
+                $pedido['MetodoPago'] = 'N/A';
+            }
+            
+            // Contar productos
+            $stmtCount = $this->conn->prepare("SELECT COUNT(*) as total FROM DetallePedidos WHERE IdPedido = ?");
+            $stmtCount->execute([$pedido['IdPedido']]);
+            $count = $stmtCount->fetch(PDO::FETCH_ASSOC);
+            $pedido['TotalProductos'] = $count ? (int)$count['total'] : 0;
+            
+            // Obtener info de envío (si existe)
+            $stmtEnvio = $this->conn->prepare("SELECT e.FechaEntregaEstimada, ee.NombreEstado as EstadoEnvio 
+                                               FROM Envios e 
+                                               LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio 
+                                               WHERE e.IdPedido = ?");
+            $stmtEnvio->execute([$pedido['IdPedido']]);
+            $envio = $stmtEnvio->fetch(PDO::FETCH_ASSOC);
+            
+            $pedido['FechaEntregaEstimada'] = $envio ? $envio['FechaEntregaEstimada'] : null;
+            $pedido['EstadoEnvio'] = $envio ? $envio['EstadoEnvio'] : null;
         }
         
-        error_log("========================================");
+        // ✅ Aplicar filtro de estado (si existe)
+        if ($estadoFiltro) {
+            $pedidos = array_filter($pedidos, function($p) use ($estadoFiltro) {
+                return $p['EstadoPedido'] === $estadoFiltro;
+            });
+            $pedidos = array_values($pedidos); // Reindexar
+        }
         
-        return $resultados;
+        return $pedidos;
+        
     } catch (PDOException $e) {
-        error_log("ERROR PDO: " . $e->getMessage());
         return [];
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Obtener detalle de un pedido
      */

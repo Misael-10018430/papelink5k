@@ -86,30 +86,53 @@ class PedidoController {
     /**
      * Ver pedidos del cliente (CLIENTE)
      */
-    public function misPedidos() {
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    /**
+ * Obtener pedidos del cliente logueado (CUALQUIER CLIENTE)
+ */
+public function misPedidos() {
     // Verificar que el cliente esté logueado
     if (!isset($_SESSION['cliente_id'])) {
-        error_log("ERROR: Cliente no logueado");
         $_SESSION['error'] = 'Debe iniciar sesión para ver sus pedidos';
         header('Location: ' . BASE_URL . 'view/cliente/login.php');
         exit;
     }
     
-    $idCliente = $_SESSION['cliente_id'];
+    // ✅ Obtener el ID del cliente de la sesión (CUALQUIER CLIENTE)
+    $idCliente = (int)$_SESSION['cliente_id'];
     
-    error_log("=== misPedidos() ===");
-    error_log("IdCliente de sesión: " . $idCliente);
-    error_log("Nombre de sesión: " . ($_SESSION['cliente_nombre'] ?? 'N/A'));
-    
-    // Aplicar filtros si existen
+    // Obtener filtro de estado (opcional)
     $estadoFiltro = $_GET['estado'] ?? null;
     
+    // ✅ Buscar pedidos del cliente específico (sin forzar ID)
     $pedidos = $this->pedidoModel->obtenerPorCliente($idCliente, 100, $estadoFiltro);
     
-    error_log("Pedidos retornados: " . count($pedidos));
-    
     return $pedidos;
-    }
+}
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Ver detalle de un pedido (CLIENTE)
      */
