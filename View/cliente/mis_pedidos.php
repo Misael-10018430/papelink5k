@@ -19,294 +19,379 @@ require_once __DIR__ . '/../../controllers/PedidoController.php';
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
-
+// DEBUG CRÍTICO - Revisar en logs de Azure
+error_log("=== MIS_PEDIDOS.PHP DEBUG ===");
+error_log("Cliente ID: " . $_SESSION['cliente_id']);
+error_log("Total pedidos retornados: " . count($pedidos));
+if (!empty($pedidos)) {
+    error_log("Primer pedido: IdPedido=" . $pedidos[0]['IdPedido']);
+} else {
+    error_log("❌ Array de pedidos VACÍO");
+}
 
 // Incluir header
 $titulo = "Mis Pedidos - Papelink";
 include_once __DIR__ . '/includes/header.php';
 ?>
+
 <div class="contenedor-principal">
 <style>
-    .titulo-seccion {
-        background-color: white;
-        padding: 25px;
+    /* ===================================
+       DISEÑO PROFESIONAL UNIFICADO
+       =================================== */
+    :root {
+        --color-primario: #2C3E50;
+        --color-secundario: #34495E;
+        --color-acento: #FF6347;
+        --color-exito: #27AE60;
+        --color-advertencia: #F39C12;
+        --color-peligro: #E74C3C;
+        --color-info: #3498DB;
+        --color-texto: #2C3E50;
+        --color-texto-claro: #7F8C8D;
+        --color-fondo: #ECF0F1;
+        --color-blanco: #FFFFFF;
+        --color-borde: #BDC3C7;
+    }
+
+    .contenedor-principal {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 30px 20px;
+        background-color: var(--color-fondo);
+    }
+
+    /* Encabezado */
+    .header-pedidos {
+        background: var(--color-blanco);
+        padding: 30px;
         border-radius: 8px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-    
-    .titulo-seccion h1 {
-        color: #2C3E50;
-        margin-bottom: 10px;
-    }
-    
-    .titulo-seccion p {
-        color: #666;
-        font-size: 14px;
-    }
-    
-    .pedidos-container {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-    }
-    
-    .pedido-card {
-        background-color: white;
-        border-radius: 8px;
-        padding: 25px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    
-    .pedido-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-    }
-    
-    .pedido-header {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        padding-bottom: 20px;
-        border-bottom: 2px solid #f0f0f0;
-        margin-bottom: 20px;
-    }
-    
-    .pedido-info-item {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .pedido-info-item label {
-        font-size: 12px;
-        color: #666;
-        margin-bottom: 5px;
-        text-transform: uppercase;
-        font-weight: bold;
-    }
-    
-    .pedido-info-item span {
-        font-size: 16px;
-        color: #333;
-        font-weight: 500;
-    }
-    
-    .numero-pedido {
-        color: #FF6347 !important;
-        font-weight: bold !important;
-        font-size: 18px !important;
-    }
-    
-    .estado-badge {
-        display: inline-block;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 13px;
-        font-weight: bold;
-        text-transform: uppercase;
-    }
-    
-    .estado-pendiente {
-        background-color: #FFC107;
-        color: #333;
-    }
-    
-    .estado-proceso {
-        background-color: #2196F3;
-        color: white;
-    }
-    
-    .estado-enviado {
-        background-color: #9C27B0;
-        color: white;
-    }
-    
-    .estado-completado {
-        background-color: #27AE60;
-        color: white;
-    }
-    
-    .estado-cancelado {
-        background-color: #E74C3C;
-        color: white;
-    }
-    
-    .pedido-body {
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 20px;
         flex-wrap: wrap;
+        gap: 20px;
     }
-    
-    .pedido-resumen {
+
+    .header-pedidos h1 {
+        color: var(--color-primario);
+        font-size: 28px;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .header-pedidos p {
+        color: var(--color-texto-claro);
+        font-size: 14px;
+        margin: 5px 0 0 0;
+    }
+
+    .total-pedidos {
+        background: var(--color-acento);
+        color: var(--color-blanco);
+        padding: 12px 24px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 16px;
+    }
+
+    /* Mensajes */
+    .mensaje {
+        padding: 15px 20px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        font-weight: 500;
+        border-left: 4px solid;
+    }
+
+    .mensaje-exito {
+        background-color: #D5F4E6;
+        color: #0F5132;
+        border-color: var(--color-exito);
+    }
+
+    .mensaje-error {
+        background-color: #F8D7DA;
+        color: #842029;
+        border-color: var(--color-peligro);
+    }
+
+    /* Filtros */
+    .filtros-container {
+        background: var(--color-blanco);
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
+    .filtros-container label {
+        font-weight: 600;
+        color: var(--color-primario);
+        margin-right: 15px;
+        font-size: 15px;
+    }
+
+    .filtros-container select {
+        padding: 10px 15px;
+        border: 2px solid var(--color-borde);
+        border-radius: 6px;
+        font-size: 14px;
+        color: var(--color-texto);
+        background: var(--color-blanco);
+        cursor: pointer;
+        transition: border-color 0.3s;
+        min-width: 200px;
+    }
+
+    .filtros-container select:focus {
+        outline: none;
+        border-color: var(--color-acento);
+    }
+
+    /* Listado de pedidos */
+    .pedidos-lista {
         display: flex;
-        gap: 30px;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .pedido-item {
+        background: var(--color-blanco);
+        border-radius: 8px;
+        padding: 25px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        border-left: 4px solid var(--color-acento);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .pedido-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+
+    .pedido-contenido {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr auto;
+        gap: 25px;
         align-items: center;
     }
-    
-    .pedido-resumen-item {
+
+    .pedido-principal {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .pedido-numero {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--color-acento);
+        margin: 0;
+    }
+
+    .pedido-fecha {
+        font-size: 14px;
+        color: var(--color-texto-claro);
+    }
+
+    .pedido-info {
         text-align: center;
     }
-    
-    .pedido-resumen-item .label {
-        font-size: 12px;
-        color: #666;
+
+    .pedido-info-label {
         display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        color: var(--color-texto-claro);
+        font-weight: 600;
         margin-bottom: 5px;
+        letter-spacing: 0.5px;
     }
-    
-    .pedido-resumen-item .valor {
-        font-size: 20px;
-        font-weight: bold;
-        color: #333;
+
+    .pedido-info-valor {
+        display: block;
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-primario);
     }
-    
-    .pedido-resumen-item .valor.total {
-        color: #FF6347;
-        font-size: 24px;
+
+    .pedido-total {
+        font-size: 24px !important;
+        color: var(--color-acento) !important;
     }
-    
+
+    .pedido-estado {
+        text-align: center;
+    }
+
+    .badge-estado {
+        display: inline-block;
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-pendiente {
+        background-color: #FFF3CD;
+        color: #856404;
+    }
+
+    .badge-proceso {
+        background-color: #D1ECF1;
+        color: #0C5460;
+    }
+
+    .badge-enviado {
+        background-color: #E2D9F3;
+        color: #5A1E8E;
+    }
+
+    .badge-completado {
+        background-color: #D5F4E6;
+        color: #0F5132;
+    }
+
+    .badge-cancelado {
+        background-color: #F8D7DA;
+        color: #842029;
+    }
+
     .pedido-acciones {
         display: flex;
         gap: 10px;
+        flex-direction: column;
     }
-    
-    .btn-detalle {
-        background-color: #2C3E50;
-        color: white;
-        padding: 12px 25px;
-        border-radius: 4px;
+
+    .btn {
+        padding: 10px 20px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 14px;
         text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.3s;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .btn-detalle:hover {
-        background-color: #1a252f;
-    }
-    
-    .btn-cancelar {
-        background-color: #E74C3C;
-        color: white;
-        padding: 12px 25px;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: background-color 0.3s;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .btn-cancelar:hover {
-        background-color: #c0392b;
-    }
-    
-    .sin-pedidos {
-        background-color: white;
-        border-radius: 8px;
-        padding: 60px;
         text-align: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        cursor: pointer;
+        border: none;
+        transition: all 0.3s;
+        white-space: nowrap;
     }
-    
-    .sin-pedidos-icono {
-        font-size: 80px;
-        margin-bottom: 20px;
+
+    .btn-ver {
+        background-color: var(--color-primario);
+        color: var(--color-blanco);
     }
-    
+
+    .btn-ver:hover {
+        background-color: var(--color-secundario);
+        transform: translateY(-1px);
+    }
+
+    .btn-cancelar {
+        background-color: var(--color-peligro);
+        color: var(--color-blanco);
+    }
+
+    .btn-cancelar:hover {
+        background-color: #C0392B;
+        transform: translateY(-1px);
+    }
+
+    /* Sin pedidos */
+    .sin-pedidos {
+        background: var(--color-blanco);
+        border-radius: 8px;
+        padding: 80px 40px;
+        text-align: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    }
+
     .sin-pedidos h2 {
-        color: #333;
+        color: var(--color-primario);
+        font-size: 24px;
         margin-bottom: 15px;
     }
-    
+
     .sin-pedidos p {
-        color: #666;
-        margin-bottom: 30px;
+        color: var(--color-texto-claro);
         font-size: 16px;
+        margin-bottom: 30px;
     }
-    
-    .filtros-pedidos {
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        display: flex;
-        gap: 15px;
-        align-items: center;
-        flex-wrap: wrap;
+
+    .btn-productos {
+        background-color: var(--color-acento);
+        color: var(--color-blanco);
+        padding: 14px 32px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+        display: inline-block;
+        transition: all 0.3s;
     }
-    
-    .filtros-pedidos label {
-        font-weight: bold;
-        color: #333;
+
+    .btn-productos:hover {
+        background-color: #E5533D;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(255, 99, 71, 0.3);
     }
-    
-    .filtros-pedidos select {
-        padding: 10px 15px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-        cursor: pointer;
-    }
-    
-    .alerta-info {
-        background-color: #E3F2FD;
-        border-left: 4px solid #2196F3;
-        padding: 15px 20px;
-        border-radius: 4px;
-        margin-bottom: 20px;
-        color: #1565C0;
-    }
-    
+
+    /* Responsive */
     @media (max-width: 768px) {
-        .pedido-header {
+        .header-pedidos {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .pedido-contenido {
             grid-template-columns: 1fr;
-        }
-        
-        .pedido-body {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        
-        .pedido-resumen {
-            flex-direction: column;
             gap: 15px;
         }
-        
+
+        .pedido-info,
+        .pedido-estado {
+            text-align: left;
+        }
+
         .pedido-acciones {
-            flex-direction: column;
+            flex-direction: row;
+        }
+
+        .filtros-container select {
+            width: 100%;
         }
     }
 </style>
 
-<!-- Mensajes de sesión -->
+<!-- Mensajes -->
 <?php if (isset($_SESSION['exito'])): ?>
-    <div style="background-color: #27AE60; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-        ✅ <?php echo $_SESSION['exito']; ?>
+    <div class="mensaje mensaje-exito">
+        <?php echo htmlspecialchars($_SESSION['exito']); unset($_SESSION['exito']); ?>
     </div>
-    <?php unset($_SESSION['exito']); ?>
 <?php endif; ?>
 
 <?php if (isset($_SESSION['error'])): ?>
-    <div style="background-color: #E74C3C; color: white; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-        ❌ <?php echo $_SESSION['error']; ?>
+    <div class="mensaje mensaje-error">
+        <?php echo htmlspecialchars($_SESSION['error']); unset($_SESSION['error']); ?>
     </div>
-    <?php unset($_SESSION['error']); ?>
 <?php endif; ?>
 
-<!-- Título de la sección -->
-<div class="titulo-seccion">
-    <h1>Mis Pedidos</h1>
-    <p>Historial completo de todos tus pedidos realizados en Papelink</p>
+<!-- Header -->
+<div class="header-pedidos">
+    <div>
+        <h1>Mis Pedidos</h1>
+        <p>Historial completo de todos tus pedidos realizados en Papelink</p>
+    </div>
+    <div class="total-pedidos">
+        Total de pedidos: <?php echo count($pedidos); ?>
+    </div>
 </div>
-
-<!-- Filtros (opcional) -->
-<div class="filtros-pedidos">
+<!-- Filtros -->
+<div class="filtros-container">
     <label>Filtrar por estado:</label>
     <select onchange="window.location.href='mis_pedidos.php?estado=' + this.value">
         <option value="">Todos los estados</option>
@@ -316,10 +401,6 @@ include_once __DIR__ . '/includes/header.php';
         <option value="Completado" <?php echo (isset($_GET['estado']) && $_GET['estado'] === 'Completado') ? 'selected' : ''; ?>>Completado</option>
         <option value="Cancelado" <?php echo (isset($_GET['estado']) && $_GET['estado'] === 'Cancelado') ? 'selected' : ''; ?>>Cancelado</option>
     </select>
-    
-    <span style="margin-left: auto; color: #666;">
-        Total de pedidos: <strong><?php echo count($pedidos); ?></strong>
-    </span>
 </div>
 
 <?php if (empty($pedidos)): ?>
@@ -327,130 +408,143 @@ include_once __DIR__ . '/includes/header.php';
     <div class="sin-pedidos">
         <h2>Aún no tienes pedidos</h2>
         <p>Comienza a comprar en nuestra tienda y tus pedidos aparecerán aquí</p>
-        <a href="productos.php" class="btn btn-naranja">Ver productos</a>
+        <a href="productos.php" class="btn-productos">Ver Productos</a>
     </div>
 <?php else: ?>
     <!-- Listado de pedidos -->
-    <div class="pedidos-container">
+    <div class="pedidos-lista">
         <?php foreach ($pedidos as $pedido): ?>
-            <div class="pedido-card">
-                <!-- Header del pedido -->
-                <div class="pedido-header">
-                    <div class="pedido-info-item">
-                        <label>Número de Pedido</label>
-                        <span class="numero-pedido"><?php echo htmlspecialchars($pedido['NumeroPedido']); ?></span>
+            <div class="pedido-item">
+                <div class="pedido-contenido">
+                    <!-- Información principal -->
+                    <div class="pedido-principal">
+                        <h3 class="pedido-numero"><?php echo htmlspecialchars($pedido['NumeroPedido']); ?></h3>
+                        <span class="pedido-fecha">
+                            Fecha: <?php echo date('d/m/Y H:i', strtotime($pedido['FechaPedido'])); ?>
+                        </span>
+                        <?php if (!empty($pedido['MetodoPago'])): ?>
+                        <span class="pedido-fecha">
+                            Método de pago: <?php echo htmlspecialchars($pedido['MetodoPago']); ?>
+                        </span>
+                        <?php endif; ?>
                     </div>
-                    
-                    <div class="pedido-info-item">
-                        <label>Fecha</label>
-                        <span><?php echo date('d/m/Y', strtotime($pedido['FechaPedido'])); ?></span>
+
+                    <!-- Información de productos -->
+                    <div class="pedido-info">
+                        <span class="pedido-info-label">Productos</span>
+                        <span class="pedido-info-valor"><?php echo $pedido['TotalProductos']; ?> item<?php echo $pedido['TotalProductos'] != 1 ? 's' : ''; ?></span>
                     </div>
-                    
-                    <div class="pedido-info-item">
-                        <label>Estado del Pedido</label>
-                        <span>
+
+                    <!-- Total -->
+                    <div class="pedido-info">
+                        <span class="pedido-info-label">Total</span>
+                        <span class="pedido-info-valor pedido-total">$<?php echo number_format($pedido['Total'], 2); ?></span>
+                    </div>
+
+                    <!-- Estado y acciones -->
+                    <div style="display: flex; flex-direction: column; gap: 15px; align-items: flex-end;">
+                        <div class="pedido-estado">
                             <?php
                             $estadoClase = '';
                             switch ($pedido['EstadoPedido']) {
                                 case 'Pendiente':
-                                    $estadoClase = 'estado-pendiente';
+                                    $estadoClase = 'badge-pendiente';
                                     break;
                                 case 'En Proceso':
-                                    $estadoClase = 'estado-proceso';
+                                    $estadoClase = 'badge-proceso';
                                     break;
                                 case 'Enviado':
-                                    $estadoClase = 'estado-enviado';
+                                    $estadoClase = 'badge-enviado';
                                     break;
                                 case 'Completado':
-                                    $estadoClase = 'estado-completado';
+                                    $estadoClase = 'badge-completado';
                                     break;
                                 case 'Cancelado':
-                                    $estadoClase = 'estado-cancelado';
+                                    $estadoClase = 'badge-cancelado';
                                     break;
+                                default:
+                                    $estadoClase = 'badge-pendiente';
                             }
                             ?>
-                            <span class="estado-badge <?php echo $estadoClase; ?>">
+                            <span class="badge-estado <?php echo $estadoClase; ?>">
                                 <?php echo htmlspecialchars($pedido['EstadoPedido']); ?>
                             </span>
-                        </span>
+                        </div>
+
+                        <div class="pedido-acciones">
+                            <a href="Pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn btn-ver">
+                                Ver Detalle
+                            </a>
+                            
+                            <?php if (in_array($pedido['EstadoPedido'], ['Pendiente', 'En Proceso'])): ?>
+                            <button onclick="confirmarCancelacion(<?php echo $pedido['IdPedido']; ?>, '<?php echo htmlspecialchars($pedido['NumeroPedido']); ?>')" 
+                                    class="btn btn-cancelar">
+                                Cancelar
+                            </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
+                </div>
+
+                <!-- Información adicional (si hay envío) -->
+                <?php if (!empty($pedido['EstadoEnvio']) || !empty($pedido['FechaEntregaEstimada'])): ?>
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ECF0F1; display: flex; gap: 30px; font-size: 13px; color: #7F8C8D;">
+                    <?php if (!empty($pedido['EstadoEnvio'])): ?>
+                    <span>
+                        <strong>Estado de envío:</strong> <?php echo htmlspecialchars($pedido['EstadoEnvio']); ?>
+                    </span>
+                    <?php endif; ?>
                     
-                    <?php if (isset($pedido['EstadoEnvio'])): ?>
-                    <div class="pedido-info-item">
-                        <label>Estado del Envío</label>
-                        <span><?php echo htmlspecialchars($pedido['EstadoEnvio']); ?></span>
-                    </div>
+                    <?php if (!empty($pedido['FechaEntregaEstimada']) && !in_array($pedido['EstadoPedido'], ['Completado', 'Cancelado'])): ?>
+                    <span>
+                        <strong>Entrega estimada:</strong> <?php echo date('d/m/Y', strtotime($pedido['FechaEntregaEstimada'])); ?>
+                    </span>
                     <?php endif; ?>
                 </div>
-                
-                <!-- Body del pedido -->
-                <div class="pedido-body">
-                    <div class="pedido-resumen">
-                        <div class="pedido-resumen-item">
-                            <span class="label">Productos</span>
-                            <span class="valor"><?php echo $pedido['TotalProductos']; ?></span>
-                        </div>
-                        
-                        <div class="pedido-resumen-item">
-                            <span class="label">Método de Pago</span>
-                            <span class="valor"><?php echo htmlspecialchars($pedido['MetodoPago'] ?? 'N/A'); ?></span>
-                        </div>
-                        
-                        <div class="pedido-resumen-item">
-                            <span class="label">Total</span>
-                            <span class="valor total">$<?php echo number_format($pedido['Total'], 2); ?></span>
-                        </div>
-                        
-                        <?php if (isset($pedido['FechaEstimadaEntrega']) && $pedido['EstadoPedido'] !== 'Completado' && $pedido['EstadoPedido'] !== 'Cancelado'): ?>
-                        <div class="pedido-resumen-item">
-                            <span class="label">Entrega Estimada</span>
-                            <span class="valor" style="font-size: 14px;">
-                                <?php echo date('d/m/Y', strtotime($pedido['FechaEstimadaEntrega'])); ?>
-                            </span>
-                        </div>
-                        <?php endif; ?>
-                    </div>
-                    
-                    <div class="pedido-acciones">
-                        <a href="Pedidos.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn-detalle">
-                            Ver Detalle
-                        </a>
-                        
-                        <?php if (in_array($pedido['EstadoPedido'], ['Pendiente', 'En Proceso'])): ?>
-                        <button onclick="confirmarCancelacion(<?php echo $pedido['IdPedido']; ?>, '<?php echo htmlspecialchars($pedido['NumeroPedido']); ?>')" 
-                                class="btn-cancelar">
-                            Cancelar Pedido
-                        </button>
-                        <?php endif; ?>
-                    </div>
-                </div>
+                <?php endif; ?>
             </div>
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
 
 <script>
+/**
+ * Confirmar cancelación de pedido
+ */
 function confirmarCancelacion(idPedido, numeroPedido) {
     if (confirm('¿Está seguro que desea cancelar el pedido ' + numeroPedido + '?\n\nEsta acción no se puede deshacer.')) {
         window.location.href = '<?php echo BASE_URL; ?>controllers/PedidoController.php?action=cancelar&id=' + idPedido + '&confirmar=si';
     }
 }
 
-// Filtrar pedidos en tiempo real (opcional)
+/**
+ * Filtrado en tiempo real (opcional)
+ */
 document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     const estadoFiltro = urlParams.get('estado');
     
-    if (estadoFiltro) {
-        const cards = document.querySelectorAll('.pedido-card');
-        cards.forEach(card => {
-            const estadoBadge = card.querySelector('.estado-badge');
-            if (estadoBadge && estadoBadge.textContent.trim() !== estadoFiltro) {
-                card.style.display = 'none';
+    if (estadoFiltro && estadoFiltro !== '') {
+        const items = document.querySelectorAll('.pedido-item');
+        let visibles = 0;
+        
+        items.forEach(item => {
+            const badge = item.querySelector('.badge-estado');
+            if (badge && badge.textContent.trim().toLowerCase() !== estadoFiltro.toLowerCase()) {
+                item.style.display = 'none';
+            } else {
+                visibles++;
             }
         });
+        
+        // Actualizar contador
+        const totalElement = document.querySelector('.total-pedidos');
+        if (totalElement) {
+            totalElement.textContent = 'Pedidos filtrados: ' + visibles;
+        }
     }
 });
 </script>
+
 </div>
 <?php include_once __DIR__ . '/includes/footer.php'; ?>
