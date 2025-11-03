@@ -105,15 +105,8 @@ public function obtenerEnvio($idPedido) {
 
 
 
-
-
-
-
-
-
-
 /**
- * Obtener pedidos del cliente (VERSIÓN FINAL - GARANTIZADA)
+ * Obtener pedidos del cliente (VERSIÓN CORREGIDA)
  */
 public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
     try {
@@ -133,12 +126,14 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
         $stmt = $this->conn->prepare($query);
         
         if (!$stmt) {
+            error_log("Error al preparar query obtenerPorCliente");
             return [];
         }
         
         $ejecutado = $stmt->execute([(int)$idCliente]);
         
         if (!$ejecutado) {
+            error_log("Error al ejecutar query obtenerPorCliente");
             return [];
         }
         
@@ -174,6 +169,7 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
                     $pedidoCompleto['EstadoPedido'] = 'Pendiente';
                 }
             } catch (Exception $e) {
+                error_log("Error obteniendo estado pedido: " . $e->getMessage());
                 $pedidoCompleto['EstadoPedido'] = 'Pendiente';
             }
             
@@ -191,19 +187,22 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
                     $pedidoCompleto['MetodoPago'] = 'N/A';
                 }
             } catch (Exception $e) {
+                error_log("Error obteniendo método pago: " . $e->getMessage());
                 $pedidoCompleto['MetodoPago'] = 'N/A';
             }
             
-            // Contar productos
+            // ✅ CORREGIDO: Contar productos (DetallesPedido, no DetallePedidos)
             try {
-                $stmtCount = $this->conn->prepare("SELECT COUNT(*) as total FROM DetallePedidos WHERE IdPedido = ?");
+                $stmtCount = $this->conn->prepare("SELECT COUNT(*) as total FROM DetallesPedido WHERE IdPedido = ?");
                 if ($stmtCount && $stmtCount->execute([$pedido['IdPedido']])) {
                     $count = $stmtCount->fetch(PDO::FETCH_ASSOC);
                     $pedidoCompleto['TotalProductos'] = $count ? (int)$count['total'] : 0;
                 } else {
+                    error_log("Error al contar productos para pedido " . $pedido['IdPedido']);
                     $pedidoCompleto['TotalProductos'] = 0;
                 }
             } catch (Exception $e) {
+                error_log("Error contando productos: " . $e->getMessage());
                 $pedidoCompleto['TotalProductos'] = 0;
             }
             
@@ -222,6 +221,7 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
                     $pedidoCompleto['EstadoEnvio'] = null;
                 }
             } catch (Exception $e) {
+                error_log("Error obteniendo envío: " . $e->getMessage());
                 $pedidoCompleto['FechaEntregaEstimada'] = null;
                 $pedidoCompleto['EstadoEnvio'] = null;
             }
@@ -238,14 +238,28 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
             $resultado = array_values($resultado);
         }
         
+        // ✅ Aplicar límite
+        if ($limite && count($resultado) > $limite) {
+            $resultado = array_slice($resultado, 0, $limite);
+        }
+        
         return $resultado;
         
     } catch (PDOException $e) {
+        error_log("Error PDO en obtenerPorCliente: " . $e->getMessage());
         return [];
     } catch (Exception $e) {
+        error_log("Error general en obtenerPorCliente: " . $e->getMessage());
         return [];
     }
 }
+
+
+
+
+
+
+
 
 
 
