@@ -278,7 +278,7 @@ include __DIR__ . '/includes/header.php';
             <!-- Actualizar Envío -->
             <div class="card" style="margin-top: 25px;">
                 <h2>✏️ Actualizar Envío</h2>
-                <form method="POST" action="../../controllers/EnvioController.php?action=actualizar" class="form-actualizar">
+                <form method="POST" action="<?php echo BASE_URL; ?>controllers/EnvioController.php?action=actualizar" class="form-actualizar">
                     <input type="hidden" name="id_envio" value="<?php echo $envio['IdEnvio']; ?>">
                     
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Estado:</label>
