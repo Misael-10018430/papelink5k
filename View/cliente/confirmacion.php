@@ -33,16 +33,6 @@ if (empty($pedido)) {
 // El SP almacena los productos en 'detalles'
 $productos = $pedido['detalles'] ?? [];
 
-// Obtener información del envío desde la tabla Envios (si existe)
-$queryEnvio = "SELECT 
-                e.EstadoEnvio,
-                e.DireccionEnvio as DireccionCompleta,
-                e.FechaEstimadaEntrega as FechaEstimadaEntrega
-              FROM Envios e
-              WHERE e.IdPedido = ?";
-
-$stmtEnvio = $pedidoModel->conn->prepare($queryEnvio);
-$stmtEnvio->execute([$idPedido]);
 // Obtener información del envío
 $envioData = $pedidoModel->obtenerEnvio($idPedido);
 
@@ -67,8 +57,6 @@ if (!$envioData) {
 $titulo = "Pedido Confirmado - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
-
-
 
 
 
@@ -226,7 +214,8 @@ include __DIR__ . '/includes/header.php';
                     <div class="paso-numero">3</div>
                     <div class="paso-contenido">
                         <h3>Envío</h3>
-                        <p><?php echo $pedido['TipoEnvio'] === 'Domicilio' ? 'Te lo enviaremos a tu dirección' : 'Podrás recogerlo en nuestra sucursal'; ?></p>
+                        <!-- ✅ CORRECTO -->
+<p><?php echo $pedido['TipoEnvio'] === 'Envío a Domicilio' ? 'Te lo enviaremos a tu dirección' : 'Podrás recogerlo en nuestra sucursal'; ?></p>
                     </div>
                 </div>
                 

@@ -142,55 +142,71 @@ public function obtenerEnvio($idPedido) {
      * Obtener detalle de un pedido
      */
     public function obtenerDetalle($idPedido, $idCliente = null) {
-        try {
-            // Información del pedido
-            $query = "SELECT 
-                        p.*,
-                        c.NombreCompleto as NombreCliente,
-                        c.Email as EmailCliente,
-                        c.Telefono as TelefonoCliente,
-                        e.IdEnvio,
-                        e.EstadoEnvio,
-                        e.FechaEstimadaEntrega,
-                        e.FechaEntrega,
-                        e.NumeroGuia
-                      FROM Pedidos p
-                      INNER JOIN Clientes c ON p.IdCliente = c.IdCliente
-                      LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
-                      WHERE p.IdPedido = :idPedido";
-            if ($idCliente) {
-                $query .= " AND p.IdCliente = :idCliente";
-            }
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':idPedido', $idPedido);
-            if ($idCliente) {
-                $stmt->bindParam(':idCliente', $idCliente);
-            }
-            $stmt->execute();  
-            $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
-            
-            if (!$pedido) {
-                return null;
-            }
-            // Obtener detalles de productos
-            $queryDetalles = "SELECT 
-                                dp.*,
-                                p.NombreProducto,
-                                p.CodigoProducto,
-                                m.NombreMarca
-                              FROM DetallesPedido dp
-                              INNER JOIN Productos p ON dp.IdProducto = p.IdProducto
-                              INNER JOIN Marcas m ON p.IdMarca = m.IdMarca
-                              WHERE dp.IdPedido = :idPedido";
-            $stmtDetalles = $this->conn->prepare($queryDetalles);
-            $stmtDetalles->bindParam(':idPedido', $idPedido);
-            $stmtDetalles->execute();
-            $pedido['detalles'] = $stmtDetalles->fetchAll(PDO::FETCH_ASSOC);
-            return $pedido;
-        } catch (PDOException $e) {
+    try {
+        // Información del pedido CON JOINS a las tablas de estados
+        $query = "SELECT 
+                    p.*,
+                    c.NombreCompleto as NombreCliente,
+                    c.Email as EmailCliente,
+                    c.Telefono as TelefonoCliente,
+                    ep.NombreEstado as EstadoPedido,
+                    mp.NombreMetodo as MetodoPago,
+                    te.NombreTipo as TipoEnvio,
+                    e.IdEnvio,
+                    ee.NombreEstado as EstadoEnvio,
+                    e.FechaEntregaEstimada as FechaEstimadaEntrega,
+                    e.FechaEntrega,
+                    e.NumeroGuia
+                  FROM Pedidos p
+                  INNER JOIN Clientes c ON p.IdCliente = c.IdCliente
+                  LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
+                  LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodoPago
+                  LEFT JOIN TiposEntrega te ON p.IdTipoEntrega = te.IdTipoEntrega
+                  LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
+                  LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
+                  WHERE p.IdPedido = :idPedido";
+        
+        if ($idCliente) {
+            $query .= " AND p.IdCliente = :idCliente";
+        }
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':idPedido', $idPedido);
+        if ($idCliente) {
+            $stmt->bindParam(':idCliente', $idCliente);
+        }
+        $stmt->execute();  
+        
+        $pedido = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$pedido) {
             return null;
         }
+        
+        // Obtener detalles de productos
+        $queryDetalles = "SELECT 
+                            dp.*,
+                            (dp.Cantidad * dp.PrecioUnitario) as Subtotal,
+                            p.NombreProducto,
+                            p.CodigoProducto,
+                            m.NombreMarca
+                          FROM DetallesPedido dp
+                          INNER JOIN Productos p ON dp.IdProducto = p.IdProducto
+                          INNER JOIN Marcas m ON p.IdMarca = m.IdMarca
+                          WHERE dp.IdPedido = :idPedido";
+        
+        $stmtDetalles = $this->conn->prepare($queryDetalles);
+        $stmtDetalles->bindParam(':idPedido', $idPedido);
+        $stmtDetalles->execute();
+        $pedido['detalles'] = $stmtDetalles->fetchAll(PDO::FETCH_ASSOC);
+        
+        return $pedido;
+        
+    } catch (PDOException $e) {
+        error_log("Error en obtenerDetalle: " . $e->getMessage());
+        return null;
     }
+}
     /**
      * Obtener todos los pedidos (Admin)
      */
