@@ -112,10 +112,17 @@ public function obtenerEnvio($idPedido) {
     /**
  * Obtener pedidos del cliente (VERSIÓN FINAL CORREGIDA)
  */
+/**
+ * Obtener pedidos del cliente (VERSIÓN FINAL CON DEBUG)
+ */
+/**
+ * Obtener pedidos del cliente (VERSIÓN CORREGIDA FINAL)
+ */
 public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
     try {
+        error_log("========================================");
         error_log("=== obtenerPorCliente() DEBUG ===");
-        error_log("IdCliente solicitado: " . $idCliente);
+        error_log("IdCliente: " . $idCliente);
         
         $query = "SELECT TOP (:limite)
                     p.IdPedido,
@@ -127,7 +134,7 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
                     (SELECT COUNT(*) FROM DetallePedidos WHERE IdPedido = p.IdPedido) as TotalProductos,
                     ee.NombreEstado as EstadoEnvio,
                     e.FechaEntregaEstimada,
-                    p.TipoEntrega
+                    p.IdTipoEntrega
                   FROM Pedidos p
                   LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
                   LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodo
@@ -142,21 +149,35 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
         $query .= " ORDER BY p.FechaPedido DESC";
         
         $stmt = $this->conn->prepare($query);
-        $stmt->bindValue(':idCliente', $idCliente, PDO::PARAM_INT);
-        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+        
+        // ✅ Conversión explícita a INT
+        $stmt->bindValue(':idCliente', (int)$idCliente, PDO::PARAM_INT);
+        $stmt->bindValue(':limite', (int)$limite, PDO::PARAM_INT);
         
         if ($estadoFiltro) {
             $stmt->bindValue(':estadoFiltro', $estadoFiltro, PDO::PARAM_STR);
         }
         
-        $stmt->execute();
-        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("Ejecutando query...");
+        $result = $stmt->execute();
         
-        error_log("Total pedidos encontrados: " . count($resultados));
+        if (!$result) {
+            error_log("ERROR: " . print_r($stmt->errorInfo(), true));
+            return [];
+        }
+        
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("Pedidos encontrados: " . count($resultados));
+        
+        if (count($resultados) > 0) {
+            error_log("Primer pedido: IdPedido=" . $resultados[0]['IdPedido']);
+        }
+        
+        error_log("========================================");
         
         return $resultados;
     } catch (PDOException $e) {
-        error_log("ERROR en obtenerPorCliente: " . $e->getMessage());
+        error_log("ERROR PDO: " . $e->getMessage());
         return [];
     }
 }
