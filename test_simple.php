@@ -2,7 +2,7 @@
 session_start();
 require_once __DIR__ . '/config/Database.php';
 
-echo "<h1>TEST DE PEDIDOS - CUALQUIER CLIENTE</h1><pre>";
+echo "<h1>TEST SIMPLE</h1><pre>";
 
 // ✅ Verificar si hay sesión activa
 if (isset($_SESSION['cliente_id'])) {
@@ -57,7 +57,6 @@ if (count($resultados) > 0) {
             echo "  • IdPedido: {$t['IdPedido']}, IdCliente: {$t['IdCliente']}, Número: {$t['NumeroPedido']}\n";
         }
         echo "\n⚠️ El IdCliente {$idClienteSesion} NO tiene pedidos asociados.\n";
-        echo "   Verifica que el cliente haya realizado compras.\n";
     } else {
         echo "❌ NO HAY PEDIDOS EN LA BASE DE DATOS\n";
     }
