@@ -15,6 +15,52 @@ require_once __DIR__ . '/../../controllers/PedidoController.php';
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
+
+
+
+
+
+
+
+
+
+
+// ========== DEBUG TEMPORAL - ELIMINAR DESPUÉS ==========
+echo "<div style='background:#FFF3CD;border:3px solid #856404;padding:20px;margin:20px;border-radius:8px;'>";
+echo "<h2 style='color:#856404;margin:0 0 15px 0;'>DEBUG DE SESIÓN Y PEDIDOS</h2>";
+echo "<pre style='margin:0;'>";
+echo "Cliente ID en sesión: " . (isset($_SESSION['cliente_id']) ? $_SESSION['cliente_id'] : 'NO EXISTE') . "\n";
+echo "Tipo de dato: " . (isset($_SESSION['cliente_id']) ? gettype($_SESSION['cliente_id']) : 'N/A') . "\n";
+echo "Nombre en sesión: " . (isset($_SESSION['cliente_nombre']) ? $_SESSION['cliente_nombre'] : 'NO EXISTE') . "\n";
+echo "\nTotal de pedidos retornados: " . count($pedidos) . "\n";
+
+if (!empty($pedidos)) {
+    echo "\n✅ PRIMER PEDIDO:\n";
+    echo "  IdPedido: " . $pedidos[0]['IdPedido'] . "\n";
+    echo "  NumeroPedido: " . $pedidos[0]['NumeroPedido'] . "\n";
+    echo "  Total: $" . $pedidos[0]['Total'] . "\n";
+    echo "  EstadoPedido: " . $pedidos[0]['EstadoPedido'] . "\n";
+} else {
+    echo "\n❌ Array de pedidos está VACÍO\n";
+    echo "\nPOSIBLES CAUSAS:\n";
+    echo "1. El cliente NO ha realizado ninguna compra\n";
+    echo "2. El IdCliente en la sesión es incorrecto\n";
+    echo "3. Error en la consulta SQL\n";
+}
+echo "</pre>";
+echo "</div>";
+// ========== FIN DEBUG TEMPORAL ==========
+
+
+
+
+
+
+
+
+
+
+
 // Incluir header
 $titulo = "Mis Pedidos - Papelink";
 include_once __DIR__ . '/includes/header.php';
