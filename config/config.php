@@ -29,8 +29,7 @@ if (!defined('BASE_URL')) {
     
     // Detectar si estamos en Azure
     if (strpos($host, 'azurewebsites.net') !== false || $isProduction) {
-        // En Azure
-        define('BASE_URL', $protocol . $host . '/');
+    define('BASE_URL', 'https://' . $host . '/');
     } else {
         // En desarrollo local
         define('BASE_URL', 'http://localhost/papelink5k/');
