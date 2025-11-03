@@ -69,9 +69,12 @@ class PedidoController {
             $referenciasAdicionales
         );
         if (isset($resultado['success'])) {
+            // ✅ DESPUÉS (CORRECTO)
             $_SESSION['exito'] = 'Pedido creado exitosamente. Número de pedido: ' . $resultado['numero_pedido'];
-            header('Location: ' . BASE_URL . '/views/cliente/confirmacion.php?pedido=' . $resultado['id_pedido']);
-        } else {
+            header('Location: ' . BASE_URL . 'view/cliente/confirmacion.php?pedido=' . $resultado['id_pedido']);
+        } 
+        else 
+        {
             $_SESSION['error'] = $resultado['error'];
             header('Location: ' . BASE_URL . '/views/cliente/checkout.php');
         }

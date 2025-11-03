@@ -21,22 +21,57 @@ $idCliente = $_SESSION['cliente_id'];
 
 // Obtener detalles del pedido
 $pedidoModel = new Pedido();
-$detallePedido = $pedidoModel->obtenerDetalle($idPedido, $idCliente);
+$pedido = $pedidoModel->obtenerDetalle($idPedido, $idCliente);
 
 // Si no se encuentra el pedido, redirigir
-if (empty($detallePedido)) {
+if (empty($pedido)) {
     $_SESSION['error'] = 'Pedido no encontrado';
     header('Location: mis_pedidos.php');
     exit;
 }
 
-$pedido = $detallePedido['pedido'];
-$productos = $detallePedido['productos'];
-$envio = $detallePedido['envio'];
+// El SP almacena los productos en 'detalles'
+$productos = $pedido['detalles'] ?? [];
+
+// Obtener información del envío desde la tabla Envios (si existe)
+$queryEnvio = "SELECT 
+                e.EstadoEnvio,
+                e.DireccionEnvio as DireccionCompleta,
+                e.FechaEstimadaEntrega as FechaEstimadaEntrega
+              FROM Envios e
+              WHERE e.IdPedido = ?";
+
+$stmtEnvio = $pedidoModel->conn->prepare($queryEnvio);
+$stmtEnvio->execute([$idPedido]);
+// Obtener información del envío
+$envioData = $pedidoModel->obtenerEnvio($idPedido);
+
+if (!$envioData) {
+    $envio = [
+        'EstadoEnvio' => 'No aplica - Recoger en Sucursal',
+        'DireccionCompleta' => $pedido['DireccionSnapshot'] ?? 'Sucursal Principal',
+        'Ciudad' => '',
+        'CodigoPostal' => '',
+        'FechaEstimadaEntrega' => null
+    ];
+} else {
+    $envio = [
+        'EstadoEnvio' => $envioData['EstadoEnvio'] ?? 'Pendiente',
+        'DireccionCompleta' => $envioData['DireccionCompleta'] ?? $pedido['DireccionSnapshot'],
+        'Ciudad' => '',
+        'CodigoPostal' => '',
+        'FechaEstimadaEntrega' => $envioData['FechaEstimadaEntrega']
+    ];
+}
 
 $titulo = "Pedido Confirmado - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
+
+
+
+
+
 
 <div class="confirmacion-container">
     <!-- Mensaje de éxito -->
@@ -149,9 +184,8 @@ include __DIR__ . '/includes/header.php';
                 <div class="envio-item">
                     <strong>Dirección de Entrega:</strong>
                     <p><?php echo htmlspecialchars($envio['DireccionCompleta']); ?></p>
-                    <p><?php echo htmlspecialchars($envio['Ciudad']) . ', CP ' . htmlspecialchars($envio['CodigoPostal']); ?></p>
                 </div>
-                
+                                
                 <?php if (!empty($pedido['ReferenciasAdicionales'])): ?>
                     <div class="envio-item">
                         <strong>Referencias:</strong>

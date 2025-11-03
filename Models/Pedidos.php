@@ -2,7 +2,7 @@
 require_once __DIR__ . '/../config/Database.php';
 
 class Pedido {
-    private $conn; 
+    public $conn; 
     public function __construct() {
         $database = new Database();
         $this->conn = $database->getConnection();
@@ -11,44 +11,101 @@ class Pedido {
      * Crear pedido desde carrito usando procedimiento almacenado
      */
     public function crearDesdeCarrito($idCliente, $tipoEnvio, $direccion, $ciudad, $codigoPostal, $referencia = null) {
-        try {
-            // Llamar al procedimiento almacenado
-            $query = "EXEC sp_CrearPedidoDesdeCarrito 
-                      @IdCliente = :idCliente,
-                      @TipoEnvio = :tipoEnvio,
-                      @DireccionEnvio = :direccion,
-                      @CiudadEnvio = :ciudad,
-                      @CodigoPostalEnvio = :codigoPostal,
-                      @ReferenciasAdicionales = :referencia";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':idCliente', $idCliente);
-            $stmt->bindParam(':tipoEnvio', $tipoEnvio);
-            $stmt->bindParam(':direccion', $direccion);
-            $stmt->bindParam(':ciudad', $ciudad);
-            $stmt->bindParam(':codigoPostal', $codigoPostal);
-            $stmt->bindParam(':referencia', $referencia);
-            if ($stmt->execute()) {
-                // Obtener el último pedido creado
-                $queryUltimo = "SELECT TOP 1 IdPedido, NumeroPedido 
-                               FROM Pedidos 
-                               WHERE IdCliente = :idCliente 
-                               ORDER BY FechaPedido DESC";
-                $stmtUltimo = $this->conn->prepare($queryUltimo);
-                $stmtUltimo->bindParam(':idCliente', $idCliente);
-                $stmtUltimo->execute();
-                $pedido = $stmtUltimo->fetch(PDO::FETCH_ASSOC);
-                return [
-                    'success' => true,
-                    'idPedido' => $pedido['IdPedido'],
-                    'numeroPedido' => $pedido['NumeroPedido'],
-                    'mensaje' => 'Pedido creado exitosamente'
-                ];
-            } 
-            return ['error' => 'Error al crear el pedido'];
-        } catch (PDOException $e) {
-            return ['error' => 'Error: ' . $e->getMessage()];
+    try {
+        // ✅ MAPEAR TIPO DE ENVÍO A ID (según imagen)
+        // 1 = Recoger en Sucursal, 2 = Envío a Domicilio
+        $idTipoEntrega = ($tipoEnvio === 'Domicilio') ? 2 : 1;
+        
+        // ✅ ID DE MÉTODO DE PAGO (Efectivo = 1)
+        $idMetodoPago = 1;
+        
+        // ✅ CONSTRUIR DIRECCIÓN COMPLETA
+        $direccionCompleta = $direccion . ', ' . $ciudad . ', CP: ' . $codigoPostal;
+        
+        // ✅ NOTAS DEL CLIENTE (referencias adicionales)
+        $notasCliente = !empty($referencia) ? $referencia : null;
+        
+        // Llamar al procedimiento almacenado CON LOS 5 PARÁMETROS CORRECTOS
+        $query = "EXEC sp_CrearPedidoDesdeCarrito 
+                  @IdCliente = ?,
+                  @IdMetodoPago = ?,
+                  @IdTipoEntrega = ?,
+                  @DireccionEnvio = ?,
+                  @NotasCliente = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        
+        $stmt->execute([
+            $idCliente,
+            $idMetodoPago,
+            $idTipoEntrega,
+            $direccionCompleta,
+            $notasCliente
+        ]);
+        
+        // Obtener el último pedido creado
+        $queryUltimo = "SELECT TOP 1 IdPedido, NumeroPedido 
+                       FROM Pedidos 
+                       WHERE IdCliente = ? 
+                       ORDER BY FechaPedido DESC";
+        
+        $stmtUltimo = $this->conn->prepare($queryUltimo);
+        $stmtUltimo->execute([$idCliente]);
+        $pedido = $stmtUltimo->fetch(PDO::FETCH_ASSOC);
+        
+        if ($pedido) {
+            return [
+                'success' => true,
+                'id_pedido' => $pedido['IdPedido'],
+                'numero_pedido' => $pedido['NumeroPedido'],
+                'mensaje' => 'Pedido creado exitosamente'
+            ];
         }
+        
+        return ['error' => 'Error al crear el pedido - No se pudo obtener el pedido creado'];
+        
+    } catch (PDOException $e) {
+        error_log("Error en crearDesdeCarrito: " . $e->getMessage());
+        return ['error' => 'Error al crear el pedido: ' . $e->getMessage()];
     }
+    }
+
+
+
+
+    /**
+ * Obtener información del envío
+ */
+public function obtenerEnvio($idPedido) {
+    try {
+        $query = "SELECT 
+                    e.IdEnvio,
+                    es.NombreEstado as EstadoEnvio,
+                    e.DireccionEnvio as DireccionCompleta,
+                    e.FechaEntregaEstimada as FechaEstimadaEntrega,
+                    e.FechaEntrega,
+                    e.NumeroGuia
+                  FROM Envios e
+                  LEFT JOIN EstadosEnvio es ON e.IdEstadoEnvio = es.IdEstadoEnvio
+                  WHERE e.IdPedido = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$idPedido]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        return null;
+    }
+}
+
+
+
+
+
+
+
+
+
     /**
      * Obtener pedidos del cliente
      */
