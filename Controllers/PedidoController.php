@@ -99,7 +99,7 @@ class PedidoController {
 
 
 
-    
+
     /**
  * Obtener pedidos del cliente logueado (CUALQUIER CLIENTE)
  */
@@ -136,29 +136,37 @@ public function misPedidos() {
     /**
      * Ver detalle de un pedido (CLIENTE)
      */
-    public function verDetalle() {
-        // Verificar que el cliente esté logueado
-        if (!isset($_SESSION['cliente_id'])) {
-            $_SESSION['error'] = 'Debe iniciar sesión';
-            header('Location: ' . BASE_URL . '/views/cliente/login.php');
-            exit;
-        }
-        if (!isset($_GET['id'])) {
-            $_SESSION['error'] = 'ID de pedido no especificado';
-            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
-            exit;
-        }
-        $idPedido = (int)$_GET['id'];
-        $idCliente = $_SESSION['cliente_id'];
-        $detalle = $this->pedidoModel->obtenerDetalle($idPedido, $idCliente);
-        if (empty($detalle)) {
-            $_SESSION['error'] = 'Pedido no encontrado';
-            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
-            exit;
-        }
-        // La vista mostrará el detalle
-        return $detalle;
+    /**
+ * Ver detalle de un pedido (CLIENTE)
+ */
+public function verDetalle() {
+    // Verificar que el cliente esté logueado
+    if (!isset($_SESSION['cliente_id'])) {
+        $_SESSION['error'] = 'Debe iniciar sesión';
+        header('Location: ' . BASE_URL . 'view/cliente/login.php');
+        exit;
     }
+    
+    if (!isset($_GET['id'])) {
+        $_SESSION['error'] = 'ID de pedido no especificado';
+        header('Location: ' . BASE_URL . 'view/cliente/mis_pedidos.php');
+        exit;
+    }
+    
+    $idPedido = (int)$_GET['id'];
+    $idCliente = $_SESSION['cliente_id'];
+    
+    $detalle = $this->pedidoModel->obtenerDetalle($idPedido, $idCliente);
+    
+    if (empty($detalle)) {
+        $_SESSION['error'] = 'Pedido no encontrado';
+        header('Location: ' . BASE_URL . 'view/cliente/mis_pedidos.php');
+        exit;
+    }
+    
+    // La vista mostrará el detalle
+    return $detalle;
+}
     /**
      * Cancelar pedido (CLIENTE)
      */

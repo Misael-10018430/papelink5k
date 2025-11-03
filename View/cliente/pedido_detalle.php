@@ -212,7 +212,7 @@ include_once __DIR__ . '/includes/header.php';
             Realizado el <?php echo date('d/m/Y H:i', strtotime($pedido['FechaPedido'])); ?>
         </p>
     </div>
-    <a href="mis_pedidos.php" class="btn-volver">Volver a Mis Pedidos</a>
+    <a href="<?php echo BASE_URL; ?>view/cliente/mis_pedidos.php" class="btn-volver">Volver a Mis Pedidos</a>
 </div>
 
 <!-- Contenido -->
