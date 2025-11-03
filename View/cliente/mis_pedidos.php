@@ -1,20 +1,27 @@
 
 <?php
+/**
+ * Vista: Mis Pedidos del Cliente
+ */
+
+// ORDEN CORRECTO
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../controllers/PedidoController.php';
+require_once __DIR__ . '/../../config/Auth.php';
 
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
     $_SESSION['error'] = 'Debe iniciar sesión para ver sus pedidos';
-    header('Location: login.php');
+    header('Location: ' . BASE_URL . 'view/cliente/login.php');
     exit;
 }
+
+require_once __DIR__ . '/../../controllers/PedidoController.php';
 
 // Obtener pedidos del cliente
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
-// Incluir header
+$titulo = "Mis Pedidos - Papelink";
 include_once __DIR__ . '/includes/header.php';
 ?>
 <div class="contenedor-principal">
