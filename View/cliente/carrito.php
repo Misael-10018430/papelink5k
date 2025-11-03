@@ -25,7 +25,8 @@ include __DIR__ . '/includes/header.php';
 <div class="carrito-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs">
-        <a href="index.php">Inicio</a> / <span>Carrito de Compras</span>
+        <!-- ✅ CORRECTO -->
+        <a href="<?php echo BASE_URL; ?>view/cliente/index.php">Inicio</a> / <span>Carrito de Compras</span>
     </div>
 
     <h1 class="titulo-pagina">Mi Carrito de Compras</h1>
@@ -53,7 +54,8 @@ include __DIR__ . '/includes/header.php';
         <div class="carrito-vacio">
             <h2>Tu carrito está vacío</h2>
             <p>¡Agrega productos para comenzar tu compra!</p>
-            <a href="productos.php" class="btn btn-primary">Ver Productos</a>
+            <!-- ✅ CORRECTO -->
+            <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="btn btn-primary">Ver Productos</a>
         </div>
     <?php else: ?>
         <!-- Carrito con productos -->
@@ -128,7 +130,8 @@ include __DIR__ . '/includes/header.php';
                     <button class="btn-vaciar" onclick="confirmarVaciarCarrito()">
                         Vaciar Carrito
                     </button>
-                    <a href="productos.php" class="btn-continuar">
+                    <!-- ✅ CORRECTO -->
+                    <a href="<?php echo BASE_URL; ?>view/cliente/productos.php" class="btn-continuar">
                         ← Continuar Comprando
                     </a>
                 </div>
@@ -167,7 +170,8 @@ include __DIR__ . '/includes/header.php';
                         </ul>
                     </div>
 
-                    <a href="checkout.php" class="btn-checkout">
+                    <!-- ✅ DESPUÉS (CORRECTO) -->
+                    <a href="<?php echo BASE_URL; ?>view/cliente/checkout.php" class="btn-checkout">
                         Proceder al Pago →
                     </a>
 
