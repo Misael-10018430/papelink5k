@@ -89,6 +89,7 @@ class PedidoController {
     public function misPedidos() {
     // Verificar que el cliente esté logueado
     if (!isset($_SESSION['cliente_id'])) {
+        error_log("ERROR: Cliente no logueado");
         $_SESSION['error'] = 'Debe iniciar sesión para ver sus pedidos';
         header('Location: ' . BASE_URL . 'view/cliente/login.php');
         exit;
@@ -96,11 +97,19 @@ class PedidoController {
     
     $idCliente = $_SESSION['cliente_id'];
     
+    error_log("=== misPedidos() ===");
+    error_log("IdCliente de sesión: " . $idCliente);
+    error_log("Nombre de sesión: " . ($_SESSION['cliente_nombre'] ?? 'N/A'));
+    
     // Aplicar filtros si existen
     $estadoFiltro = $_GET['estado'] ?? null;
     
-    return $this->pedidoModel->obtenerPorCliente($idCliente, 100, $estadoFiltro);
-}
+    $pedidos = $this->pedidoModel->obtenerPorCliente($idCliente, 100, $estadoFiltro);
+    
+    error_log("Pedidos retornados: " . count($pedidos));
+    
+    return $pedidos;
+    }
     /**
      * Ver detalle de un pedido (CLIENTE)
      */

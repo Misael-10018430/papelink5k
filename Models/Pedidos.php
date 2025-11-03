@@ -109,8 +109,14 @@ public function obtenerEnvio($idPedido) {
     /**
      * Obtener pedidos del cliente
      */
-    public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
+    /**
+ * Obtener pedidos del cliente (VERSIÓN FINAL CORREGIDA)
+ */
+public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
     try {
+        error_log("=== obtenerPorCliente() DEBUG ===");
+        error_log("IdCliente solicitado: " . $idCliente);
+        
         $query = "SELECT TOP (:limite)
                     p.IdPedido,
                     p.NumeroPedido,
@@ -123,13 +129,12 @@ public function obtenerEnvio($idPedido) {
                     e.FechaEntregaEstimada,
                     p.TipoEntrega
                   FROM Pedidos p
-                  LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstado
+                  LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
                   LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodo
                   LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
                   LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
                   WHERE p.IdCliente = :idCliente";
         
-        // Agregar filtro de estado si existe
         if ($estadoFiltro) {
             $query .= " AND ep.NombreEstado = :estadoFiltro";
         }
@@ -145,10 +150,13 @@ public function obtenerEnvio($idPedido) {
         }
         
         $stmt->execute();
+        $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        error_log("Total pedidos encontrados: " . count($resultados));
+        
+        return $resultados;
     } catch (PDOException $e) {
-        error_log("Error en obtenerPorCliente: " . $e->getMessage());
+        error_log("ERROR en obtenerPorCliente: " . $e->getMessage());
         return [];
     }
 }

@@ -19,6 +19,32 @@ require_once __DIR__ . '/../../controllers/PedidoController.php';
 $pedidoController = new PedidoController();
 $pedidos = $pedidoController->misPedidos();
 
+
+
+
+
+
+// ✅ DEBUG TEMPORAL - ELIMINAR DESPUÉS
+echo "<div style='background: yellow; padding: 20px; margin: 20px; border: 3px solid red;'>";
+echo "<h2>DEBUG DE SESIÓN Y PEDIDOS</h2>";
+echo "<pre>";
+echo "Cliente ID en sesión: " . ($_SESSION['cliente_id'] ?? 'NO EXISTE') . "\n";
+echo "Nombre en sesión: " . ($_SESSION['cliente_nombre'] ?? 'NO EXISTE') . "\n";
+echo "Email en sesión: " . ($_SESSION['cliente_email'] ?? 'NO EXISTE') . "\n";
+echo "\nTotal de pedidos obtenidos: " . count($pedidos) . "\n";
+if (!empty($pedidos)) {
+    echo "\nPrimer pedido:\n";
+    print_r($pedidos[0]);
+} else {
+    echo "\n❌ Array de pedidos está VACÍO\n";
+}
+echo "</pre>";
+echo "</div>";
+
+
+
+
+
 // Incluir header
 $titulo = "Mis Pedidos - Papelink";
 include_once __DIR__ . '/includes/header.php';
