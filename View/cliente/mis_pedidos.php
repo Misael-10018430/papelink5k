@@ -463,18 +463,19 @@ include_once __DIR__ . '/includes/header.php';
                         </div>
 
                         <div class="pedido-acciones">
-                        <!-- ✅ CORRECTO -->
-                        <a href="<?php echo BASE_URL; ?>view/cliente/pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" class="btn btn-ver">
-                            Ver Detalle
-                        </a>
-                        
-                        <?php if (in_array($pedido['EstadoPedido'], ['Pendiente', 'En Proceso'])): ?>
-                        <button onclick="confirmarCancelacion(<?php echo $pedido['IdPedido']; ?>, '<?php echo htmlspecialchars($pedido['NumeroPedido']); ?>')" 
-                                class="btn btn-cancelar">
-                            Cancelar
-                        </button>
-                        <?php endif; ?>
-                    </div>
+                            <!-- ✅ CORRECTO -->
+                            <a href="<?php echo BASE_URL; ?>view/cliente/pedido_detalle.php?id=<?php echo $pedido['IdPedido']; ?>" 
+                            class="btn btn-ver">
+                                Ver Detalle
+                            </a>
+                            
+                            <?php if (in_array($pedido['EstadoPedido'], ['Pendiente', 'En Proceso'])): ?>
+                            <button onclick="confirmarCancelacion(<?php echo $pedido['IdPedido']; ?>, '<?php echo htmlspecialchars($pedido['NumeroPedido']); ?>')" 
+                                    class="btn btn-cancelar">
+                                Cancelar
+                            </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
 
