@@ -109,35 +109,49 @@ public function obtenerEnvio($idPedido) {
     /**
      * Obtener pedidos del cliente
      */
-    public function obtenerPorCliente($idCliente, $limite = 20) {
-        try {
-            $query = "SELECT TOP :limite
-                        p.IdPedido,
-                        p.NumeroPedido,
-                        p.FechaPedido,
-                        p.EstadoPedido,
-                        p.Total,
-                        p.MetodoPago,
-                        COUNT(dp.IdDetallePedido) as TotalProductos,
-                        e.EstadoEnvio,
-                        e.FechaEstimadaEntrega
-                      FROM Pedidos p
-                      LEFT JOIN DetallesPedido dp ON p.IdPedido = dp.IdPedido
-                      LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
-                      WHERE p.IdCliente = :idCliente
-                      GROUP BY p.IdPedido, p.NumeroPedido, p.FechaPedido, 
-                               p.EstadoPedido, p.Total, p.MetodoPago,
-                               e.EstadoEnvio, e.FechaEstimadaEntrega
-                      ORDER BY p.FechaPedido DESC";  
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':idCliente', $idCliente);
-            $stmt->bindParam(':limite', $limite, PDO::PARAM_INT);
-            $stmt->execute();  
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            return [];
+    public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
+    try {
+        $query = "SELECT TOP (:limite)
+                    p.IdPedido,
+                    p.NumeroPedido,
+                    p.FechaPedido,
+                    ep.NombreEstado as EstadoPedido,
+                    p.Total,
+                    mp.NombreMetodo as MetodoPago,
+                    (SELECT COUNT(*) FROM DetallePedidos WHERE IdPedido = p.IdPedido) as TotalProductos,
+                    ee.NombreEstado as EstadoEnvio,
+                    e.FechaEntregaEstimada,
+                    p.TipoEntrega
+                  FROM Pedidos p
+                  LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstado
+                  LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodo
+                  LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
+                  LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
+                  WHERE p.IdCliente = :idCliente";
+        
+        // Agregar filtro de estado si existe
+        if ($estadoFiltro) {
+            $query .= " AND ep.NombreEstado = :estadoFiltro";
         }
+        
+        $query .= " ORDER BY p.FechaPedido DESC";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindValue(':idCliente', $idCliente, PDO::PARAM_INT);
+        $stmt->bindValue(':limite', $limite, PDO::PARAM_INT);
+        
+        if ($estadoFiltro) {
+            $stmt->bindValue(':estadoFiltro', $estadoFiltro, PDO::PARAM_STR);
+        }
+        
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error en obtenerPorCliente: " . $e->getMessage());
+        return [];
     }
+}
     /**
      * Obtener detalle de un pedido
      */

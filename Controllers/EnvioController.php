@@ -20,8 +20,24 @@ exit;
 * Listar envíos pendientes
 */
 public function listar() {
-$this->verificarAdmin();
-return $this->envioModel->obtenerPendientes();
+    $this->verificarAdmin();
+    
+    try {
+        // Intentar primero con el SP
+        $envios = $this->envioModel->obtenerPendientes();
+        
+        // Si falla o está vacío, usar consulta directa
+        if (empty($envios)) {
+            $envios = $this->envioModel->obtenerTodos();
+        }
+        
+        return $envios;
+    } catch (Exception $e) {
+        error_log("Error en EnvioController::listar: " . $e->getMessage());
+        
+        // Fallback: usar consulta directa
+        return $this->envioModel->obtenerTodos();
+    }
 }
 /**
 * Ver detalle

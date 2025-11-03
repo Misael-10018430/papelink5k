@@ -14,6 +14,12 @@ class PedidoController {
     /**
      * Crear pedido desde carrito (CLIENTE)
      */
+    /**
+ * Obtener pedidos del cliente logueado
+ */
+
+
+
     public function crear() {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
@@ -81,18 +87,20 @@ class PedidoController {
      * Ver pedidos del cliente (CLIENTE)
      */
     public function misPedidos() {
-        // Verificar que el cliente esté logueado
-        if (!isset($_SESSION['cliente_id'])) {
-            $_SESSION['error'] = 'Debe iniciar sesión';
-            header('Location: ' . BASE_URL . '/views/cliente/login.php');
-            exit;
-        }
-        $idCliente = $_SESSION['cliente_id'];
-        $limite = isset($_GET['limite']) ? (int)$_GET['limite'] : 10;
-        $pedidos = $this->pedidoModel->obtenerPorCliente($idCliente, $limite);
-        // La vista mostrará los pedidos
-        return $pedidos;
+    // Verificar que el cliente esté logueado
+    if (!isset($_SESSION['cliente_id'])) {
+        $_SESSION['error'] = 'Debe iniciar sesión para ver sus pedidos';
+        header('Location: ' . BASE_URL . 'view/cliente/login.php');
+        exit;
     }
+    
+    $idCliente = $_SESSION['cliente_id'];
+    
+    // Aplicar filtros si existen
+    $estadoFiltro = $_GET['estado'] ?? null;
+    
+    return $this->pedidoModel->obtenerPorCliente($idCliente, 100, $estadoFiltro);
+}
     /**
      * Ver detalle de un pedido (CLIENTE)
      */
