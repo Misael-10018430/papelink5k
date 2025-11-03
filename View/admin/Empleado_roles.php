@@ -430,12 +430,12 @@ include __DIR__ . '/includes/header.php';
 
 
 
-// Asignar rol
 document.getElementById('formAsignarRol')?.addEventListener('submit', function(e) {
     e.preventDefault();
     
     const formData = new FormData(this);
     const idRol = formData.get('id_rol');
+    const idEmpleado = formData.get('id_empleado');
     const selectElement = this.querySelector('select[name="id_rol"]');
     const nombreRol = selectElement.options[selectElement.selectedIndex].text;
     
@@ -447,16 +447,17 @@ document.getElementById('formAsignarRol')?.addEventListener('submit', function(e
     if (!confirm(`¿Deseas asignar el rol "${nombreRol}"?`)) {
         return;
     }
+    
     const datos = new URLSearchParams();
     datos.append('id_empleado', idEmpleado);
     datos.append('id_rol', idRol);
-
+    
     fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=asignarRol', {
         method: 'POST',
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',  // ✅ Header explícito
+            'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: datos.toString()  // ✅ Convertir a string
+        body: datos.toString()
     })
     .then(response => response.json())
     .then(data => {
@@ -479,22 +480,13 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
         const nombreRol = this.getAttribute('data-nombre-rol');
         const idEmpleado = <?php echo $idEmpleado; ?>;
         
-        console.log('=== DEBUG REMOVER ROL ===');
-        console.log('ID Empleado:', idEmpleado);
-        console.log('ID Rol:', idRol);
-        console.log('Nombre Rol:', nombreRol);
-        
         if (!confirm(`¿Deseas remover el rol "${nombreRol}"?`)) {
             return;
         }
         
-        // Crear URLSearchParams manualmente
         const datos = new URLSearchParams();
         datos.append('id_empleado', idEmpleado);
         datos.append('id_rol', idRol);
-        
-        console.log('Datos a enviar:', datos.toString());
-        console.log('URL:', '<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol');
         
         fetch('<?php echo BASE_URL; ?>controllers/EmpleadoController.php?action=removerRol', {
             method: 'POST',
@@ -503,30 +495,18 @@ document.querySelectorAll('.btn-remover').forEach(btn => {
             },
             body: datos.toString()
         })
-        .then(response => {
-            console.log('Response status:', response.status);
-            console.log('Response headers:', response.headers);
-            return response.text(); // Primero como texto para ver qué devuelve
-        })
-        .then(text => {
-            console.log('Respuesta RAW del servidor:', text);
-            try {
-                const data = JSON.parse(text);
-                console.log('Respuesta parseada:', data);
-                if (data.success) {
-                    mostrarAlerta(data.mensaje, 'exito');
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    mostrarAlerta(data.mensaje || 'Error desconocido', 'error');
-                }
-            } catch (e) {
-                console.error('Error al parsear JSON:', e);
-                mostrarAlerta('Error: La respuesta del servidor no es JSON válido', 'error');
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                mostrarAlerta(data.mensaje, 'exito');
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                mostrarAlerta(data.mensaje, 'error');
             }
         })
         .catch(error => {
-            console.error('Error completo:', error);
-            mostrarAlerta('Error al remover el rol: ' + error.message, 'error');
+            console.error('Error:', error);
+            mostrarAlerta('Error al remover el rol', 'error');
         });
     });
 });
