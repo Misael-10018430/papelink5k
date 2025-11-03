@@ -24,12 +24,12 @@ class PedidoController {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debe iniciar sesión para realizar un pedido';
-            header('Location: ' . BASE_URL . '/views/cliente/login.php');
+            header('Location: ' . BASE_URL . '/view/cliente/login.php');
             exit;
         }
         // Verificar que sea POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/views/cliente/carrito.php');
+            header('Location: ' . BASE_URL . '/view/cliente/carrito.php');
             exit;
         }
         $idCliente = $_SESSION['cliente_id'];
@@ -50,7 +50,7 @@ class PedidoController {
         if (!empty($errores)) {
             $_SESSION['errores'] = $errores;
             $_SESSION['datos_form'] = $_POST;
-            header('Location: ' . BASE_URL . '/views/cliente/checkout.php');
+            header('Location: ' . BASE_URL . '/view/cliente/checkout.php');
             exit;
         }
         // Sanitizar datos
@@ -62,7 +62,7 @@ class PedidoController {
         // Validar tipo de envío
         if (!in_array($tipoEnvio, ['Domicilio', 'Sucursal'])) {
             $_SESSION['error'] = 'Tipo de envío inválido';
-            header('Location: ' . BASE_URL . '/views/cliente/checkout.php');
+            header('Location: ' . BASE_URL . '/view/cliente/checkout.php');
             exit;
         }
         // Crear pedido
@@ -174,12 +174,12 @@ public function verDetalle() {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
             $_SESSION['error'] = 'Debe iniciar sesión';
-            header('Location: ' . BASE_URL . '/views/cliente/login.php');
+            header('Location: ' . BASE_URL . '/view/cliente/login.php');
             exit;
         }
         if (!isset($_GET['id'])) {
             $_SESSION['error'] = 'ID de pedido no especificado';
-            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
+            header('Location: ' . BASE_URL . '/view/cliente/mis_pedidos.php');
             exit;
         }
         $idPedido = (int)$_GET['id'];
@@ -189,9 +189,9 @@ public function verDetalle() {
             $_SESSION['confirmacion'] = [
                 'mensaje' => '¿Está seguro que desea cancelar este pedido?',
                 'url_confirmar' => BASE_URL . '/controllers/PedidoController.php?action=cancelar&id=' . $idPedido . '&confirmar=si',
-                'url_cancelar' => BASE_URL . '/views/cliente/mis_pedidos.php'
+                'url_cancelar' => BASE_URL . '/view/cliente/mis_pedidos.php'
             ];
-            header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
+            header('Location: ' . BASE_URL . '/view/cliente/mis_pedidos.php');
             exit;
         }
         $resultado = $this->pedidoModel->cancelar($idPedido, $idCliente);
@@ -200,7 +200,7 @@ public function verDetalle() {
         } else {
             $_SESSION['error'] = $resultado['error'];
         }
-        header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
+        header('Location: ' . BASE_URL . '/view/cliente/mis_pedidos.php');
         exit;
     }
     // ==========================================
@@ -213,7 +213,7 @@ public function verDetalle() {
         // Verificar que sea admin
         if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso denegado';
-            header('Location: ' . BASE_URL . '/views/admin/login.php');
+            header('Location: ' . BASE_URL . '/view/admin/login.php');
             exit;
         }
         // Obtener filtros
@@ -239,12 +239,12 @@ public function verDetalle() {
         // Verificar que sea admin
         if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso denegado';
-            header('Location: ' . BASE_URL . '/views/admin/login.php');
+            header('Location: ' . BASE_URL . '/view/admin/login.php');
             exit;
         }
         if (!isset($_GET['id'])) {
             $_SESSION['error'] = 'ID de pedido no especificado';
-            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
             exit;
         }
         $idPedido = (int)$_GET['id'];
@@ -252,7 +252,7 @@ public function verDetalle() {
         $detalle = $this->pedidoModel->obtenerDetalle($idPedido);
         if (empty($detalle)) {
             $_SESSION['error'] = 'Pedido no encontrado';
-            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
             exit;
         }
         // La vista mostrará el detalle
@@ -265,17 +265,17 @@ public function verDetalle() {
         // Verificar que sea admin
         if (!isset($_SESSION['usuario_id']) || $_SESSION['tipo_usuario'] !== 'empleado') {
             $_SESSION['error'] = 'Acceso denegado';
-            header('Location: ' . BASE_URL . '/views/admin/login.php');
+            header('Location: ' . BASE_URL . '/view/admin/login.php');
             exit;
         }
         // Verificar que sea POST
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
             exit;
         }
         if (!isset($_POST['id_pedido']) || !isset($_POST['estado'])) {
             $_SESSION['error'] = 'Datos incompletos';
-            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
             exit;
         }
         $idPedido = (int)$_POST['id_pedido'];
@@ -284,7 +284,7 @@ public function verDetalle() {
         $estadosValidos = ['Pendiente', 'En Proceso', 'Enviado', 'Completado', 'Cancelado'];
         if (!in_array($estado, $estadosValidos)) {
             $_SESSION['error'] = 'Estado inválido';
-            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
             exit;
         }
         $resultado = $this->pedidoModel->cambiarEstado($idPedido, $estado);
@@ -295,9 +295,9 @@ public function verDetalle() {
         }
         // Redirigir al detalle del pedido o al listado
         if (isset($_POST['redirigir']) && $_POST['redirigir'] === 'detalle') {
-            header('Location: ' . BASE_URL . '/views/admin/pedido_detalle.php?id=' . $idPedido);
+            header('Location: ' . BASE_URL . '/view/admin/pedido_detalle.php?id=' . $idPedido);
         } else {
-            header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+            header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
         }
         exit;
     }
@@ -323,9 +323,9 @@ if (basename($_SERVER['PHP_SELF']) === 'PedidoController.php') {
             // Redirigir según tipo de usuario
             if (isset($_SESSION['tipo_usuario'])) {
                 if ($_SESSION['tipo_usuario'] === 'cliente') {
-                    header('Location: ' . BASE_URL . '/views/cliente/mis_pedidos.php');
+                    header('Location: ' . BASE_URL . '/view/cliente/mis_pedidos.php');
                 } else {
-                    header('Location: ' . BASE_URL . '/views/admin/pedidos.php');
+                    header('Location: ' . BASE_URL . '/view/admin/pedidos.php');
                 }
             } else {
                 header('Location: ' . BASE_URL . '/index.php');
