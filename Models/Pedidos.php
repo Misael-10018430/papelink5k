@@ -91,14 +91,11 @@ class Pedido {
         }
     }
 /**
-     * Obtener pedidos del cliente (Versión de ACERO - Sin Envios)
-     */
-    /**
-     * Obtener pedidos del cliente (Versión "VER EL ERROR OCULTO")
+     * Obtener pedidos del cliente (Versión Definitiva)
      */
     public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
         try {
-            // Query base - HE QUITADO LOS JOINS DE ENVIOS
+            // Query con parámetros con nombre (ej: :idCliente)
             $query = "SELECT 
                         p.IdPedido,
                         p.NumeroPedido,
@@ -109,52 +106,48 @@ class Pedido {
                         p.IdTipoEntrega,
                         ep.NombreEstado as EstadoPedido,
                         mp.NombreMetodo as MetodoPago,
-                        
-                        /* ASUMO QUE EL NOMBRE ES 'DetallesPedido', CÁMBIALO SI ES OTRO */
                         (SELECT COUNT(*) FROM DetallesPedido WHERE IdPedido = p.IdPedido) as TotalProductos,
-                        
                         NULL as EstadoEnvio, 
                         NULL as FechaEntregaEstimada
                       FROM Pedidos p
                       LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
                       LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodoPago
-                      WHERE p.IdCliente = ?";
+                      WHERE p.IdCliente = :idCliente"; // <-- Parámetro con nombre
             
-            $params = [$idCliente];
-
             if ($estadoFiltro) {
-                $query .= " AND ep.NombreEstado = ?";
-                $params[] = $estadoFiltro;
+                $query .= " AND ep.NombreEstado = :estadoFiltro"; // <-- Parámetro con nombre
             }
             
             $query .= " ORDER BY p.FechaPedido DESC";
             
             if ($limite) {
-                $query .= " OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
-                $params[] = $limite;
+                $query .= " OFFSET 0 ROWS FETCH NEXT :limite ROWS ONLY"; // <-- Parámetro con nombre
             }
             
             $stmt = $this->conn->prepare($query);
-            $stmt->execute($params);
+            
+            // =======================================================
+            // ¡¡AQUÍ ESTÁ EL ARREGLO!!
+            // Forzamos los tipos de datos correctos
+            // =======================================================
+            $stmt->bindValue(':idCliente', $idCliente, PDO::PARAM_INT); // Forzamos ID a INT
+            
+            if ($estadoFiltro) {
+                $stmt->bindValue(':estadoFiltro', $estadoFiltro); // El estado es string, está bien
+            }
+            
+            if ($limite) {
+                $stmt->bindValue(':limite', $limite, PDO::PARAM_INT); // ¡¡FORZAMOS EL LÍMITE A INT!!
+            }
+            // =======================================================
+
+            $stmt->execute();
             
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
-            
-            // =======================================================
-            // ¡¡AQUÍ ESTÁ EL CAMBIO!! VAMOS A MOSTRAR EL ERROR
-            // =======================================================
-            echo "<pre style='background: #e74c3c; color: #fff; padding: 20px; font-size: 16px; border-radius: 8px; font-family: monospace;'>";
-            echo "<h1>¡EL ERROR ESTABA OCULTO! (Fallo Silencioso)</h1>";
-            echo "<h2>Este es el error que el 'return []' estaba escondiendo:</h2>";
-            echo "<hr style='border-color: rgba(255,255,255,0.3);'>";
-            echo "<strong>Mensaje:</strong> " . $e->getMessage();
-            echo "</pre>";
-            exit; // Detenemos todo para ver el error
-            // =======================================================
-            
-            // error_log("Error en obtenerPorCliente: " . $e->getMessage());
-            // return []; // Ya no queremos que falle en silencio
+            error_log("Error en obtenerPorCliente: " . $e->getMessage());
+            return []; // Fallo silencioso (por si acaso)
         }
     }
     /**
