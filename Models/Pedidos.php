@@ -227,7 +227,12 @@ public function obtenerDetalle($idPedido, $idCliente = null) {
                     p.NombreProducto,
                     p.CodigoProducto,
                     m.NombreMarca
-                  FROM DetallePedidos dp
+                  
+                  /* ======================================================= */
+                  /* ¡¡AQUÍ ESTÁ EL ARREGLO!! (Cambiado a DetallesPedido) */
+                  FROM DetallesPedido dp
+                  /* ======================================================= */
+
                   INNER JOIN Productos p ON dp.IdProducto = p.IdProducto
                   INNER JOIN Marcas m ON p.IdMarca = m.IdMarca
                   WHERE dp.IdPedido = ?";
@@ -378,8 +383,8 @@ public function obtenerDetalle($idPedido, $idCliente = null) {
             
             // Actualizar pedido a estado Cancelado
             $query = "UPDATE Pedidos 
-                     SET IdEstadoPedido = :idEstadoCancelado
-                     WHERE IdPedido = :idPedido";
+                      SET IdEstadoPedido = :idEstadoCancelado
+                      WHERE IdPedido = :idPedido";
             
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':idEstadoCancelado', $estadoCancelado['IdEstadoPedido'], PDO::PARAM_INT);
@@ -395,7 +400,10 @@ public function obtenerDetalle($idPedido, $idCliente = null) {
                                           ELSE 0 
                                       END
                                   FROM Inventarios i
-                                  INNER JOIN DetallePedidos dp ON i.IdProducto = dp.IdProducto
+                                  /* ======================================================= */
+                                  /* ¡¡AQUÍ ESTÁ EL ARREGLO!! (Cambiado a DetallesPedido) */
+                                  INNER JOIN DetallesPedido dp ON i.IdProducto = dp.IdProducto
+                                  /* ======================================================= */
                                   WHERE dp.IdPedido = :idPedido";
                 
                 $stmtRestaurar = $this->conn->prepare($queryRestaurar);
