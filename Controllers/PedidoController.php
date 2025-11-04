@@ -8,6 +8,23 @@ class PedidoController {
     public function __construct() {
         $this->pedidoModel = new Pedido();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ==========================================
     // MÉTODOS PARA CLIENTE
     // ==========================================
@@ -17,9 +34,6 @@ class PedidoController {
     /**
  * Obtener pedidos del cliente logueado
  */
-
-
-
     public function crear() {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
@@ -83,22 +97,22 @@ class PedidoController {
         }
         exit;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Ver pedidos del cliente (CLIENTE)
      */
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     /**
  * Obtener pedidos del cliente logueado (CUALQUIER CLIENTE)
@@ -111,13 +125,13 @@ public function misPedidos() {
         exit;
     }
     
-    // ✅ Obtener el ID del cliente de la sesión (CUALQUIER CLIENTE)
+    //  Obtener el ID del cliente de la sesión (CUALQUIER CLIENTE)
     $idCliente = (int)$_SESSION['cliente_id'];
     
     // Obtener filtro de estado (opcional)
     $estadoFiltro = $_GET['estado'] ?? null;
     
-    // ✅ Buscar pedidos del cliente específico (sin forzar ID)
+    //  Buscar pedidos del cliente específico (sin forzar ID)
     $pedidos = $this->pedidoModel->obtenerPorCliente($idCliente, 100, $estadoFiltro);
     
     return $pedidos;
@@ -132,41 +146,43 @@ public function misPedidos() {
 
 
 
-
-    /**
-     * Ver detalle de un pedido (CLIENTE)
-     */
-    /**
+/**
  * Ver detalle de un pedido (CLIENTE)
  */
-public function verDetalle() {
-    // Verificar que el cliente esté logueado
-    if (!isset($_SESSION['cliente_id'])) {
-        $_SESSION['error'] = 'Debe iniciar sesión';
-        header('Location: ' . BASE_URL . 'view/cliente/login.php');
-        exit;
+public function verDetalle($idPedido = null) {
+    // Si se llama desde la vista, obtener el ID del GET
+    if ($idPedido === null && isset($_GET['id'])) {
+        $idPedido = (int)$_GET['id'];
     }
     
-    if (!isset($_GET['id'])) {
-        $_SESSION['error'] = 'ID de pedido no especificado';
-        header('Location: ' . BASE_URL . 'view/cliente/mis_pedidos.php');
-        exit;
+    if (!$idPedido) {
+        return null;
     }
     
-    $idPedido = (int)$_GET['id'];
-    $idCliente = $_SESSION['cliente_id'];
+    // Usar el método obtenerDetalle que ya existe
+    $idCliente = isset($_SESSION['cliente_id']) ? $_SESSION['cliente_id'] : null;
     
-    $detalle = $this->pedidoModel->obtenerDetalle($idPedido, $idCliente);
-    
-    if (empty($detalle)) {
-        $_SESSION['error'] = 'Pedido no encontrado';
-        header('Location: ' . BASE_URL . 'view/cliente/mis_pedidos.php');
-        exit;
-    }
-    
-    // La vista mostrará el detalle
-    return $detalle;
+    return $this->pedidoModel->obtenerDetalle($idPedido, $idCliente);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Cancelar pedido (CLIENTE)
      */
@@ -203,6 +219,27 @@ public function verDetalle() {
         header('Location: ' . BASE_URL . '/view/cliente/mis_pedidos.php');
         exit;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     // ==========================================
     // MÉTODOS PARA ADMIN
     // ==========================================
@@ -232,6 +269,22 @@ public function verDetalle() {
         // La vista mostrará los pedidos
         return $pedidos;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Ver detalle de pedido (ADMIN)
      */
@@ -258,6 +311,19 @@ public function verDetalle() {
         // La vista mostrará el detalle
         return $detalle;
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Cambiar estado de pedido (ADMIN)
      */
@@ -302,6 +368,21 @@ public function verDetalle() {
         exit;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ==========================================
 // MANEJO DE ACCIONES
 // ==========================================

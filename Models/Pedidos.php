@@ -333,6 +333,22 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
         return null;
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Obtener todos los pedidos (Admin)
      */
@@ -390,6 +406,22 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
             return [];
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Cambiar estado del pedido
      */
@@ -409,44 +441,122 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
             return ['error' => 'Error: ' . $e->getMessage()];
         }
     } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /**
      * Cancelar pedido
      */
-    public function cancelar($idPedido, $idCliente = null) {
-        try {
-            // Verificar que el pedido esté en estado que permita cancelación
-            $queryCheck = "SELECT EstadoPedido FROM Pedidos WHERE IdPedido = :idPedido";
-            
-            if ($idCliente) {
-                $queryCheck .= " AND IdCliente = :idCliente";
-            }
-            $stmtCheck = $this->conn->prepare($queryCheck);
-            $stmtCheck->bindParam(':idPedido', $idPedido);
-            if ($idCliente) {
-                $stmtCheck->bindParam(':idCliente', $idCliente);
-            }
-            $stmtCheck->execute();
-            $pedido = $stmtCheck->fetch(PDO::FETCH_ASSOC);
-            if (!$pedido) {
-                return ['error' => 'Pedido no encontrado'];
-            }
-            if (!in_array($pedido['EstadoPedido'], ['Pendiente', 'En Proceso'])) {
-                return ['error' => 'El pedido no puede ser cancelado en su estado actual'];
-            }        
-            // Cancelar pedido
-            $query = "UPDATE Pedidos 
-                     SET EstadoPedido = 'Cancelado' 
-                     WHERE IdPedido = :idPedido";
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':idPedido', $idPedido);
-            
-            if ($stmt->execute()) {
-                return ['success' => true, 'mensaje' => 'Pedido cancelado exitosamente'];
-            }
-            return ['error' => 'Error al cancelar pedido'];
-        } catch (PDOException $e) {
-            return ['error' => 'Error: ' . $e->getMessage()];
+    /**
+ * Cancelar pedido (VERSIÓN CORREGIDA)
+ */
+public function cancelar($idPedido, $idCliente = null) {
+    try {
+        //  OBTENER EL PEDIDO COMPLETO usando obtenerDetalle()
+        $pedido = $this->obtenerDetalle($idPedido, $idCliente);
+        
+        if (!$pedido) {
+            return ['error' => 'Pedido no encontrado'];
         }
+        
+        //  Verificar que el estado permita cancelación
+        if (!in_array($pedido['EstadoPedido'], ['Pendiente', 'En Proceso'])) {
+            return ['error' => 'El pedido no puede ser cancelado en su estado actual: ' . $pedido['EstadoPedido']];
+        }
+        
+        //  Obtener ID del estado "Cancelado"
+        $queryIdCancelado = "SELECT IdEstadoPedido FROM EstadosPedido WHERE NombreEstado = 'Cancelado'";
+        $stmtIdCancelado = $this->conn->prepare($queryIdCancelado);
+        $stmtIdCancelado->execute();
+        $estadoCancelado = $stmtIdCancelado->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$estadoCancelado) {
+            return ['error' => 'No se encontró el estado Cancelado en la base de datos'];
+        }
+        
+        //  Actualizar pedido a estado Cancelado
+        $query = "UPDATE Pedidos 
+                 SET IdEstadoPedido = :idEstadoCancelado
+                 WHERE IdPedido = :idPedido";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':idEstadoCancelado', $estadoCancelado['IdEstadoPedido']);
+        $stmt->bindParam(':idPedido', $idPedido);
+        
+        if ($stmt->execute()) {
+            //  Restaurar inventario
+            $queryRestaurar = "UPDATE i
+                              SET i.CantidadDisponible = i.CantidadDisponible + dp.Cantidad,
+                                  i.CantidadReservada = CASE 
+                                      WHEN i.CantidadReservada >= dp.Cantidad 
+                                      THEN i.CantidadReservada - dp.Cantidad 
+                                      ELSE 0 
+                                  END
+                              FROM Inventarios i
+                              INNER JOIN DetallePedidos dp ON i.IdProducto = dp.IdProducto
+                              WHERE dp.IdPedido = :idPedido";
+            
+            $stmtRestaurar = $this->conn->prepare($queryRestaurar);
+            $stmtRestaurar->bindParam(':idPedido', $idPedido);
+            $stmtRestaurar->execute();
+            
+            return ['success' => true, 'mensaje' => 'Pedido cancelado exitosamente'];
+        }
+        
+        return ['error' => 'Error al cancelar pedido'];
+        
+    } catch (PDOException $e) {
+        error_log("Error en cancelar: " . $e->getMessage());
+        return ['error' => 'Error: ' . $e->getMessage()];
     }
+}
+
+
+
+
+
+
+
+
+
+/**
+ * Obtener solo los productos de un pedido
+ */
+public function obtenerDetalles($idPedido) {
+    try {
+        $query = "SELECT 
+                    dp.*,
+                    (dp.Cantidad * dp.PrecioUnitario) as Subtotal,
+                    p.NombreProducto,
+                    p.CodigoProducto,
+                    m.NombreMarca
+                  FROM DetallePedidos dp
+                  INNER JOIN Productos p ON dp.IdProducto = p.IdProducto
+                  INNER JOIN Marcas m ON p.IdMarca = m.IdMarca
+                  WHERE dp.IdPedido = ?";
+        
+        $stmt = $this->conn->prepare($query);
+        $stmt->execute([$idPedido]);
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+    } catch (PDOException $e) {
+        error_log("Error en obtenerDetalles: " . $e->getMessage());
+        return [];
+    }
+}
 }
 ?>
