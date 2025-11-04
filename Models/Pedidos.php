@@ -91,65 +91,41 @@ class Pedido {
         }
     }
 /**
-     * Obtener pedidos del cliente
+     * Obtener pedidos del cliente (PRUEBA NUCLEAR)
      */
     public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
         try {
-            // Query base con LEFT JOINs para obtener nombres
-            $query = "SELECT 
-                        p.IdPedido,
-                        p.NumeroPedido,
-                        p.FechaPedido,
-                        p.Total,
-                        p.IdEstadoPedido,
-                        p.IdMetodoPago,
-                        p.IdTipoEntrega,
-                        ep.NombreEstado as EstadoPedido,
-                        mp.NombreMetodo as MetodoPago,
-                        
-                        /* <-- ¡EL ARREGLO #2 ESTÁ AQUÍ! */
-                        (SELECT COUNT(*) FROM DetallesPedido WHERE IdPedido = p.IdPedido) as TotalProductos,
-                        
-                        ee.NombreEstado as EstadoEnvio,
-                        e.FechaEntregaEstimada
-                      FROM Pedidos p
-                      LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
-                      
-                      /* <-- ¡EL ARREGLO #1 ESTÁ AQUÍ! */
-                      LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodoPago
-                      
-                      LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
-                      LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
-                      WHERE p.IdCliente = ?";
+            // --- INICIO DE DEBUG NUCLEAR ---
+            echo "<pre style='background: #f39c12; color: #2C3E50; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 14px;'>";
+            echo "<h2>DEBUG NUCLEAR: ¿Existen los pedidos para este cliente?</h2>";
             
-            // Array de parámetros unificado
+            // ¡¡LA CONSULTA MÁS SIMPLE POSIBLE!!
+            // Solo estamos preguntando a la tabla 'Pedidos'.
+            $query = "SELECT IdPedido, IdCliente, IdEstadoPedido, Total, NumeroPedido 
+                      FROM Pedidos 
+                      WHERE IdCliente = ?";
+            
             $params = [$idCliente];
 
-            if ($estadoFiltro) {
-                $query .= " AND ep.NombreEstado = ?";
-                $params[] = $estadoFiltro; // Añadimos el filtro a los parámetros
-            }
-            
-            $query .= " ORDER BY p.FechaPedido DESC";
-            
-            if ($limite) {
-                // Tu OFFSET/FETCH es correcto para SQL Server
-                $query .= " OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
-                $params[] = $limite; // Añadimos el límite a los parámetros
-            }
-            
+            var_dump("1. Query Final:", $query);
+            var_dump("2. Parámetros para execute:", $params);
+
             $stmt = $this->conn->prepare($query);
-            
-            // Ejecutamos con el array de parámetros unificado
             $stmt->execute($params);
-            
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
-            
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // --- DEBUG 3 (EL MÁS IMPORTANTE) ---
+            var_dump("3. RESULTADOS DIRECTOS DE LA TABLA 'Pedidos':", $resultados);
+            echo "</pre>";
+            exit; // ¡DETENER TODO!
+
         } catch (PDOException $e) {
-            error_log("Error en obtenerPorCliente: " . $e->getMessage());
-            return [];
+            error_log("Error en obtenerPorCliente (PRUEBA NUCLEAR): " . $e->getMessage());
+            echo "<h1 style='color: red;'>¡ERROR EN LA PRUEBA NUCLEAR!</h1><pre>" . $e->getMessage() . "</pre>";
+            exit;
         }
     }
+    
     /**
  * Obtener detalle completo de un pedido (USANDO SP CORRECTAMENTE)
  */
