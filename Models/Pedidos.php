@@ -91,17 +91,10 @@ class Pedido {
         }
     }
 /**
-     * Obtener pedidos del cliente (VERSIÓN CON DEBUG FINAL)
+     * Obtener pedidos del cliente
      */
     public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
         try {
-            // --- INICIO DE DEBUG 1 ---
-            echo "<pre style='background: #2C3E50; color: #ECF0F1; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 14px;'>";
-            echo "<h2>DEBUG FINAL: models/Pedidos.php -> obtenerPorCliente()</h2>";
-            var_dump("1. IdCliente recibido:", $idCliente);
-            var_dump("2. EstadoFiltro recibido:", $estadoFiltro);
-            // --- FIN DE DEBUG 1 ---
-
             // Query base con LEFT JOINs para obtener nombres
             $query = "SELECT 
                         p.IdPedido,
@@ -113,54 +106,47 @@ class Pedido {
                         p.IdTipoEntrega,
                         ep.NombreEstado as EstadoPedido,
                         mp.NombreMetodo as MetodoPago,
-                        (SELECT COUNT(*) FROM DetallePedidos WHERE IdPedido = p.IdPedido) as TotalProductos,
+                        
+                        /* <-- ¡EL ARREGLO #2 ESTÁ AQUÍ! */
+                        (SELECT COUNT(*) FROM DetallesPedido WHERE IdPedido = p.IdPedido) as TotalProductos,
+                        
                         ee.NombreEstado as EstadoEnvio,
                         e.FechaEntregaEstimada
                       FROM Pedidos p
                       LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
-                      LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodoPago  /* <-- ARREGLO APLICADO */
+                      
+                      /* <-- ¡EL ARREGLO #1 ESTÁ AQUÍ! */
+                      LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodoPago
+                      
                       LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
                       LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
                       WHERE p.IdCliente = ?";
             
+            // Array de parámetros unificado
             $params = [$idCliente];
 
             if ($estadoFiltro) {
                 $query .= " AND ep.NombreEstado = ?";
-                $params[] = $estadoFiltro;
+                $params[] = $estadoFiltro; // Añadimos el filtro a los parámetros
             }
             
             $query .= " ORDER BY p.FechaPedido DESC";
             
             if ($limite) {
+                // Tu OFFSET/FETCH es correcto para SQL Server
                 $query .= " OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
-                $params[] = $limite;
+                $params[] = $limite; // Añadimos el límite a los parámetros
             }
             
-            // --- INICIO DE DEBUG 2 ---
-            var_dump("3. Query Final:", $query);
-            var_dump("4. Parámetros para execute:", $params);
-            // --- FIN DE DEBUG 2 ---
-            
             $stmt = $this->conn->prepare($query);
+            
+            // Ejecutamos con el array de parámetros unificado
             $stmt->execute($params);
-            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            // --- INICIO DE DEBUG 3 (EL MÁS IMPORTANTE) ---
-            var_dump("5. Resultados de fetchAll():", $resultados);
-            echo "</pre>";
-            exit; // DETENER TODO.
-            // --- FIN DE DEBUG 3 ---
-
-            return $resultados;
+            
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
             error_log("Error en obtenerPorCliente: " . $e->getMessage());
-            echo "<pre style='background: #E74C3C; color: #fff; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 14px;'>";
-            echo "<h2>¡¡¡ERROR DE PDO ATRAPADO!!! (DE NUEVO)</h2>";
-            var_dump($e->getMessage());
-            echo "</pre>";
-            exit;
             return [];
         }
     }
@@ -273,7 +259,7 @@ public function obtenerDetalle($idPedido, $idCliente = null) {
                         mp.NombreMetodo as MetodoPago,
                         c.NombreCliente as NombreCliente,
                         c.Email as EmailCliente,
-                        (SELECT COUNT(*) FROM DetallePedidos WHERE IdPedido = p.IdPedido) as TotalProductos,
+                        (SELECT COUNT(*) FROM DetallesPedido WHERE IdPedido = p.IdPedido) as TotalProductos,
                         ee.NombreEstado as EstadoEnvio
                       FROM Pedidos p
                       INNER JOIN Clientes c ON p.IdCliente = c.IdCliente
@@ -307,7 +293,9 @@ public function obtenerDetalle($idPedido, $idCliente = null) {
             $params[':offset'] = $offset;
             $params[':limite'] = $limite;
             
-            $stmt = $this->conn->prepare($query);
+            // =======================================================
+            $stmt = $this->conn->prepare($query); // <-- ¡ARREGLADO! Era -> en lugar de .
+            // =======================================================
             
             foreach ($params as $key => $value) {
                 if ($key === ':offset' || $key === ':limite') {
