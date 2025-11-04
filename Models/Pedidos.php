@@ -92,10 +92,17 @@ class Pedido {
     }
 
     /**
-     * Obtener pedidos del cliente
+     * Obtener pedidos del cliente (VERSIÓN CON DEBUG)
      */
     public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
         try {
+            // --- INICIO DE DEBUG 1 ---
+            echo "<pre style='background: #2C3E50; color: #ECF0F1; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 14px;'>";
+            echo "<h2>DEBUG: models/Pedidos.php -> obtenerPorCliente()</h2>";
+            var_dump("1. IdCliente recibido:", $idCliente);
+            var_dump("2. EstadoFiltro recibido:", $estadoFiltro);
+            // --- FIN DE DEBUG 1 ---
+
             // Query base con LEFT JOINs para obtener nombres
             $query = "SELECT 
                         p.IdPedido,
@@ -117,35 +124,57 @@ class Pedido {
                       LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
                       WHERE p.IdCliente = ?";
             
+            // He mejorado esta parte para evitar errores:
+            $params = [$idCliente];
+
             if ($estadoFiltro) {
                 $query .= " AND ep.NombreEstado = ?";
+                $params[] = $estadoFiltro; // Añadimos el filtro a los parámetros
             }
             
             $query .= " ORDER BY p.FechaPedido DESC";
             
             if ($limite) {
+                // Tu OFFSET/FETCH es correcto para SQL Server
                 $query .= " OFFSET 0 ROWS FETCH NEXT ? ROWS ONLY";
+                $params[] = $limite; // Añadimos el límite a los parámetros
             }
+            
+            // --- INICIO DE DEBUG 2 ---
+            var_dump("3. Query Final:", $query);
+            var_dump("4. Parámetros para execute:", $params);
+            // --- FIN DE DEBUG 2 ---
             
             $stmt = $this->conn->prepare($query);
             
-            if ($estadoFiltro && $limite) {
-                $stmt->execute([$idCliente, $estadoFiltro, $limite]);
-            } elseif ($estadoFiltro) {
-                $stmt->execute([$idCliente, $estadoFiltro]);
-            } elseif ($limite) {
-                $stmt->execute([$idCliente, $limite]);
-            } else {
-                $stmt->execute([$idCliente]);
-            }
+            // Ejecutamos con el array de parámetros unificado
+            $stmt->execute($params);
             
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $resultados = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // --- INICIO DE DEBUG 3 (EL MÁS IMPORTANTE) ---
+            var_dump("5. Resultados de fetchAll():", $resultados);
+            echo "</pre>";
+            exit; // DETENER TODO. NO QUEREMOS QUE LA VISTA SE RENDERICE.
+            // --- FIN DE DEBUG 3 ---
+
+            return $resultados;
             
         } catch (PDOException $e) {
             error_log("Error en obtenerPorCliente: " . $e->getMessage());
+
+            // --- INICIO DE DEBUG (ERROR) ---
+            echo "<pre style='background: #E74C3C; color: #fff; padding: 15px; border-radius: 5px; font-family: monospace; font-size: 14px;'>";
+            echo "<h2>¡¡¡ERROR DE PDO ATRAPADO!!!</h2>";
+            var_dump($e->getMessage());
+            echo "</pre>";
+            exit;
+            // --- FIN DE DEBUG (ERROR) ---
+            
             return [];
         }
     }
+    
 
     /**
  * Obtener detalle completo de un pedido (USANDO SP CORRECTAMENTE)

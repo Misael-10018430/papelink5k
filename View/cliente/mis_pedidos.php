@@ -11,11 +11,6 @@ if (!isset($_SESSION['cliente_id'])) {
     exit;
 }
 
-echo "<h1>Revisando tu identificación...</h1>";
-var_dump("EL ID DE CLIENTE EN TU SESIÓN ES:", $_SESSION['cliente_id']);
-exit; // Detiene la página aquí mismo
-// ===========================================
-
 
 require_once __DIR__ . '/../../controllers/PedidoController.php';
 // Obtener pedidos del cliente
