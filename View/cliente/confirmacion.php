@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../models/Pedido.php';
+// =======================================================
+// FIX 1: El archivo es 'Pedidos.php' (plural)
+// =======================================================
+require_once __DIR__ . '/../../models/Pedidos.php';
 
 // Verificar que el cliente esté logueado
 if (!isset($_SESSION['cliente_id'])) {
@@ -33,45 +36,40 @@ if (empty($pedido)) {
 // El SP almacena los productos en 'detalles'
 $productos = $pedido['detalles'] ?? [];
 
-// Obtener información del envío
+// Obtener información del envío (Esta función SÍ existe en tu modelo)
 $envioData = $pedidoModel->obtenerEnvio($idPedido);
 
 if (!$envioData) {
     $envio = [
         'EstadoEnvio' => 'No aplica - Recoger en Sucursal',
         'DireccionCompleta' => $pedido['DireccionSnapshot'] ?? 'Sucursal Principal',
-        'Ciudad' => '',
-        'CodigoPostal' => '',
         'FechaEstimadaEntrega' => null
     ];
 } else {
     $envio = [
         'EstadoEnvio' => $envioData['EstadoEnvio'] ?? 'Pendiente',
         'DireccionCompleta' => $envioData['DireccionCompleta'] ?? $pedido['DireccionSnapshot'],
-        'Ciudad' => '',
-        'CodigoPostal' => '',
         'FechaEstimadaEntrega' => $envioData['FechaEstimadaEntrega']
     ];
 }
 
 $titulo = "Pedido Confirmado - Papelink";
 include __DIR__ . '/includes/header.php';
+
+// =======================================================
+// FIX 4: Calculamos el Subtotal manualmente
+// =======================================================
+$subtotalCalculado = ($pedido['Total'] ?? 0) - ($pedido['IVA'] ?? 0) - ($pedido['CostoEnvio'] ?? 0);
 ?>
 
-
-
-
 <div class="confirmacion-container">
-    <!-- Mensaje de éxito -->
     <div class="confirmacion-header">
         <div class="icono-exito">✓</div>
         <h1>¡Pedido Realizado con Éxito!</h1>
         <p class="mensaje-principal">Tu pedido ha sido registrado correctamente</p>
     </div>
 
-    <!-- Información del pedido -->
     <div class="confirmacion-contenido">
-        <!-- Detalles principales -->
         <div class="seccion-confirmacion">
             <div class="info-pedido-principal">
                 <div class="info-item destacado">
@@ -87,25 +85,24 @@ include __DIR__ . '/includes/header.php';
                     
                     <div class="info-item">
                         <span class="etiqueta">Estado:</span>
-                        <span class="badge badge-<?php echo strtolower($pedido['EstadoPedido']); ?>">
-                            <?php echo htmlspecialchars($pedido['EstadoPedido']); ?>
+                        <span class="badge badge-<?php echo strtolower(str_replace(' ', '.', $pedido['EstadoPedido'] ?? 'pendiente')); ?>">
+                            <?php echo htmlspecialchars($pedido['EstadoPedido'] ?? 'Pendiente'); ?>
                         </span>
                     </div>
                     
                     <div class="info-item">
                         <span class="etiqueta">Método de Pago:</span>
-                        <span class="valor"><?php echo htmlspecialchars($pedido['MetodoPago']); ?></span>
+                        <span class="valor"><?php echo htmlspecialchars($pedido['MetodoPago'] ?? 'N/A'); ?></span>
                     </div>
                     
                     <div class="info-item">
                         <span class="etiqueta">Tipo de Envío:</span>
-                        <span class="valor"><?php echo htmlspecialchars($pedido['TipoEnvio']); ?></span>
+                        <span class="valor"><?php echo htmlspecialchars($pedido['TipoEntrega'] ?? 'N/A'); ?></span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Productos del pedido -->
         <div class="seccion-confirmacion">
             <h2>Productos Ordenados</h2>
             <div class="tabla-productos">
@@ -123,48 +120,46 @@ include __DIR__ . '/includes/header.php';
                             <tr>
                                 <td>
                                     <div class="producto-info">
-                                        <strong><?php echo htmlspecialchars($producto['NombreProducto']); ?></strong>
-                                        <span class="codigo">Código: <?php echo htmlspecialchars($producto['CodigoProducto']); ?></span>
+                                        <strong><?php echo htmlspecialchars($producto['NombreProducto'] ?? 'Producto'); ?></strong>
+                                        <span class="codigo">Código: <?php echo htmlspecialchars($producto['CodigoProducto'] ?? 'N/A'); ?></span>
                                     </div>
                                 </td>
-                                <td class="centrado"><?php echo $producto['Cantidad']; ?></td>
-                                <td>$<?php echo number_format($producto['PrecioUnitario'], 2); ?></td>
-                                <td class="precio-destacado">$<?php echo number_format($producto['Subtotal'], 2); ?></td>
+                                <td class="centrado"><?php echo $producto['Cantidad'] ?? 0; ?></td>
+                                <td>$<?php echo number_format($producto['PrecioUnitario'] ?? 0, 2); ?></td>
+                                <td class="precio-destacado">$<?php echo number_format($producto['Subtotal'] ?? 0, 2); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
 
-            <!-- Totales -->
             <div class="totales-confirmacion">
                 <div class="linea-total">
                     <span>Subtotal:</span>
-                    <span>$<?php echo number_format($pedido['Subtotal'], 2); ?></span>
+                    <span>$<?php echo number_format($subtotalCalculado, 2); ?></span>
                 </div>
                 <div class="linea-total">
                     <span>IVA (16%):</span>
-                    <span>$<?php echo number_format($pedido['IVA'], 2); ?></span>
+                    <span>$<?php echo number_format($pedido['IVA'] ?? 0, 2); ?></span>
                 </div>
                 <div class="linea-total">
                     <span>Costo de Envío:</span>
-                    <span><?php echo $pedido['CostoEnvio'] > 0 ? '$' . number_format($pedido['CostoEnvio'], 2) : 'GRATIS'; ?></span>
+                    <span><?php echo ($pedido['CostoEnvio'] ?? 0) > 0 ? '$' . number_format($pedido['CostoEnvio'], 2) : 'GRATIS'; ?></span>
                 </div>
                 <div class="separador"></div>
                 <div class="linea-total total-final">
                     <span><strong>Total:</strong></span>
-                    <span class="total-valor"><strong>$<?php echo number_format($pedido['Total'], 2); ?></strong></span>
+                    <span class="total-valor"><strong>$<?php echo number_format($pedido['Total'] ?? 0, 2); ?></strong></span>
                 </div>
             </div>
         </div>
 
-        <!-- Información de envío -->
         <div class="seccion-confirmacion">
             <h2>Información de Envío</h2>
             <div class="info-envio-detalle">
                 <div class="envio-item">
                     <strong>Estado:</strong>
-                    <span class="badge badge-<?php echo strtolower($envio['EstadoEnvio']); ?>">
+                    <span class="badge badge-<?php echo strtolower(str_replace(' ', '.', $envio['EstadoEnvio'])); ?>">
                         <?php echo htmlspecialchars($envio['EstadoEnvio']); ?>
                     </span>
                 </div>
@@ -173,11 +168,11 @@ include __DIR__ . '/includes/header.php';
                     <strong>Dirección de Entrega:</strong>
                     <p><?php echo htmlspecialchars($envio['DireccionCompleta']); ?></p>
                 </div>
-                                
-                <?php if (!empty($pedido['ReferenciasAdicionales'])): ?>
+                        
+                <?php if (!empty($pedido['NotasCliente'])): ?>
                     <div class="envio-item">
                         <strong>Referencias:</strong>
-                        <p><?php echo htmlspecialchars($pedido['ReferenciasAdicionales']); ?></p>
+                        <p><?php echo htmlspecialchars($pedido['NotasCliente']); ?></p>
                     </div>
                 <?php endif; ?>
                 
@@ -190,7 +185,6 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Siguiente pasos -->
         <div class="seccion-confirmacion proximos-pasos">
             <h2>Próximos Pasos</h2>
             <div class="pasos-lista">
@@ -214,8 +208,7 @@ include __DIR__ . '/includes/header.php';
                     <div class="paso-numero">3</div>
                     <div class="paso-contenido">
                         <h3>Envío</h3>
-                        <!-- ✅ CORRECTO -->
-<p><?php echo $pedido['TipoEnvio'] === 'Envío a Domicilio' ? 'Te lo enviaremos a tu dirección' : 'Podrás recogerlo en nuestra sucursal'; ?></p>
+                        <p><?php echo ($pedido['TipoEntrega'] ?? '') === 'Envío a Domicilio' ? 'Te lo enviaremos a tu dirección' : 'Podrás recogerlo en nuestra sucursal'; ?></p>
                     </div>
                 </div>
                 
@@ -229,7 +222,6 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Información adicional -->
         <div class="seccion-confirmacion info-adicional">
             <div class="info-box">
                 <h3>¿Necesitas Ayuda?</h3>
@@ -242,7 +234,6 @@ include __DIR__ . '/includes/header.php';
             </div>
         </div>
 
-        <!-- Botones de acción -->
         <div class="acciones-confirmacion">
             <a href="mis_pedidos.php" class="btn btn-secundario">
                 Ver Mis Pedidos
@@ -399,7 +390,7 @@ include __DIR__ . '/includes/header.php';
     color: #000;
 }
 
-.badge-en.proceso {
+.badge-en.proceso, .badge-en.proceso {
     background-color: #2196F3;
     color: white;
 }
