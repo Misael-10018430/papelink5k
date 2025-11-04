@@ -16,48 +16,56 @@ $titulo = "Mis Devoluciones - Papelink";
 include __DIR__ . '/includes/header.php';
 ?>
 <style>
-    /* CONTENEDOR PRINCIPAL: Centrado en pantalla con margen y padding */
+    /* ============================================
+       CONTENEDOR PRINCIPAL - Mantener funcionalidad y enfocar el contenido
+       ============================================ */
     .contenedor-devoluciones {
         max-width: 1100px;
         margin: 40px auto 60px auto;
         padding: 25px 30px;
-        background-color: white;
+        background-color: white; /* Fondo blanco para contraste */
         border-radius: 8px;
         box-shadow: 0 3px 15px rgba(0,0,0,0.1);
         font-family: Arial, Helvetica, sans-serif;
         color: #2C3E50;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        box-sizing: border-box;
     }
 
-    /* TITULOS SECCIONES */
-    .titulo-seccion, h2 {
-        font-size: 26px;
+    /* Títulos con jerarquía clara */
+    .titulo-seccion, h1 {
+        font-size: 28px;
         font-weight: 700;
-        margin-bottom: 20px;
+        margin-bottom: 25px;
+        letter-spacing: 0.02em;
     }
 
-    /* BOTÓN SOLICITAR DEVOLUCIÓN */
-    .btn-solicitar-devolucion {
-        display: inline-block;
-        background-color: #FF6347; /* Mantiene naranja */
+    /* BOTÓN + SOLICITAR NUEVA DEVOLUCIÓN - Limpio, tamaño adecuado y centrado */
+    .btn-naranja.btn-grande {
+        background-color: #FF6347;
         color: white;
-        padding: 12px 28px;
-        border-radius: 25px;
-        border: none;
+        border-radius: 6px;
         font-weight: 700;
-        font-size: 15px;
+        font-size: 18px;
+        padding: 14px 0;
+        border: none;
         cursor: pointer;
+        box-shadow: 0 3px 10px rgba(255, 99, 71, 0.5);
         transition: background-color 0.3s ease;
-        margin-bottom: 30px;
-        box-shadow: 0 3px 8px rgba(255, 99, 71, 0.4);
+        width: 220px;
+        align-self: flex-start;
+        margin-bottom: 25px;
     }
-    .btn-solicitar-devolucion:hover {
+    .btn-naranja.btn-grande:hover {
         background-color: #e5533d;
     }
 
-    /* BARRA DE FILTROS */
+    /* BARRA DE FILTROS - estilo tipos botón píldora y espaciados */
     .filtros-estado {
         display: flex;
-        gap: 14px;
+        gap: 12px;
         flex-wrap: wrap;
         margin-bottom: 35px;
     }
@@ -72,8 +80,10 @@ include __DIR__ . '/includes/header.php';
         font-size: 14px;
         transition: all 0.3s ease;
         box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-        min-width: 100px;
+        min-width: 110px;
         text-align: center;
+        user-select: none;
+        white-space: nowrap;
     }
     .btn-filtro.activo {
         background: #FF6347;
@@ -81,136 +91,214 @@ include __DIR__ . '/includes/header.php';
         color: white;
         box-shadow: 0 4px 12px rgba(255, 99, 71, 0.6);
     }
-    .btn-filtro:hover {
+    .btn-filtro:hover:not(.activo) {
         border-color: #FF6347;
         color: #FF6347;
-        box-shadow: 0 4px 12px rgba(255, 99, 71, 0.6);
+        box-shadow: 0 4px 12px rgba(255, 99, 71, 0.4);
     }
 
-    /* LISTA DE DEVOLUCIONES: mostrando mensajes o tarjetas limpias */
+    /* ÁREA DE LISTADO DE DEVOLUCIONES - responsivo y claro */
     .lista-devoluciones {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
         gap: 20px;
+        margin-top: 10px;
+        min-height: 120px; /* Algo de altura para no colapsar */
     }
+
     .sin-datos {
         margin: 0 auto;
-        padding: 40px 25px;
+        padding: 50px 30px;
         background: #f9fafb;
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         color: #7f8c8d;
         font-weight: 600;
-        font-size: 16px;
+        font-size: 17px;
         text-align: center;
         max-width: 90%;
+        user-select: none;
+        line-height: 1.4;
     }
 
-    /* FORMULARIOS (Solicitar Devolución y Detalle) */
-    .form-solicitud, .form-detalle {
-        background: white;
-        border-radius: 8px;
-        padding: 30px 25px;
-        box-shadow: 0 3px 15px rgba(0,0,0,0.1);
-        width: 100%;
-        max-width: 600px;
-        margin: 40px auto 60px auto;
-        font-size: 15px;
+    .sin-datos h3 {
+        font-weight: 700;
+        color: #2C3E50;
+        margin-bottom: 12px;
+        font-size: 20px;
     }
-    .form-group {
+
+    /* Loading - centrado y color del tema */
+    .loading {
+        color: #FF6347;
+        font-size: 16px;
+        padding: 30px 0;
+        text-align: center;
+    }
+
+    /* Tarjetas con sombra sutil y borde */
+    .tarjeta-devolucion {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 20px 25px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        transition: box-shadow 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    .tarjeta-devolucion:hover {
+        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    /* Cabecera de cada tarjeta */
+    .devolucion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        font-weight: 600;
+        font-size: 17px;
+        color: #2C3E50;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .devolucion-numero {
+        font-weight: 700;
+    }
+
+    /* Info agrupada en rejilla */
+    .devolucion-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 15px;
         margin-bottom: 18px;
     }
-    .form-group label {
-        display: block;
-        margin-bottom: 8px;
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .info-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        margin-bottom: 5px;
         font-weight: 600;
+    }
+    .info-valor {
+        font-size: 15px;
         color: #2C3E50;
-        font-size: 14px;
-    }
-    .form-group select, .form-group textarea, .form-group input[type="text"], .form-group input[type="number"] {
-        width: 100%;
-        padding: 10px 14px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 14px;
-        font-family: Arial, Helvetica, sans-serif;
-        transition: border-color 0.3s ease;
-    }
-    .form-group select:focus, .form-group textarea:focus, .form-group input:focus {
-        border-color: #FF6347;
-        outline: none;
-    }
-    textarea {
-        min-height: 110px;
-        resize: vertical;
+        font-weight: 500;
+        word-break: break-word;
     }
 
-    /* BOTONES DEL FORM */
-    .btn {
-        padding: 12px 28px;
-        border-radius: 25px;
+    /* Motivo: fondo claro y letras gris para menor peso visual */
+    .devolucion-motivo {
+        background: #f8f9fa;
+        padding: 15px 18px;
+        border-radius: 6px;
+        margin-bottom: 18px;
+        color: #7f8c8d;
+        font-size: 14px;
+        line-height: 1.5;
+        min-height: 54px; /* Un poco de altura mínima para balance */
+        overflow-wrap: break-word;
+    }
+    .devolucion-motivo strong {
+        color: #2C3E50;
+        font-weight: 600;
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+    }
+
+    /* Acciones alineadas a la derecha en desktop, en bloque en móvil */
+    .devolucion-acciones {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .devolucion-acciones .btn {
+        min-width: 120px;
+        white-space: nowrap;
+    }
+
+    /* Badges de estado: ya definidos por separado, solo ajuste pequeño */
+    .badge {
         font-weight: 700;
-        font-size: 15px;
-        cursor: pointer;
-        border: none;
-        background-color: #FF6347;
-        color: white;
-        box-shadow: 0 3px 10px rgba(255, 99, 71, 0.5);
-        transition: background-color 0.3s ease;
-        text-align: center;
-        margin-top: 10px;
+        padding: 6px 15px;
+        border-radius: 18px;
+        font-size: 12px;
+        text-transform: uppercase;
         display: inline-block;
     }
-    .btn:hover {
-        background-color: #e5533d;
+
+    /* (Aquí respetamos todos los colores correspondientes) */
+    .badge-amarillo {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+    .badge-verde {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    .badge-rojo {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    .badge-azul {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
     }
 
-    /* BOTÓN CERRAR MODAL FORMULARIOS */
-    .btn-cerrar-form {
-        background: transparent;
-        border: none;
-        font-size: 20px;
-        color: #888;
-        cursor: pointer;
-        float: right;
-        margin-top: -10px;
-        margin-bottom: 10px;
-        transition: color 0.3s;
-    }
-    .btn-cerrar-form:hover {
-        color: #FF6347;
-    }
-
-    /* RESPONSIVE */
+    /* ========================================
+       RESPONSIVE - Móviles y tabletas
+       ======================================== */
     @media (max-width: 768px) {
         .contenedor-devoluciones {
-            width: 90%;
             padding: 20px 15px;
             margin: 30px auto 50px auto;
         }
-        .btn-solicitar-devolucion {
+        .btn-naranja.btn-grande {
             width: 100%;
             font-size: 16px;
-            padding: 14px 0;
         }
         .filtros-estado {
             justify-content: center;
+            gap: 10px;
         }
         .btn-filtro {
             flex: 1 1 45%;
-            max-width: none;
             min-width: auto;
+            max-width: none;
             font-size: 13px;
-            padding: 10px 0;
+            padding: 10px 10px;
         }
         .lista-devoluciones {
             grid-template-columns: 1fr;
-            gap: 15px;
+            gap: 18px;
         }
-        .form-solicitud, .form-detalle {
-            width: 95%;
-            padding: 20px 15px;
-            margin: 30px auto;
+        .tarjeta-devolucion {
+            padding: 18px 20px;
+        }
+        .devolucion-info {
+            grid-template-columns: 1fr;
+            gap: 12px;
+        }
+        .devolucion-acciones {
+            flex-direction: column;
+            gap: 10px;
+            justify-content: flex-start;
+        }
+        .devolucion-acciones .btn {
+            width: 100%;
+            min-width: unset;
         }
     }
 </style>
