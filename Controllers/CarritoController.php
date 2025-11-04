@@ -105,6 +105,15 @@ class CarritoController {
         header("Location: ../../view/cliente/carrito.php");
         exit();
     }
+
+
+
+
+
+
+
+
+    
     /**
      * Vaciar carrito
      */

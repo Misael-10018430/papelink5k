@@ -7,25 +7,33 @@ class Pedido {
         $database = new Database();
         $this->conn = $database->getConnection();
     }
-    /**
-     * Crear pedido desde carrito usando procedimiento almacenado
-     */
-    public function crearDesdeCarrito($idCliente, $tipoEnvio, $direccion, $ciudad, $codigoPostal, $referencia = null) {
+    
+
+
+
+
+
+
+
+
+/**
+ * Crear pedido desde carrito (VERSIÓN FINAL)
+ */
+public function crearDesdeCarrito($idCliente, $tipoEnvio, $direccion, $ciudad, $codigoPostal, $referencia = null) {
     try {
-        // ✅ MAPEAR TIPO DE ENVÍO A ID (según imagen)
-        // 1 = Recoger en Sucursal, 2 = Envío a Domicilio
+        // Mapear tipo de envío a ID
         $idTipoEntrega = ($tipoEnvio === 'Domicilio') ? 2 : 1;
         
-        // ✅ ID DE MÉTODO DE PAGO (Efectivo = 1)
+        // ID de método de pago (Efectivo = 1)
         $idMetodoPago = 1;
         
-        // ✅ CONSTRUIR DIRECCIÓN COMPLETA
+        // Construir dirección completa
         $direccionCompleta = $direccion . ', ' . $ciudad . ', CP: ' . $codigoPostal;
         
-        // ✅ NOTAS DEL CLIENTE (referencias adicionales)
+        // Notas del cliente
         $notasCliente = !empty($referencia) ? $referencia : null;
         
-        // Llamar al procedimiento almacenado CON LOS 5 PARÁMETROS CORRECTOS
+        // Llamar al SP (que genera el número automáticamente)
         $query = "EXEC sp_CrearPedidoDesdeCarrito 
                   @IdCliente = ?,
                   @IdMetodoPago = ?,
@@ -43,33 +51,26 @@ class Pedido {
             $notasCliente
         ]);
         
-        // Obtener el último pedido creado
-        $queryUltimo = "SELECT TOP 1 IdPedido, NumeroPedido 
-                       FROM Pedidos 
-                       WHERE IdCliente = ? 
-                       ORDER BY FechaPedido DESC";
+        // El SP retorna IdPedido, NumeroPedido y Total
+        $resultado = $stmt->fetch(PDO::FETCH_ASSOC);
         
-        $stmtUltimo = $this->conn->prepare($queryUltimo);
-        $stmtUltimo->execute([$idCliente]);
-        $pedido = $stmtUltimo->fetch(PDO::FETCH_ASSOC);
-        
-        if ($pedido) {
+        if ($resultado && isset($resultado['IdPedido'])) {
             return [
                 'success' => true,
-                'id_pedido' => $pedido['IdPedido'],
-                'numero_pedido' => $pedido['NumeroPedido'],
+                'id_pedido' => $resultado['IdPedido'],
+                'numero_pedido' => $resultado['NumeroPedido'],
+                'total' => $resultado['Total'],
                 'mensaje' => 'Pedido creado exitosamente'
             ];
         }
         
-        return ['error' => 'Error al crear el pedido - No se pudo obtener el pedido creado'];
+        return ['error' => 'Error al crear el pedido'];
         
     } catch (PDOException $e) {
         error_log("Error en crearDesdeCarrito: " . $e->getMessage());
         return ['error' => 'Error al crear el pedido: ' . $e->getMessage()];
     }
-    }
-
+}
 
 
 
@@ -110,7 +111,6 @@ public function obtenerEnvio($idPedido) {
  */
 public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
     try {
-        // ✅ Query base simple
         $query = "SELECT 
                     p.IdPedido,
                     p.NumeroPedido,
@@ -136,19 +136,13 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
             error_log("Error al ejecutar query obtenerPorCliente");
             return [];
         }
-        
         $pedidos = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        // Si no hay pedidos, retornar vacío
         if (empty($pedidos)) {
             return [];
         }
-        
-        // ✅ Enriquecer cada pedido con información adicional
         $resultado = [];
         
         foreach ($pedidos as $pedido) {
-            // Crear array con los datos básicos
             $pedidoCompleto = [
                 'IdPedido' => $pedido['IdPedido'],
                 'NumeroPedido' => $pedido['NumeroPedido'],
@@ -190,8 +184,7 @@ public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null
                 error_log("Error obteniendo método pago: " . $e->getMessage());
                 $pedidoCompleto['MetodoPago'] = 'N/A';
             }
-            
-            // ✅ CORREGIDO: Contar productos (DetallesPedido, no DetallePedidos)
+
             try {
                 $stmtCount = $this->conn->prepare("SELECT COUNT(*) as total FROM DetallesPedido WHERE IdPedido = ?");
                 if ($stmtCount && $stmtCount->execute([$pedido['IdPedido']])) {

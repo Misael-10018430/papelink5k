@@ -114,6 +114,13 @@ class Carrito {
             return [];
         }
     }
+
+
+
+
+
+
+
     /**
      * Actualizar cantidad de un item del carrito
      */
@@ -134,6 +141,15 @@ class Carrito {
             return ['error' => 'Error: ' . $e->getMessage()];
         }
     }
+
+
+
+
+
+
+
+
+    
     /**
      * Eliminar producto del carrito
      */

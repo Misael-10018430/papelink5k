@@ -22,6 +22,12 @@ include __DIR__ . '/includes/header.php';
 
 
 
+
+
+
+
+
+
 <div class="carrito-container">
     <!-- Breadcrumbs -->
     <div class="breadcrumbs">
@@ -100,17 +106,21 @@ include __DIR__ . '/includes/header.php';
                                         $<?php echo number_format($item['PrecioUnitario'], 2); ?>
                                     </td>
                                     <td class="cantidad">
+                                        <form method="POST" action="<?php echo BASE_URL; ?>controllers/CarritoController.php?action=actualizar" style="display: inline;">
+                                        <input type="hidden" name="id_carrito" value="<?php echo $item['IdCarrito']; ?>">
                                         <div class="cantidad-controls">
-                                            <button class="btn-cantidad" onclick="cambiarCantidad(<?php echo $item['IdCarrito']; ?>, -1, <?php echo $item['Cantidad']; ?>, <?php echo $item['CantidadDisponible']; ?>)">-</button>
+                                            <button type="button" class="btn-cantidad" onclick="cambiarCantidad(<?php echo $item['IdCarrito']; ?>, -1, <?php echo $item['Cantidad']; ?>, <?php echo $item['CantidadDisponible']; ?>)">-</button>
                                             <input type="number" 
                                                 class="input-cantidad" 
+                                                name="cantidad"
                                                 id="cantidad-<?php echo $item['IdCarrito']; ?>"
                                                 value="<?php echo $item['Cantidad']; ?>" 
                                                 min="1" 
                                                 max="<?php echo $item['CantidadDisponible']; ?>"
-                                                onchange="actualizarCantidad(<?php echo $item['IdCarrito']; ?>, this.value, <?php echo $item['CantidadDisponible']; ?>)">
-                                            <button class="btn-cantidad" onclick="cambiarCantidad(<?php echo $item['IdCarrito']; ?>, 1, <?php echo $item['Cantidad']; ?>, <?php echo $item['CantidadDisponible']; ?>)">+</button>
+                                                onchange="this.form.submit()">
+                                            <button type="button" class="btn-cantidad" onclick="cambiarCantidad(<?php echo $item['IdCarrito']; ?>, 1, <?php echo $item['Cantidad']; ?>, <?php echo $item['CantidadDisponible']; ?>)">+</button>
                                         </div>
+                                    </form>
                                     </td>
                                     <td class="subtotal">
                                         <strong>$<?php echo number_format($item['Subtotal'], 2); ?></strong>
@@ -188,6 +198,19 @@ include __DIR__ . '/includes/header.php';
         </div>
     <?php endif; ?>
 </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <style>
 .carrito-container {
@@ -612,6 +635,19 @@ include __DIR__ . '/includes/header.php';
     }
 }
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <script>
 // Cambiar cantidad con botones +/-
