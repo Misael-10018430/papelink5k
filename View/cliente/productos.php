@@ -2,34 +2,46 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../controllers/ProductoController.php';
 require_once __DIR__ . '/../../controllers/CategoriaController.php';
-/*require_once __DIR__ . '/../../controllers/MarcaController.php';*/
+require_once __DIR__ . '/../../controllers/MarcaController.php'; // <-- ARREGLO 1: Descomentado
 
 $productoController = new ProductoController();
 $categoriaController = new CategoriaController();
-/*$marcaController = new MarcaController();*/
+$marcaController = new MarcaController(); // <-- ARREGLO 2: Descomentado
 
 // Obtener productos con filtros
+// Asumo que tu controlador 'listarCliente()' es inteligente
+// y lee los $_GET['categoria'], $_GET['marca'], etc. por sí mismo.
 $productos = $productoController->listarCliente();
 
-// Obtener categorías para los filtros
+// Obtener categorías y marcas para los filtros
 $categorias = $categoriaController->listarActivas();
+$marcas = $marcaController->listarActivas(); // <-- ARREGLO 3: Añadido (Asumo 'listarActivas')
 
 // Variables de filtros actuales
 $categoriaSeleccionada = $_GET['categoria'] ?? '';
+$marcaSeleccionada = $_GET['marca'] ?? ''; // <-- ARREGLO 4: Añadido
 $precioMin = $_GET['precio_min'] ?? '';
 $precioMax = $_GET['precio_max'] ?? '';
 $busqueda = $_GET['busqueda'] ?? '';
 
-// Obtener nombre de categoría seleccionada
+// Obtener nombre de categoría/marca seleccionada para el título
 $tituloFiltro = 'Todos los Productos';
 if ($categoriaSeleccionada) {
     foreach ($categorias as $cat) {
         if ($cat['IdCategoria'] == $categoriaSeleccionada) {
-            $tituloFiltro = 'Productos de ' . $cat['NombreCategoria'];
+            $tituloFiltro = 'Productos de ' . htmlspecialchars($cat['NombreCategoria']);
+            break;
+        }
+    }
+} elseif ($marcaSeleccionada) { // <-- ARREGLO 5: Añadido
+    foreach ($marcas as $marca) {
+        if ($marca['IdMarca'] == $marcaSeleccionada) {
+            $tituloFiltro = 'Productos de ' . htmlspecialchars($marca['NombreMarca']);
             break;
         }
     }
 }
+
 if ($busqueda) {
     $tituloFiltro = 'Resultados para: ' . htmlspecialchars($busqueda);
 }
@@ -322,7 +334,9 @@ include 'includes/header.php';
             
             <?php if ($producto['Disponible']): ?>
                 <p class="disponibilidad">Disponible</p>
-                <button class="btn btn-naranja" style="width: 100%; margin-top: auto;">
+                <button class="btn btn-naranja" 
+                        style="width: 100%; margin-top: auto;"
+                        onclick="event.preventDefault(); agregarAlCarrito(<?php echo $producto['IdProducto']; ?>, '<?php echo addslashes($producto['NombreProducto']); ?>')">
                     🛒 Agregar al carrito
                 </button>
             <?php else: ?>
@@ -337,5 +351,47 @@ include 'includes/header.php';
         <?php endif; ?>
     </div>
 </div>
+<script>
+// Función para agregar al carrito (copiada de tu index)
+function agregarAlCarrito(idProducto, nombreProducto) {
+    // Verificar si el usuario está logueado
+    <?php if (!isset($_SESSION['cliente_id'])): ?>
+        alert('Debes iniciar sesión para agregar productos al carrito');
+        window.location.href = 'login.php';
+        return;
+    <?php endif; ?>
 
+    // Enviar petición al servidor
+    fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=agregar', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: 'id_producto=' + idProducto + '&cantidad=1'
+    })
+    .then(response => response.text())
+    .then(data => {
+        alert('✅ ' + nombreProducto + ' agregado al carrito');
+        actualizarContadorCarrito();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('❌ Error al agregar el producto');
+    });
+}
+
+// Función para actualizar el contador del carrito (copiada de tu index)
+function actualizarContadorCarrito() {
+    fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=contar')
+        .then(response => response.json())
+        .then(data => {
+            const badge = document.getElementById('carritoBadge');
+            if (badge && data.cantidad > 0) {
+                badge.textContent = data.cantidad;
+                badge.style.display = 'block';
+            }
+        })
+        .catch(error => console.log('Error al actualizar contador:', error));
+}
+</script>
 <?php include 'includes/footer.php'; ?>
