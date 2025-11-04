@@ -277,7 +277,7 @@ include __DIR__ . '/includes/header.php';
 
             <!-- Actualizar Envío -->
             <div class="card" style="margin-top: 25px;">
-                <h2>✏️ Actualizar Envío</h2>
+                <h2> Actualizar Envío</h2>
                 <form method="POST" action="<?php echo BASE_URL; ?>controllers/EnvioController.php?action=actualizar" class="form-actualizar">
                     <input type="hidden" name="id_envio" value="<?php echo $envio['IdEnvio']; ?>">
                     
@@ -303,13 +303,13 @@ include __DIR__ . '/includes/header.php';
                     <label style="display: block; margin-bottom: 8px; font-weight: 600;">Observaciones:</label>
                     <textarea name="observaciones" rows="4" placeholder="Agregar observaciones sobre el envío..."><?php echo htmlspecialchars($envio['Observaciones'] ?? ''); ?></textarea>
 
-                    <button type="submit" class="btn-actualizar">💾 Guardar Cambios</button>
+                    <button type="submit" class="btn-actualizar"> Guardar Cambios</button>
                 </form>
             </div>
 
             <!-- Acciones Rápidas -->
             <div class="card" style="margin-top: 25px;">
-                <h2>⚡ Acciones Rápidas</h2>
+                <h2>Acciones Rápidas</h2>
                 <a href="pedido_detalle.php?id=<?php echo $envio['IdPedido']; ?>" 
                    style="display: block; background: #2C3E50; color: white; padding: 12px; text-align: center; border-radius: 6px; text-decoration: none; margin-bottom: 10px;">
                     Ver Pedido Completo
