@@ -70,7 +70,6 @@ include __DIR__ . '/includes/header.php';
        ============================================ */
     .lista-devoluciones {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         gap: 20px;
     }
     
@@ -227,7 +226,7 @@ include __DIR__ . '/includes/header.php';
     }
     
     /* ============================================
-       MODAL (MEJORADO PARA MÁS PROFESIONALIDAD)
+       MODAL
        ============================================ */
     .modal {
         display: none;
@@ -239,7 +238,6 @@ include __DIR__ . '/includes/header.php';
         background-color: rgba(0,0,0,0.5);
         z-index: 9999;
         overflow-y: auto;
-        transition: opacity 0.3s ease; /* Mejora: Transición suave para la opacidad del fondo. */
     }
     
     .modal.activo {
@@ -247,7 +245,6 @@ include __DIR__ . '/includes/header.php';
         align-items: center;
         justify-content: center;
         padding: 20px;
-        opacity: 1; /* Mejora: Asegura visibilidad completa al activar. */
     }
     
     .modal-contenido {
@@ -258,12 +255,6 @@ include __DIR__ . '/includes/header.php';
         max-height: 90vh;
         overflow-y: auto;
         position: relative;
-        transform: scale(0.9); /* Mejora: Escala inicial para efecto de entrada. */
-        transition: transform 0.3s ease; /* Mejora: Transición suave para el escalado. */
-    }
-    
-    .modal.activo .modal-contenido {
-        transform: scale(1); /* Mejora: Escala a tamaño completo al activar, creando un efecto de "aparecer" elegante. */
     }
     
     .modal-header {
@@ -290,11 +281,6 @@ include __DIR__ . '/includes/header.php';
         cursor: pointer;
         line-height: 1;
         padding: 0;
-        transition: color 0.3s; /* Mejora: Transición suave en hover para el botón de cerrar. */
-    }
-    
-    .btn-cerrar-modal:hover {
-        color: #FF6347; /* Mejora: Usa el color naranja existente para hover, manteniendo consistencia. */
     }
     
     .modal-body {
@@ -444,13 +430,8 @@ include __DIR__ . '/includes/header.php';
         .tabla-productos td {
             padding: 8px;
         }
-        
-        .lista-devoluciones {
-            grid-template-columns: 1fr;
-        }
     }
 </style>
-
 
 <div class="contenedor-devoluciones">
     <h1 class="titulo-seccion">Mis Devoluciones</h1>
