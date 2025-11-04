@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../models/Pedido.php';
+require_once __DIR__ . '/../models/Pedidos.php';
 
 class PedidoController {
     private $pedidoModel;
@@ -12,10 +12,6 @@ class PedidoController {
     // ==========================================
     // MÉTODOS PARA CLIENTE
     // ==========================================
-    
-    /**
-     * Crear pedido desde carrito (CLIENTE)
-     */
     public function crear() {
         // Verificar que el cliente esté logueado
         if (!isset($_SESSION['cliente_id'])) {
