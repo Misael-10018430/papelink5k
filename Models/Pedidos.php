@@ -93,6 +93,9 @@ class Pedido {
 /**
      * Obtener pedidos del cliente (Versión de ACERO - Sin Envios)
      */
+    /**
+     * Obtener pedidos del cliente (Versión "VER EL ERROR OCULTO")
+     */
     public function obtenerPorCliente($idCliente, $limite = 20, $estadoFiltro = null) {
         try {
             // Query base - HE QUITADO LOS JOINS DE ENVIOS
@@ -106,24 +109,17 @@ class Pedido {
                         p.IdTipoEntrega,
                         ep.NombreEstado as EstadoPedido,
                         mp.NombreMetodo as MetodoPago,
+                        
+                        /* ASUMO QUE EL NOMBRE ES 'DetallesPedido', CÁMBIALO SI ES OTRO */
                         (SELECT COUNT(*) FROM DetallesPedido WHERE IdPedido = p.IdPedido) as TotalProductos,
                         
-                        /* Columnas de envío eliminadas temporalmente */
                         NULL as EstadoEnvio, 
                         NULL as FechaEntregaEstimada
-
                       FROM Pedidos p
                       LEFT JOIN EstadosPedido ep ON p.IdEstadoPedido = ep.IdEstadoPedido
                       LEFT JOIN MetodosPago mp ON p.IdMetodoPago = mp.IdMetodoPago
-                      
-                      /* JOINS de envío eliminados temporalmente 
-                      LEFT JOIN Envios e ON p.IdPedido = e.IdPedido
-                      LEFT JOIN EstadosEnvio ee ON e.IdEstadoEnvio = ee.IdEstadoEnvio
-                      */
-                      
                       WHERE p.IdCliente = ?";
             
-            // Array de parámetros unificado
             $params = [$idCliente];
 
             if ($estadoFiltro) {
@@ -139,16 +135,26 @@ class Pedido {
             }
             
             $stmt = $this->conn->prepare($query);
-            
             $stmt->execute($params);
             
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
             
         } catch (PDOException $e) {
+            
             // =======================================================
-            error_log("Error en obtenerPorCliente: " . $e->getMessage()); // <-- ¡ARREGLADO! Era ->
+            // ¡¡AQUÍ ESTÁ EL CAMBIO!! VAMOS A MOSTRAR EL ERROR
             // =======================================================
-            return [];
+            echo "<pre style='background: #e74c3c; color: #fff; padding: 20px; font-size: 16px; border-radius: 8px; font-family: monospace;'>";
+            echo "<h1>¡EL ERROR ESTABA OCULTO! (Fallo Silencioso)</h1>";
+            echo "<h2>Este es el error que el 'return []' estaba escondiendo:</h2>";
+            echo "<hr style='border-color: rgba(255,255,255,0.3);'>";
+            echo "<strong>Mensaje:</strong> " . $e->getMessage();
+            echo "</pre>";
+            exit; // Detenemos todo para ver el error
+            // =======================================================
+            
+            // error_log("Error en obtenerPorCliente: " . $e->getMessage());
+            // return []; // Ya no queremos que falle en silencio
         }
     }
     /**
