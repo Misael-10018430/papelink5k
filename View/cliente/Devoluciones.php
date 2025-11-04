@@ -19,155 +19,438 @@ include __DIR__ . '/includes/header.php';
     /* ============================================
        ESTILOS GENERALES
        ============================================ */
-    body {
-        background-color: #f0f0f0; /* Mantener gris claro para fondo */
-        font-family: Arial, Helvetica, sans-serif;
-        margin: 0;
-        padding: 0;
-        color: #2C3E50;
-    }
-
     .contenedor-devoluciones {
-        max-width: 1000px;  /* Reducido un poco para mejor enfoque visual */
-        margin: 40px auto;  /* Espacio vertical amplio para mejor respiración */
-        padding: 20px 30px;
-        background: white;
-        border-radius: 8px; /* Bordes redondeados para modernidad */
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
     }
-
+    
     .titulo-seccion {
-        font-size: 30px;
-        font-weight: 700;
-        margin-bottom: 30px;
         color: #2C3E50;
-        letter-spacing: 0.03em;
+        font-size: 28px;
+        margin-bottom: 25px;
+        font-weight: normal;
     }
-
+    
     /* ============================================
-       BOTÓN SOLICITAR NUEVA DEVOLUCIÓN
-       ============================================ */
-    .btn-solicitar-devolucion {
-        display: block;
-        width: 100%;
-        background-color: #FF6347;
-        color: white;
-        font-weight: 700;
-        font-size: 18px;
-        padding: 15px 0;
-        border-radius: 6px;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 3px 8px rgba(255,99,71,0.4);
-        transition: background-color 0.3s ease;
-        margin-bottom: 30px;
-        text-align: center;
-    }
-
-    .btn-solicitar-devolucion:hover {
-        background-color: #e5533d;
-        box-shadow: 0 5px 12px rgba(229,83,61,0.6);
-    }
-
-    /* ============================================
-       BARRA DE FILTROS
+       TABS Y FILTROS
        ============================================ */
     .filtros-estado {
         display: flex;
-        gap: 15px;
-        margin-bottom: 40px;
+        gap: 10px;
+        margin-bottom: 25px;
         flex-wrap: wrap;
-        justify-content: flex-start;
     }
-
+    
     .btn-filtro {
-        padding: 8px 22px;
+        padding: 10px 20px;
         border: 2px solid #e0e0e0;
         background: white;
         color: #7f8c8d;
-        border-radius: 30px; /* Píldoras más modernas */
+        border-radius: 4px;
         cursor: pointer;
         font-size: 14px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        min-width: 100px;
-        text-align: center;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+        font-weight: 500;
+        transition: all 0.3s;
     }
-
+    
     .btn-filtro:hover {
         border-color: #FF6347;
         color: #FF6347;
-        box-shadow: 0 3px 8px rgba(255,99,71,0.4);
     }
-
+    
     .btn-filtro.activo {
         background: #FF6347;
         color: white;
         border-color: #FF6347;
-        box-shadow: 0 4px 10px rgba(255,99,71,0.6);
     }
-
+    
     /* ============================================
-       ESTADO SIN DEVOLUCIONES (CAJA INFORMATIVA)
+       TARJETAS DE DEVOLUCIONES
+       ============================================ */
+    .lista-devoluciones {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 20px;
+    }
+    
+    .tarjeta-devolucion {
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        transition: all 0.3s;
+    }
+    
+    .tarjeta-devolucion:hover {
+        box-shadow: 0 4px 8px rgba(0,0,0,0.12);
+        transform: translateY(-2px);
+    }
+    
+    .devolucion-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .devolucion-numero {
+        font-size: 18px;
+        font-weight: 600;
+        color: #2C3E50;
+    }
+    
+    .devolucion-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .info-label {
+        font-size: 12px;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+    
+    .info-valor {
+        font-size: 15px;
+        color: #2C3E50;
+        font-weight: 500;
+    }
+    
+    .devolucion-motivo {
+        background: #f8f9fa;
+        padding: 12px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+    
+    .devolucion-motivo p {
+        margin: 0;
+        color: #7f8c8d;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+    
+    .devolucion-acciones {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    /* ============================================
+       BADGES DE ESTADO
+       ============================================ */
+    .badge {
+        display: inline-block;
+        padding: 6px 14px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .badge-amarillo {
+        background-color: #fff3cd;
+        color: #856404;
+        border: 1px solid #ffeaa7;
+    }
+    
+    .badge-verde {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+    }
+    
+    .badge-rojo {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .badge-azul {
+        background-color: #d1ecf1;
+        color: #0c5460;
+        border: 1px solid #bee5eb;
+    }
+    
+    /* ============================================
+       BOTONES
+       ============================================ */
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+        border: none;
+        text-align: center;
+    }
+    
+    .btn-naranja {
+        background-color: #FF6347;
+        color: white;
+    }
+    
+    .btn-naranja:hover {
+        background-color: #e5533d;
+    }
+    
+    .btn-blanco {
+        background-color: white;
+        color: #333;
+        border: 1px solid #ddd;
+    }
+    
+    .btn-blanco:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .btn-grande {
+        padding: 15px 30px;
+        font-size: 16px;
+        width: 100%;
+        margin-bottom: 30px;
+    }
+    
+    /* ============================================
+       MODAL (MEJORADO PARA MÁS PROFESIONALIDAD)
+       ============================================ */
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 9999;
+        overflow-y: auto;
+        transition: opacity 0.3s ease; /* Mejora: Transición suave para la opacidad del fondo. */
+    }
+    
+    .modal.activo {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 1; /* Mejora: Asegura visibilidad completa al activar. */
+    }
+    
+    .modal-contenido {
+        background: white;
+        border-radius: 8px;
+        width: 100%;
+        max-width: 900px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        transform: scale(0.9); /* Mejora: Escala inicial para efecto de entrada. */
+        transition: transform 0.3s ease; /* Mejora: Transición suave para el escalado. */
+    }
+    
+    .modal.activo .modal-contenido {
+        transform: scale(1); /* Mejora: Escala a tamaño completo al activar, creando un efecto de "aparecer" elegante. */
+    }
+    
+    .modal-header {
+        background: #34495e;
+        color: white;
+        padding: 20px 25px;
+        border-radius: 8px 8px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .modal-header h2 {
+        margin: 0;
+        font-size: 22px;
+        font-weight: 600;
+    }
+    
+    .btn-cerrar-modal {
+        background: transparent;
+        border: none;
+        color: white;
+        font-size: 28px;
+        cursor: pointer;
+        line-height: 1;
+        padding: 0;
+        transition: color 0.3s; /* Mejora: Transición suave en hover para el botón de cerrar. */
+    }
+    
+    .btn-cerrar-modal:hover {
+        color: #FF6347; /* Mejora: Usa el color naranja existente para hover, manteniendo consistencia. */
+    }
+    
+    .modal-body {
+        padding: 25px;
+    }
+    
+    .modal-footer {
+        padding: 20px 25px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    
+    /* ============================================
+       FORMULARIO SOLICITUD DEVOLUCIÓN
+       ============================================ */
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #2C3E50;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    
+    .form-group textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+    
+    /* ============================================
+       TABLA DE PRODUCTOS
+       ============================================ */
+    .tabla-productos {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+    
+    .tabla-productos thead {
+        background-color: #f8f9fa;
+    }
+    
+    .tabla-productos th {
+        padding: 12px;
+        text-align: left;
+        font-weight: 600;
+        font-size: 13px;
+        color: #2C3E50;
+        border-bottom: 2px solid #e0e0e0;
+    }
+    
+    .tabla-productos td {
+        padding: 12px;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+    }
+    
+    .tabla-productos tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .input-cantidad {
+        width: 80px;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        text-align: center;
+    }
+    
+    .checkbox-producto {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    /* ============================================
+       ESTADOS VACÍOS
        ============================================ */
     .sin-datos {
         text-align: center;
-        padding: 80px 40px;
+        padding: 60px 20px;
         color: #7f8c8d;
-        background: #f9fafb; /* Más claro que antes para mayor limpieza */
-        border-radius: 8px;
-        box-shadow: inset 0 0 10px #e0e0e0;
-        font-size: 17px;
-        font-weight: 600;
-        line-height: 1.4;
-        max-width: 600px;
-        margin: 0 auto;
-        user-select: none;
+        background: #f8f9fa;
+        border-radius: 6px;
     }
-
-    .sin-datos strong {
-        color: #2C3E50;
-        font-weight: 700;
-        font-size: 20px;
-        display: block;
-        margin-bottom: 8px;
+    
+    .sin-datos-icon {
+        font-size: 64px;
+        margin-bottom: 15px;
     }
-
+    
+    .loading {
+        text-align: center;
+        padding: 40px;
+        color: #FF6347;
+        font-size: 16px;
+    }
+    
     /* ============================================
        RESPONSIVE
        ============================================ */
     @media (max-width: 768px) {
-        .contenedor-devoluciones {
-            padding: 20px 15px;
-            margin: 20px auto;
+        .devolucion-info {
+            grid-template-columns: 1fr;
         }
-
-        .btn-solicitar-devolucion {
-            font-size: 16px;
-            padding: 12px 0;
-        }
-
+        
         .filtros-estado {
-            gap: 10px;
-            justify-content: center;
+            flex-direction: column;
         }
-
+        
         .btn-filtro {
-            min-width: auto;
-            padding: 8px 14px;
-            font-size: 13px;
-            flex: 1 1 40%;
-            max-width: 140px;
+            width: 100%;
         }
-
-        .sin-datos {
-            padding: 50px 20px;
-            font-size: 15px;
-            max-width: 100%;
+        
+        .devolucion-acciones {
+            flex-direction: column;
+        }
+        
+        .devolucion-acciones .btn {
+            width: 100%;
+        }
+        
+        .modal-contenido {
+            margin: 10px;
+        }
+        
+        .tabla-productos {
+            font-size: 12px;
+        }
+        
+        .tabla-productos th,
+        .tabla-productos td {
+            padding: 8px;
+        }
+        
+        .lista-devoluciones {
+            grid-template-columns: 1fr;
         }
     }
 </style>
+
 
 <div class="contenedor-devoluciones">
     <h1 class="titulo-seccion">Mis Devoluciones</h1>
