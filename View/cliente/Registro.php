@@ -82,14 +82,14 @@ body {
 }
 
 .login-container {
-    /* CAMBIO: Fondo blanco traslúcido, más opaco como en tu imagen */
+    /* Fondo blanco traslúcido */
     background-color: rgba(255, 255, 255, 0.42); 
     backdrop-filter: blur(10px);
     padding: 40px; 
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     width: 100%;
-    max-width: 430px;
+    max-width: 430px; /* Este es el ancho que tenías */
 }
 
 .logo {
@@ -104,7 +104,7 @@ body {
 }
 
 h2 {
-    /* CAMBIO: Texto de vuelta a oscuro */
+    /* Texto oscuro */
     color: #2C3E50; 
     margin-bottom: 10px;
     text-align: center;
@@ -112,7 +112,7 @@ h2 {
 
 .subtitulo {
     text-align: center;
-    /* CAMBIO: Texto de vuelta a oscuro */
+    /* Texto oscuro */
     color: #555; 
     margin-bottom: 30px;
     font-size: 15px;
@@ -125,7 +125,7 @@ h2 {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    /* CAMBIO: Texto de vuelta a oscuro */
+    /* Texto oscuro */
     color: #333; 
     font-weight: bold;
     font-size: 14px;
@@ -134,7 +134,7 @@ h2 {
 .form-group input {
     width: 100%;
     padding: 12px 15px;
-    /* OK: Sin borde, como en ambas imágenes */
+    /* Sin borde */
     border: none; 
     border-radius: 5px;
     font-size: 14px;
@@ -144,7 +144,7 @@ h2 {
 
 .form-group input:focus {
     outline: none;
-    /* OK: Mantenemos el foco con sombra, es limpio */
+    /* Foco con sombra */
     border: none;
     box-shadow: 0 0 0 3px rgba(255, 99, 71, 0.5);
 }
@@ -225,7 +225,7 @@ h2 {
 .separador {
     text-align: center;
     margin: 20px 0;
-    /* CAMBIO: Texto de vuelta a oscuro */
+    /* Texto oscuro */
     color: #999; 
     font-size: 13px;
 }
@@ -268,10 +268,20 @@ h2 {
 
 .password-requisitos {
     font-size: 12px;
-    /* CAMBIO: Texto de vuelta a oscuro */
+    /* Texto oscuro */
     color: #666; 
     margin-top: 5px;
 }
+
+/* --- CSS AÑADIDO PARA FORMULARIO POR PASOS --- */
+.form-step {
+    display: none; /* Oculta todos los pasos por defecto */
+}
+.form-step.active-step {
+    display: block; /* Muestra solo el paso activo */
+}
+/* --- FIN DE CSS AÑADIDO --- */
+
 
 /* OK: Todas las reglas responsivas se mantienen intactas */
 @media (max-width: 768px) {
@@ -348,65 +358,76 @@ h2 {
                 <form method="POST" action="<?php echo BASE_URL; ?>controllers/AuthController.php">
                     <input type="hidden" name="accion" value="registro_cliente">
                     
-                    <div class="form-group">
-                        <label>Nombre completo:</label>
-                        <input type="text" 
-                               name="nombre" 
-                               required 
-                               placeholder="Juan Pérez"
-                               value="<?php echo $_SESSION['datos_form']['nombre'] ?? ''; ?>">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email:</label>
-                        <input type="email" 
-                               name="email" 
-                               required 
-                               placeholder="tu@email.com"
-                               value="<?php echo $_SESSION['datos_form']['email'] ?? ''; ?>">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Teléfono:</label>
-                        <input type="tel" 
-                               name="telefono" 
-                               required 
-                               placeholder="916-123-4567"
-                               value="<?php echo $_SESSION['datos_form']['telefono'] ?? ''; ?>">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Dirección (opcional):</label>
-                        <input type="text" 
-                               name="direccion" 
-                               placeholder="Tuxtla Gutiérrez, Chiapas"
-                               value="<?php echo $_SESSION['datos_form']['direccion'] ?? ''; ?>">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Contraseña:</label>
-                        <input type="password" 
-                               name="password" 
-                               required 
-                               placeholder="••••••••">
-                        <div class="password-requisitos">
-                            Mínimo 6 caracteres
+                    <div class="form-step active-step" id="step-1">
+                        <div class="form-group">
+                            <label>Nombre completo:</label>
+                            <input type="text" 
+                                   name="nombre" 
+                                   required 
+                                   placeholder="Juan Pérez"
+                                   value="<?php echo $_SESSION['datos_form']['nombre'] ?? ''; ?>">
                         </div>
+                        
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="email" 
+                                   name="email" 
+                                   required 
+                                   placeholder="tu@email.com"
+                                   value="<?php echo $_SESSION['datos_form']['email'] ?? ''; ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Teléfono:</label>
+                            <input type="tel" 
+                                   name="telefono" 
+                                   required 
+                                   placeholder="916-123-4567"
+                                   value="<?php echo $_SESSION['datos_form']['telefono'] ?? ''; ?>">
+                        </div>
+
+                        <button type="button" class="btn-registro" onclick="nextStep(2)">
+                            Siguiente
+                        </button>
                     </div>
                     
-                    <div class="form-group">
-                        <label>Confirmar contraseña:</label>
-                        <input type="password" 
-                               name="confirmar_password" 
-                               required 
-                               placeholder="••••••••">
+                    <div class="form-step" id="step-2">
+                        <div class="form-group">
+                            <label>Dirección (opcional):</label>
+                            <input type="text" 
+                                   name="direccion" 
+                                   placeholder="Tuxtla Gutiérrez, Chiapas"
+                                   value="<?php echo $_SESSION['datos_form']['direccion'] ?? ''; ?>">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Contraseña:</label>
+                            <input type="password" 
+                                   name="password" 
+                                   required 
+                                   placeholder="••••••••">
+                            <div class="password-requisitos">
+                                Mínimo 6 caracteres
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Confirmar contraseña:</label>
+                            <input type="password" 
+                                   name="confirmar_password" 
+                                   required 
+                                   placeholder="••••••••">
+                        </div>
+                        
+                        <button type="button" class="btn-login" style="margin-bottom: 12px;" onclick="prevStep(1)">
+                            ← Anterior
+                        </button>
+                        
+                        <button type="submit" class="btn-registro">
+                            Crear Cuenta
+                        </button>
                     </div>
-                    
-                    <button type="submit" class="btn-registro">
-                        Crear Cuenta
-                    </button>
                 </form>
-                
                 <div class="separador">━━━━━━━━━ o ━━━━━━━━━</div>
                 
                 <a href="login.php" class="btn-login">
@@ -417,7 +438,6 @@ h2 {
                     <a href="<?php echo BASE_URL; ?>">← Continuar sin cuenta</a>
                 </div>
                 
-                <!-- Sección para empleados -->
                 <div class="admin-section">
                     <div class="titulo-admin">
                         <strong>¿Eres empleado?</strong><br>
@@ -430,9 +450,38 @@ h2 {
             </div>
         </div>
     </div>
+
+<script>
+    // Función para mostrar el paso que queremos
+    function showStep(stepId) {
+        // Ocultamos todos los pasos
+        document.querySelectorAll('.form-step').forEach(step => {
+            step.classList.remove('active-step');
+        });
+        
+        // Mostramos solo el paso con el ID que pedimos
+        document.getElementById(stepId).classList.add('active-step');
+    }
+
+    // Función para el botón "Siguiente"
+    function nextStep(stepNumber) {
+        // (Aquí se podría añadir validación de campos del paso 1 si se quisiera)
+        showStep('step-' + stepNumber);
+    }
+
+    // Función para el botón "Anterior"
+    function prevStep(stepNumber) {
+        showStep('step-' + stepNumber);
+    }
+
+    // Al cargar la página, nos aseguramos de que solo se vea el paso 1
+    document.addEventListener("DOMContentLoaded", function() {
+        showStep('step-1');
+    });
+</script>
 </body>
 </html>
 <?php
-// Limpiar datos del formulario
+// LÓGICA PHP DE LIMPIEZA INTACTA
 unset($_SESSION['datos_form']);
 ?>
