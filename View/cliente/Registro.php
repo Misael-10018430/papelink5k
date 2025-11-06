@@ -83,7 +83,7 @@ body {
 
 .login-container {
     /* CAMBIO: Fondo blanco traslúcido, más opaco como en tu imagen */
-    background-color: rgba(255, 255, 255, 0.85); 
+    background-color: rgba(255, 255, 255, 0.65); 
     backdrop-filter: blur(10px);
     padding: 40px; 
     border-radius: 20px;
