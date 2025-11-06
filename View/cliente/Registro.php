@@ -83,13 +83,13 @@ body {
 
 .login-container {
     /* CAMBIO: Fondo blanco traslúcido, más opaco como en tu imagen */
-    background-color: rgba(255, 255, 255, 0.65); 
+    background-color: rgba(255, 255, 255, 0.42); 
     backdrop-filter: blur(10px);
     padding: 40px; 
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
     width: 100%;
-    max-width: 460px;
+    max-width: 430px;
 }
 
 .logo {
