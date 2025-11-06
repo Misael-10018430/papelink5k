@@ -537,7 +537,7 @@ include 'includes/header.php';
                         </button>
                         
                         <button type="button" class="btn-comprar-ahora" onclick="comprarAhora()">
-                            ⚡ Comprar Ahora
+                             Comprar Ahora
                         </button>
                     </div>
                 </form>
