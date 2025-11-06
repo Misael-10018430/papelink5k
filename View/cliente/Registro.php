@@ -21,7 +21,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 0;
-    /* CAMBIO: Permite el scroll si el contenido es más alto (clave para móviles) */
+    /* OK: Mantenemos el scroll para móviles */
     overflow: auto; 
 }
 
@@ -41,12 +41,12 @@ body {
 .login-wrapper {
     display: flex;
     width: 100%;
-    /* CAMBIO: Permite que el contenedor crezca si es necesario */
+    /* OK: Mantenemos la altura mínima flexible */
     min-height: 100vh; 
 }
 
 .brand-section {
-    /* CAMBIO: Hace esta sección más ancha que la del formulario (60/40) */
+    /* OK: Mantenemos la proporción 60/40 */
     flex: 1.5; 
     display: flex;
     flex-direction: column;
@@ -72,21 +72,19 @@ body {
 }
 
 .login-section {
-    /* CAMBIO: Esta sección ahora es más angosta */
+    /* OK: Sección del formulario (40%) */
     flex: 1; 
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 40px;
-    /* Añadido para que el scroll vertical funcione bien en móviles */
     min-height: 100vh;
 }
 
 .login-container {
-    /* CAMBIO: Fondo oscuro semi-transparente como en la imagen */
-    background-color: rgba(25, 25, 25, 0.6);
+    /* CAMBIO: Fondo blanco traslúcido, más opaco como en tu imagen */
+    background-color: rgba(255, 255, 255, 0.85); 
     backdrop-filter: blur(10px);
-    /* CAMBIO: Padding y radius ajustados al diseño */
     padding: 40px; 
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -106,16 +104,16 @@ body {
 }
 
 h2 {
-    /* CAMBIO: Color de texto blanco para que contraste */
-    color: #FFFFFF; 
+    /* CAMBIO: Texto de vuelta a oscuro */
+    color: #2C3E50; 
     margin-bottom: 10px;
     text-align: center;
 }
 
 .subtitulo {
     text-align: center;
-    /* CAMBIO: Color de texto más claro */
-    color: #eeeeee; 
+    /* CAMBIO: Texto de vuelta a oscuro */
+    color: #555; 
     margin-bottom: 30px;
     font-size: 15px;
 }
@@ -127,8 +125,8 @@ h2 {
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    /* CAMBIO: Color de texto blanco */
-    color: #FFFFFF; 
+    /* CAMBIO: Texto de vuelta a oscuro */
+    color: #333; 
     font-weight: bold;
     font-size: 14px;
 }
@@ -136,18 +134,17 @@ h2 {
 .form-group input {
     width: 100%;
     padding: 12px 15px;
-    /* CAMBIO: Borde eliminado para el look de la imagen */
+    /* OK: Sin borde, como en ambas imágenes */
     border: none; 
     border-radius: 5px;
     font-size: 14px;
     transition: all 0.3s;
-    /* CAMBIO: Color de texto dentro del input */
     color: #333;
 }
 
 .form-group input:focus {
     outline: none;
-    /* CAMBIO: Borde reemplazado por sombra para el efecto de focus */
+    /* OK: Mantenemos el foco con sombra, es limpio */
     border: none;
     box-shadow: 0 0 0 3px rgba(255, 99, 71, 0.5);
 }
@@ -228,8 +225,8 @@ h2 {
 .separador {
     text-align: center;
     margin: 20px 0;
-    /* CAMBIO: Color más claro para contraste */
-    color: #aaa; 
+    /* CAMBIO: Texto de vuelta a oscuro */
+    color: #999; 
     font-size: 13px;
 }
 
@@ -271,28 +268,26 @@ h2 {
 
 .password-requisitos {
     font-size: 12px;
-    /* CAMBIO: Color más claro */
-    color: #ccc; 
+    /* CAMBIO: Texto de vuelta a oscuro */
+    color: #666; 
     margin-top: 5px;
 }
 
+/* OK: Todas las reglas responsivas se mantienen intactas */
 @media (max-width: 768px) {
     .login-wrapper {
         flex-direction: column;
-        /* CAMBIO: Permite que el wrapper se ajuste al contenido en móvil */
         height: auto; 
     }
     
     .brand-section {
         flex: none;
-        /* CAMBIO: Altura auto y padding para mejor look en móvil */
         height: auto; 
         padding: 50px 20px;
         text-align: center;
     }
     
     .brand-name {
-        /* CAMBIO: Ajustado para que no sea tan gigante en móvil */
         font-size: 4rem; 
     }
     
@@ -303,7 +298,6 @@ h2 {
     .login-section {
         flex: 1;
         padding: 20px;
-        /* CAMBIO: Asegura que ocupe el ancho y no tenga altura mínima fija */
         width: 100%;
         min-height: auto;
     }
