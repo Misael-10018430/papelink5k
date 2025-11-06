@@ -41,7 +41,6 @@ $titulo = "Papelink - Papelería y Oficina";
 include 'includes/header.php';
 ?>
 
-<!-- ESTILOS ESPECÍFICOS PARA ESTA PÁGINA -->
 <style>
 /* Reset del contenedor principal */
 .titulo-seccion,
@@ -145,12 +144,16 @@ include 'includes/header.php';
 .fila-productos {
     display: flex;
     gap: 25px;
-    overflow-x: hidden;
+    /* CAMBIO: Permitir scroll táctil en móviles */
+    overflow-x: auto;
     overflow-y: hidden;
-    padding: 20px 60px 40px;
+    /* CAMBIO: Ajuste de padding para las flechas */
+    padding: 20px 70px 40px;
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
+    /* CAMBIO: Scroll suave en iOS */
+    -webkit-overflow-scrolling: touch;
 }
 
 .fila-productos::-webkit-scrollbar {
@@ -183,11 +186,13 @@ include 'includes/header.php';
 }
 
 .flecha-izquierda {
-    left: -100px;
+    /* CAMBIO: Posición responsiva dentro del contenedor */
+    left: 10px;
 }
 
 .flecha-derecha {
-    right: -100px;
+    /* CAMBIO: Posición responsiva dentro del contenedor */
+    right: 10px;
 }
 
 .card-producto {
@@ -529,6 +534,11 @@ include 'includes/header.php';
 }
 
 @media (max-width: 768px) {
+    /* CAMBIO: Banner más corto en móviles */
+    .hero-banner img {
+        max-height: 250px;
+    }
+
     .grid-categorias {
         grid-template-columns: 1fr;
     }
@@ -552,15 +562,20 @@ include 'includes/header.php';
         font-size: 16px;
     }
     .flecha-izquierda {
-        left: -50px;
+        /* CAMBIO: Posición responsiva para móvil */
+        left: 5px;
     }
     .flecha-derecha {
-        right: -50px;
+        /* CAMBIO: Posición responsiva para móvil */
+        right: 5px;
+    }
+    /* CAMBIO: Padding más angosto para el carrusel en móvil */
+    .fila-productos {
+        padding: 20px 50px 40px; /* 40px flecha + 10px espacio */
     }
 }
 </style>
 
-<!-- SECCIÓN PRODUCTOS DESTACADOS -->
 <section class="seccion-productos-destacados">
     <div class="contenedor-interno">
         <h2 class="titulo-seccion">Productos Destacados</h2>
@@ -582,7 +597,6 @@ include 'includes/header.php';
                 $fila2 = array_slice($productosDestacados, $mitad);
                 ?>
 
-                <!-- FILA 1 -->
                 <div class="fila-container">
                     <div class="flecha-navegacion flecha-izquierda" onclick="moverFila('fila1', -1)">
                         <i class="fas fa-chevron-left"></i>
@@ -644,7 +658,6 @@ include 'includes/header.php';
                     </div>
                 </div>
 
-                <!-- FILA 2 -->
                 <?php if (!empty($fila2)): ?>
                     <div class="fila-container">
                         <div class="flecha-navegacion flecha-izquierda" onclick="moverFila('fila2', -1)">
@@ -656,7 +669,7 @@ include 'includes/header.php';
 
                         <div class="fila-productos" id="fila2">
                             <?php foreach ($fila2 as $producto): ?>
-                               <a href="<?php echo BASE_URL; ?>view/cliente/producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="card-producto">
+                                <a href="<?php echo BASE_URL; ?>view/cliente/producto_detalle.php?id=<?php echo $producto['IdProducto']; ?>" class="card-producto">
                                     <div class="producto-imagen-container">
                                         <?php
                                         if (!empty($producto['ImagenPrincipal'])) {
@@ -712,7 +725,6 @@ include 'includes/header.php';
     </div>
 </section>
 
-<!-- SECCIÓN CATEGORÍAS PRINCIPALES -->
 <section class="seccion-categorias">
     <div class="contenedor-interno">
         <h2 class="titulo-seccion-blanco">Compra por Categoría</h2>
@@ -755,7 +767,20 @@ include 'includes/header.php';
 // Función para mover las filas de productos
 function moverFila(filaId, direccion) {
     const fila = document.getElementById(filaId);
-    const scrollAmount = 345; // Ancho de la tarjeta + gap
+    
+    // --- INICIO DE CAMBIO: Cálculo dinámico ---
+    // Obtener la primera tarjeta de la fila para medirla
+    const primeraCard = fila.querySelector('.card-producto');
+    if (!primeraCard) return; // No hacer nada si no hay tarjetas
+
+    // Obtener el ancho real de la tarjeta (incluye padding/border)
+    const cardWidth = primeraCard.offsetWidth;
+    // Obtener el 'gap' del estilo de la fila
+    const gridGap = parseFloat(window.getComputedStyle(fila).gap) || 25;
+    
+    // El scroll será el ancho de la tarjeta + el espacio entre ellas
+    const scrollAmount = cardWidth + gridGap;
+    // --- FIN DE CAMBIO ---
 
     const nuevaPosicion = fila.scrollLeft + (scrollAmount * direccion);
 
@@ -765,7 +790,7 @@ function moverFila(filaId, direccion) {
     });
 }
 
-// Función para agregar al carrito
+// Función para agregar al carrito (LÓGICA INTACTA)
 function agregarAlCarrito(idProducto, nombreProducto) {
     // Verificar si el usuario está logueado
     <?php if (!isset($_SESSION['cliente_id'])): ?>
@@ -793,7 +818,7 @@ function agregarAlCarrito(idProducto, nombreProducto) {
     });
 }
 
-// Función para actualizar el contador del carrito
+// Función para actualizar el contador del carrito (LÓGICA INTACTA)
 function actualizarContadorCarrito() {
     fetch('<?php echo BASE_URL; ?>controllers/CarritoController.php?action=contar')
         .then(response => response.json())
@@ -807,7 +832,7 @@ function actualizarContadorCarrito() {
         .catch(error => console.log('Error al actualizar contador:', error));
 }
 
-// Inicializar las filas
+// Inicializar las filas (LÓGICA INTACTA)
 document.addEventListener('DOMContentLoaded', function() {
     const filas = document.querySelectorAll('.fila-productos');
     filas.forEach(fila => {
